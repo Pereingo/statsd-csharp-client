@@ -116,5 +116,27 @@ namespace Tests
 
             udp.AssertWasCalled(x => x.Send("counter:1|c|@0.1" + Environment.NewLine + "timer:1|ms|@0.1"));
         }
+
+
+        [Test]
+        public void add_one_counter_and_one_gauge_sends_and_removes_commands()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator);
+            s.Add<Statsd.Counting>("counter", 1, 0.1);
+            s.Add<Statsd.Timing>("timer", 1, 0.1);
+            s.Send();
+
+            Assert.That(s.Commands.Count,Is.EqualTo(0));
+        }
+
+        [Test]
+        public void add_one_counter_and_send_one_gauge_sends_only_sends_the_last()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator);
+            s.Add<Statsd.Counting>("counter", 1, 0.1);
+            s.Send<Statsd.Timing>("timer", 1, 0.1);
+
+            udp.AssertWasCalled(x => x.Send("timer:1|ms|@0.1"));
+        }
     }
 }

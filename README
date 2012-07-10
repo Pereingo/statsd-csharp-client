@@ -1,0 +1,15 @@
+C# Statsd Client
+
+Statsd s = new Statsd(new StatsUDP(HOSTNAME,PORT));
+
+//All the standard Statsd message types
+
+s.Send<Statsd.Counting>("counter",1); //counter had one hit
+s.Send<Statsd.Timing>("timer",5); //timer had one hit of 5ms
+s.Send<Statsd.Gauge>("gauge",5); //gauge had one hit of value 5
+
+//All types have sample rate, which will be included in the message
+
+s.Send<Statsd.Counting>("counter",1,1/10); //counter had one hit, this will be sent 10% of times it is called
+
+//You can add combinations of messages which will be sent in one go;
