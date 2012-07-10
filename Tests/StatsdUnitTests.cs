@@ -99,7 +99,7 @@ namespace Tests
         {
             Statsd s = new Statsd(udp, _randomGenerator);
             s.Add<Statsd.Counting>("counter",1,0.1);
-            s.Add<Statsd.Timing>("timer", 1, 0.1);        
+            s.Add<Statsd.Timing>("timer", 1, 0.1);       
     
             Assert.That(s.Commands.Count,Is.EqualTo(2));
             Assert.That(s.Commands[0],Is.EqualTo("counter:1|c|@0.1"));
