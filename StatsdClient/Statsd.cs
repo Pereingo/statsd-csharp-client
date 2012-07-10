@@ -42,12 +42,18 @@ namespace StatsdClient
       
         public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
         {
-            Send(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate));
+            if (RandomGenerator.ShouldSend(sampleRate))
+            {
+                Send(GetCommand(name, value, _commandToUnit[typeof (TCommandType)], sampleRate));
+            };
         }
 
         public void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
         {
-            _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate));
+            if (RandomGenerator.ShouldSend(sampleRate))
+            {
+                _commands.Add(GetCommand(name, value, _commandToUnit[typeof (TCommandType)], sampleRate));
+            }
         }
    
         private void Send(string command)

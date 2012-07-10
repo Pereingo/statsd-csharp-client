@@ -8,8 +8,15 @@ s.Send<Statsd.Counting>("counter",1); //counter had one hit
 s.Send<Statsd.Timing>("timer",5); //timer had one hit of 5ms
 s.Send<Statsd.Gauge>("gauge",5); //gauge had one hit of value 5
 
-//All types have sample rate, which will be included in the message
+//All types have sample rate, which will be included in the message for Statsd own stats crunching
 
 s.Send<Statsd.Counting>("counter",1,1/10); //counter had one hit, this will be sent 10% of times it is called
 
 //You can add combinations of messages which will be sent in one go;
+
+s.Add<Statsd.Counting>("counter",1);
+s.Add<Statsd.Timer>("timer",5,1/10);
+s.Send(); //message will contain counter and will contain timer 10% of the times
+
+//All previous commands will be flushed after any Send
+//Any Adds will be ignored if using a Send directly
