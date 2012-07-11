@@ -20,3 +20,13 @@ s.Send(); //message will contain counter and will contain timer 10% of the times
 
 //All previous commands will be flushed after any Send
 //Any Adds will be ignored if using a Send directly
+
+//Optional naming conventions
+//environment named 'env'
+//application named 'app'
+//hostname named 'host'
+
+string name = Naming.withEnvironmentApplicationAndHostname("stat"); //== "env.app.stat.host"
+string anotherName  = Naming.withEnvironmentAndApplication("stat"); //== "env.app.stat"
+
+
