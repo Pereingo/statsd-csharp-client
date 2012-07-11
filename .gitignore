@@ -2,4 +2,5 @@
 /Tests/obj/*
 /StatsdClient/bin/*
 /StatsdClient/_Resharper.StatsdClient/*
+/StatsdClient/obj/*
 
