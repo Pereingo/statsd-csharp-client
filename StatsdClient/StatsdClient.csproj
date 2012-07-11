@@ -49,6 +49,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StatsdUDP.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Configuration\StatsdConfiguration.csproj">
+      <Project>{11FB3391-9FA5-433B-A0C4-352BD770378F}</Project>
+      <Name>StatsdConfiguration</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
