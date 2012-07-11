@@ -107,6 +107,19 @@ namespace Tests
         }
 
         [Test]
+        public void add_one_counter_and_one_gauge_with_no_sample_rate_shows_in_commands()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator);
+            s.Add<Statsd.Counting>("counter", 1);
+            s.Add<Statsd.Timing>("timer", 1);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(2));
+            Assert.That(s.Commands[0], Is.EqualTo("counter:1|c"));
+            Assert.That(s.Commands[1], Is.EqualTo("timer:1|ms"));
+        }
+
+
+        [Test]
         public void add_one_counter_and_one_gauge_sends_in_one_go()
         {
             Statsd s = new Statsd(udp, _randomGenerator);
