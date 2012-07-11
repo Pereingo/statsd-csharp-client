@@ -1,4 +1,0 @@
-C:\work\StatsdClient\StatsdClient\bin\Debug\StatsdClient.dll
-C:\work\StatsdClient\StatsdClient\bin\Debug\StatsdClient.pdb
-C:\work\StatsdClient\StatsdClient\obj\Debug\StatsdClient.dll
-C:\work\StatsdClient\StatsdClient\obj\Debug\StatsdClient.pdb
