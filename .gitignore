@@ -3,4 +3,6 @@
 /StatsdClient/bin/*
 /StatsdClient/_Resharper.StatsdClient/*
 /StatsdClient/obj/*
+/Configuration/obj/*
+/Configuration/bin/*
 
