@@ -9,8 +9,8 @@ namespace Tests
     [TestFixture]
     public class UDPSmokeTests
     {
-        private static readonly int ServerPort = Convert.ToInt32(ConfigurationManager.AppSettings["ServerPort"]);
-        private static readonly string ServerName = ConfigurationManager.AppSettings["ServerName"];
+        private static readonly int ServerPort = Convert.ToInt32(ConfigurationManager.AppSettings["StatsdServerPort"]);
+        private static readonly string ServerName = ConfigurationManager.AppSettings["StatsdServerName"];
 
         [Test]
         public void Sends_a_counter()
