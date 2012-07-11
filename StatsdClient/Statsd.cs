@@ -1,35 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 
 namespace StatsdClient
 {
     public class Statsd : IStatsd
     {
+        private IStopwatch Stopwatch { get; set; }
         private IStatsdUDP Udp { get; set; }
         private IRandomGenerator RandomGenerator { get; set; }
-        public List<string> Commands { get { return _commands; } private set { _commands = value; } }
+
+        public List<string> Commands
+        {
+            get { return _commands; }
+            private set { _commands = value; }
+        }
+
         private List<string> _commands = new List<string>();
 
-        public class Counting : ICommandType {}
-        public class Timing : ICommandType { }
-        public class Gauge : ICommandType { }
-
-        private readonly Dictionary<Type, string> _commandToUnit = new Dictionary<Type, string> { { typeof(Counting), "c" }, { typeof(Timing), "ms" }, { typeof(Gauge), "g" } };
-
-        public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator)
+        public class Counting : ICommandType
         {
+        }
+
+        public class Timing : ICommandType
+        {
+        }
+
+        public class Gauge : ICommandType
+        {
+        }
+
+        private readonly Dictionary<Type, string> _commandToUnit = new Dictionary<Type, string>
+                                                                       {
+                                                                           {typeof (Counting), "c"},
+                                                                           {typeof (Timing), "ms"},
+                                                                           {typeof (Gauge), "g"}
+                                                                       };
+
+        public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopwatch stopwatch)
+        {
+            Stopwatch = stopwatch;
             Udp = udp;
             RandomGenerator = randomGenerator;
-            
         }
 
         public Statsd(IStatsdUDP udp)
         {
             Udp = udp;
             RandomGenerator = new RandomGenerator();
+            Stopwatch = new Stopwatch();
         }
-      
+
         public void Send<TCommandType>(string name, int value) where TCommandType : ICommandType
         {
             Send<TCommandType>(name, value, 1);
@@ -37,15 +57,16 @@ namespace StatsdClient
 
         public void Add<TCommandType>(string name, int value) where TCommandType : ICommandType
         {
-            _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1));
+            _commands.Add(GetCommand(name, value, _commandToUnit[typeof (TCommandType)], 1));
         }
-      
+
         public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
                 Send(GetCommand(name, value, _commandToUnit[typeof (TCommandType)], sampleRate));
-            };
+            }
+            ;
         }
 
         public void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
@@ -55,7 +76,7 @@ namespace StatsdClient
                 _commands.Add(GetCommand(name, value, _commandToUnit[typeof (TCommandType)], sampleRate));
             }
         }
-   
+
         private void Send(string command)
         {
             Commands = new List<string>() {command};
@@ -80,5 +101,32 @@ namespace StatsdClient
             string format = sampleRate == 1 ? "{0}:{1}|{2}" : "{0}:{1}|{2}|@{3}";
             return string.Format(format, name, value, unit, sampleRate);
         }
+
+        public void Add(Action actionToTime, string statName, double sampleRate)
+        {
+            Stopwatch.Start();
+            actionToTime();
+            Stopwatch.Stop();
+            Add<Timing>(statName, Stopwatch.ElapsedMilliseconds(), sampleRate);
+        }
+
+        public void Add(Action actionToTime, string statName)
+        {
+            Add(actionToTime, statName, 1);
+        }
+
+        public void Send(Action actionToTime, string statName, double sampleRate)
+        {
+            Stopwatch.Start();
+            actionToTime();
+            Stopwatch.Stop();
+            Send<Timing>(statName, Stopwatch.ElapsedMilliseconds(), sampleRate);
+        }
+
+        public void Send(Action actionToTime, string statName)
+        {
+            Send(actionToTime, statName, 1);
+        }
+
     }
 }
