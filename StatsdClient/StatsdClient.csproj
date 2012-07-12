@@ -45,11 +45,13 @@
     <Compile Include="IStatsd.cs" />
     <Compile Include="IStatsdUDP.cs" />
     <Compile Include="IStopwatch.cs" />
+    <Compile Include="IStopWatchFactory.cs" />
     <Compile Include="RandomGenerator.cs" />
     <Compile Include="Statsd.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StatsdUDP.cs" />
     <Compile Include="Stopwatch.cs" />
+    <Compile Include="StopWatchFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Configuration\StatsdConfiguration.csproj">
