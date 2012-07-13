@@ -1,6 +1,6 @@
 C# Statsd Client
 
-Statsd s = new Statsd(new StatsUDP(HOSTNAME,PORT));
+Statsd s = new Statsd(new StatsdUDP(HOSTNAME,PORT));
 
 //All the standard Statsd message types
 
