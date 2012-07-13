@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>Statsd C# Client</title>
+    <authors>Goncalo Pereira</authors>
+    <owners>Goncalo Pereira</owners>
+    <projectUrl>https://github.com/goncalopereira/statsd-csharp-client</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Statsd client for C#</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright 2012</copyright>
+    <tags>stats statsd</tags>
+  </metadata>
+  <files>
+    <file src="..\Configuration\bin\Release\Configuration.dll" target="lib\net40" /> 
+  </files>
+</package>
