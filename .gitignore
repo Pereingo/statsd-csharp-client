@@ -1,8 +1,5 @@
-/Tests/bin/*
-/Tests/obj/*
-/StatsdClient/bin/*
-/StatsdClient/_Resharper.StatsdClient/*
-/StatsdClient/obj/*
-/Configuration/obj/*
-/Configuration/bin/*
-
+[bB]in
+[oO]bj
+*.user
+*.suo
+_ReSharper*
