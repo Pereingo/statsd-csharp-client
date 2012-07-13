@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace StatsdClient
 {
@@ -90,9 +91,9 @@ namespace StatsdClient
                 Udp.Send(string.Join(Environment.NewLine, Commands.ToArray()));
                 Commands = new List<string>();
             }
-            catch
+            catch(Exception e)
             {
-                //metrics fail is silent
+                Debug.WriteLine(e.Message);
             }
         }
 

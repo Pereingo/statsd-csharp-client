@@ -1,9 +1,10 @@
+using System;
 using System.Net.Sockets;
 using System.Text;
 
 namespace StatsdClient
 {
-    public class StatsdUDP : IStatsdUDP
+    public class StatsdUDP : IDisposable, IStatsdUDP
     {
         private string Name { get; set; }
         private int Port { get; set; }
@@ -20,6 +21,10 @@ namespace StatsdClient
         {
             byte[] encodedCommand = Encoding.ASCII.GetBytes(command);
             UDPClient.Send(encodedCommand, encodedCommand.Length);
+        }
+
+        public void Dispose()
+        {
             UDPClient.Close();
         }
     }
