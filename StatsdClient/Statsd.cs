@@ -18,23 +18,19 @@ namespace StatsdClient
 
         private List<string> _commands = new List<string>();
 
-        public class Counting : ICommandType
-        {
-        }
-
-        public class Timing : ICommandType
-        {
-        }
-
-        public class Gauge : ICommandType
-        {
-        }
+        public class Counting : ICommandType {}
+        public class Timing : ICommandType {}
+        public class Gauge : ICommandType {}
+        public class Histogram : ICommandType { }
+        public class Meter : ICommandType { }
 
         private readonly Dictionary<Type, string> _commandToUnit = new Dictionary<Type, string>
                                                                        {
                                                                            {typeof (Counting), "c"},
                                                                            {typeof (Timing), "ms"},
-                                                                           {typeof (Gauge), "g"}
+                                                                           {typeof (Gauge), "g"},
+                                                                           {typeof (Histogram), "h"},
+                                                                           {typeof (Meter), "m"}
                                                                        };
 
         public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory)
