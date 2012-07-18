@@ -61,7 +61,7 @@ namespace StatsdClient
         {
             _commands.Add(GetCommand(name, value, _commandToUnit[typeof (TCommandType)], 1));
         }
-
+    
         private void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
         {
             if (RandomGenerator.ShouldSend(sampleRate))
@@ -70,11 +70,11 @@ namespace StatsdClient
             };
         }
 
-        public void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
+        public void Add(string name, int value, double sampleRate) 
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                _commands.Add(GetCommand(name, value, _commandToUnit[typeof (TCommandType)], sampleRate));
+                _commands.Add(GetCommand(name, value, _commandToUnit[typeof (Counting)], sampleRate));
             }
         }
 
@@ -103,33 +103,24 @@ namespace StatsdClient
             return string.Format(format, name, value, unit, sampleRate);
         }
 
-        public void Add(Action actionToTime, string statName, double sampleRate)
-        {
-            IStopwatch stopwatch = StopwatchFactory.Get();
-            stopwatch.Start();
-            actionToTime();
-            stopwatch.Stop();
-            Add<Timing>(statName, stopwatch.ElapsedMilliseconds(), sampleRate);
-        }
-
         public void Add(Action actionToTime, string statName)
         {
-            Add(actionToTime, statName, 1);
-        }
-
-        public void Send(Action actionToTime, string statName, double sampleRate)
-        {
             IStopwatch stopwatch = StopwatchFactory.Get();
             stopwatch.Start();
             actionToTime();
             stopwatch.Stop();
-            Send<Timing>(statName, stopwatch.ElapsedMilliseconds(), sampleRate);
+            Add<Timing>(statName, stopwatch.ElapsedMilliseconds());
         }
 
         public void Send(Action actionToTime, string statName)
         {
-            Send(actionToTime, statName, 1);
+            IStopwatch stopwatch = StopwatchFactory.Get();
+            stopwatch.Start();
+            actionToTime();
+            stopwatch.Stop();
+            Send<Timing>(statName, stopwatch.ElapsedMilliseconds());
         }
+    
 
     }
 }

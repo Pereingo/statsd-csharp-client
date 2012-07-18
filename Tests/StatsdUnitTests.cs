@@ -27,7 +27,7 @@ namespace Tests
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Counting>("counter", 5);
-            udp.AssertWasCalled(x => x.Send("counter:5|c"));
+            udp.AssertWasCalled(x => x.Send("counter:5|c" + Environment.NewLine));
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace Tests
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Timing>("timer", 5);
-            udp.AssertWasCalled(x => x.Send("timer:5|ms"));
+            udp.AssertWasCalled(x => x.Send("timer:5|ms" + Environment.NewLine));
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace Tests
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send("counter", 5,0.1);
-            udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
+            udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1" + Environment.NewLine));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Tests
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Gauge>("gauge", 5);
-            udp.AssertWasCalled(x => x.Send("gauge:5|g"));
+            udp.AssertWasCalled(x => x.Send("gauge:5|g" + Environment.NewLine));
         }
 
         [Test]
@@ -85,12 +85,12 @@ namespace Tests
         public void add_one_counter_and_one_gauge_shows_in_commands()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add<Statsd.Counting>("counter",1,0.1);
-            s.Add<Statsd.Timing>("timer", 1, 0.1);       
+            s.Add("counter",1,0.1);
+            s.Add<Statsd.Timing>("timer", 1);       
     
             Assert.That(s.Commands.Count,Is.EqualTo(2));
             Assert.That(s.Commands[0],Is.EqualTo("counter:1|c|@0.1"));
-            Assert.That(s.Commands[1], Is.EqualTo("timer:1|ms|@0.1"));
+            Assert.That(s.Commands[1], Is.EqualTo("timer:1|ms"));
         }
 
         [Test]
@@ -110,11 +110,11 @@ namespace Tests
         public void add_one_counter_and_one_gauge_sends_in_one_go()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add<Statsd.Counting>("counter", 1, 0.1);
-            s.Add<Statsd.Timing>("timer", 1, 0.1);
+            s.Add("counter", 1, 0.1);
+            s.Add<Statsd.Timing>("timer", 1);
             s.Send();
 
-            udp.AssertWasCalled(x => x.Send("counter:1|c|@0.1" + Environment.NewLine + "timer:1|ms|@0.1"));
+            udp.AssertWasCalled(x => x.Send("counter:1|c|@0.1" + Environment.NewLine + "timer:1|ms" + Environment.NewLine));
         }
 
 
@@ -122,8 +122,8 @@ namespace Tests
         public void add_one_counter_and_one_gauge_sends_and_removes_commands()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add<Statsd.Counting>("counter", 1, 0.1);
-            s.Add<Statsd.Timing>("timer", 1, 0.1);
+            s.Add("counter", 1, 0.1);
+            s.Add<Statsd.Timing>("timer", 1);
             s.Send();
 
             Assert.That(s.Commands.Count,Is.EqualTo(0));
@@ -136,7 +136,7 @@ namespace Tests
             s.Add<Statsd.Counting>("counter", 1);
             s.Send<Statsd.Timing>("timer", 1);
 
-            udp.AssertWasCalled(x => x.Send("timer:1|ms"));
+            udp.AssertWasCalled(x => x.Send("timer:1|ms" + Environment.NewLine));
         }
 
         [Test]
@@ -150,41 +150,39 @@ namespace Tests
             _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add(() => testMethod(), statName, sampleRate);
+            s.Add(() => testMethod(), statName);
            
             Assert.That(s.Commands.Count,Is.EqualTo(1));
-            Assert.That(s.Commands[0], Is.EqualTo("name:500|ms|@0.1"));
+            Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
         }
 
         [Test]
         public void send_timer_with_lambda()
         {
             const string statName = "name";
-            const double sampleRate = 0.1;
             IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
             stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
             _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send(() => testMethod(), statName, sampleRate);
+            s.Send(() => testMethod(), statName);
 
-            udp.AssertWasCalled(x => x.Send("name:500|ms|@0.1"));       
+            udp.AssertWasCalled(x => x.Send("name:500|ms" + Environment.NewLine));       
         }
 
         [Test]
         public void set_return_value_with_send_timer_with_lambda()
         {
             const string statName = "name";
-            const double sampleRate = 0.1;
             IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
             stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
             _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             int returnValue = 0;
-            s.Send(() => returnValue = testMethod(), statName, sampleRate);
+            s.Send(() => returnValue = testMethod(), statName);
 
-            udp.AssertWasCalled(x => x.Send("name:500|ms|@0.1"));
+            udp.AssertWasCalled(x => x.Send("name:500|ms" + Environment.NewLine));
             Assert.That(returnValue,Is.EqualTo(5));
         }
 
