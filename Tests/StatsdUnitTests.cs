@@ -42,18 +42,9 @@ namespace Tests
         public void Increases_counter_with_value_of_X_and_sample_rate()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Counting>("counter", 5,0.1);
+            s.Send("counter", 5,0.1);
             udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
         }
-
-        [Test]
-        public void Add_timing_with_sample_rate()
-        {
-            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Timing>("timer", 5,0.1);
-            udp.AssertWasCalled(x => x.Send("timer:5|ms|@0.1"));
-        }
-
 
         [Test]
         public void Adds_gauge()
@@ -61,14 +52,6 @@ namespace Tests
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Gauge>("gauge", 5);
             udp.AssertWasCalled(x => x.Send("gauge:5|g"));
-        }
-
-        [Test]
-        public void Add_gauge_with_sample_rate()
-        {
-            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Gauge>("gauge", 5, 0.1);
-            udp.AssertWasCalled(x => x.Send("gauge:5|g|@0.1"));
         }
 
         [Test]
@@ -150,10 +133,10 @@ namespace Tests
         public void add_one_counter_and_send_one_gauge_sends_only_sends_the_last()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add<Statsd.Counting>("counter", 1, 0.1);
-            s.Send<Statsd.Timing>("timer", 1, 0.1);
+            s.Add<Statsd.Counting>("counter", 1);
+            s.Send<Statsd.Timing>("timer", 1);
 
-            udp.AssertWasCalled(x => x.Send("timer:1|ms|@0.1"));
+            udp.AssertWasCalled(x => x.Send("timer:1|ms"));
         }
 
         [Test]
