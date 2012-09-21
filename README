@@ -1,37 +1,36 @@
 C# Statsd Client
 
-Statsd s = new Statsd(new StatsdUDP(HOSTNAME,PORT));
+Statsd s = new Statsd(new StatsdUDP(HOSTNAME, PORT));
 
-//All the standard Statsd message types
+//All the standard Statsd message types:
 
-s.Send<Statsd.Counting>("counter",1); //counter had one hit
-s.Send<Statsd.Timing>("timer",5); //timer had one hit of 5ms
-s.Send<Statsd.Gauge>("gauge",5); //gauge had one hit of value 5
+s.Send<Statsd.Counting>("stat-name", 1); //counter had one hit
+s.Send<Statsd.Timing>("stat-name", 5); //timer had one hit of 5ms
+s.Send<Statsd.Gauge>("stat-name", 5); //gauge had one hit of value 5
 
-//All types have sample rate, which will be included in the message for Statsd own stats crunching
+//All types have sample rate, which will be included in the message for Statsd's own stats crunching:
 
-s.Send<Statsd.Counting>("counter",1,1/10); //counter had one hit, this will be sent 10% of times it is called
+s.Send<Statsd.Counting>("stat-name", 1, 1/10); //counter had one hit, this will be sent 10% of times it is called
 
-//You can add combinations of messages which will be sent in one go;
+//You can add combinations of messages which will be sent in one go:
 
-s.Add<Statsd.Counting>("counter",1);
-s.Add<Statsd.Timer>("timer",5,1/10);
-s.Send(); //message will contain counter and will contain timer 10% of the times
+s.Add<Statsd.Counting>("stat-name", 1);
+s.Add<Statsd.Timer>("stat-name", 5, 1/10);
+s.Send(); //message will contain counter and will contain timer 10% of the time
 
 //All previous commands will be flushed after any Send
 //Any Adds will be ignored if using a Send directly
 
-//Optional naming conventions
-//environment named 'env'
-//application named 'app'
-//hostname named 'host'
+//Optional naming conventions:
+// environment named 'env'
+// application named 'app'
+// hostname named 'host'
 
 string name = Naming.withEnvironmentApplicationAndHostname("stat"); //== "env.app.stat.host"
 string anotherName  = Naming.withEnvironmentAndApplication("stat"); //== "env.app.stat"
 
-//You can use Actions to time responses
+//You can also use Actions to easily time responses:
 
-s.Send(()=>DoMagic(),"timer",1/10); //time the response time for DoMagic
-s.Send(()=>DoMagic(),"timer"); //same with no sample rate
-s.Add(()=>DoMagic(),"timer"); //you can just add it too..
-
+s.Send(() => DoMagic(), "stat-name", 1/10); //log the response time for DoMagic call as a timer
+s.Send(() => DoMagic(), "stat-name"); //same with no sample rate
+s.Add(() => DoMagic(), "stat-name"); //you can just add it too
