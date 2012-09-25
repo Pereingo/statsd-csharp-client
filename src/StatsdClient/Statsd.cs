@@ -61,8 +61,8 @@ namespace StatsdClient
         {
             _commands.Add(GetCommand(name, value, _commandToUnit[typeof (TCommandType)], 1));
         }
-    
-        private void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
+
+	    public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
@@ -78,7 +78,7 @@ namespace StatsdClient
             }
         }
 
-        private void Send(string command)
+	    public void Send(string command)
         {
             Commands = new List<string>() {command};
             Send();

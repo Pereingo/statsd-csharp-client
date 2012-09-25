@@ -20,9 +20,9 @@ namespace Tests
                 var client = new StatsdUDP(ServerName, ServerPort);
                 client.Send("udp_integration_test:1|c");
             }
-            catch(SocketException)
+            catch(SocketException ex)
             {
-                Assert.Fail("Socket Exception, have you set up your Statsd name and port?");
+                Assert.Fail("Socket Exception, have you set up your Statsd name and port? Error: {0}", ex.Message);
             }
         }
     }
