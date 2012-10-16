@@ -62,10 +62,7 @@ namespace StatsdClient
 			}
 			else
 			{
-				using(StartTimer(statName))
-				{
-					action();
-				}
+				_statsD.Add(action, BuildNamespacedStatName(statName));
 			}
 		}
 
@@ -76,7 +73,7 @@ namespace StatsdClient
 				return func();
 			}
 
-			using (StartTimer(statName))
+			using (StartTimer(BuildNamespacedStatName(statName)))
 			{
 				return func();
 			}
