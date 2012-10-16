@@ -81,6 +81,11 @@ namespace StatsdClient
 
 		private static string BuildNamespacedStatName(string statName)
 		{
+			if (string.IsNullOrEmpty(_prefix))
+			{
+				return statName;
+			}
+
 			return _prefix + "." + statName;
 		}
 	}
