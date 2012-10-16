@@ -49,14 +49,42 @@ namespace StatsdClient
 			_statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value);
 		}
 
-		public static string BuildNamespacedStatName(string statName)
-		{
-			return _prefix + "." + statName;
-		}
-
 		public static IDisposable StartTimer(string name)
 		{
 			return new MetricsTimer(name);
+		}
+
+		public static void Time(Action action, string statName) 
+		{
+			if (_statsD == null)
+			{
+				action();
+			}
+			else
+			{
+				using(StartTimer(statName))
+				{
+					action();
+				}
+			}
+		}
+
+		public static T Time<T>(Func<T> func, string statName)
+		{
+			if (_statsD == null)
+			{
+				return func();
+			}
+
+			using (StartTimer(statName))
+			{
+				return func();
+			}
+		}
+
+		private static string BuildNamespacedStatName(string statName)
+		{
+			return _prefix + "." + statName;
 		}
 	}
 }
