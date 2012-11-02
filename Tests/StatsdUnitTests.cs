@@ -186,6 +186,27 @@ namespace Tests
             Assert.That(returnValue,Is.EqualTo(5));
         }
 
+	    [Test]
+	    public void set_prefix_on_stats_name_when_calling_send()
+	    {
+			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch, "a.prefix.");
+			s.Send<Statsd.Counting>("counter", 5);
+			s.Send<Statsd.Counting>("counter", 5);
+
+			udp.AssertWasCalled(x => x.Send("a.prefix.counter:5|c" + Environment.NewLine),x => x.Repeat.Twice());
+	    }
+
+	    [Test]
+	    public void add_counter_sets_prefix_on_name()
+	    {
+			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch, "another.prefix.");
+
+			s.Add("counter", 1, 0.1);
+			s.Add<Statsd.Timing>("timer", 1);
+			s.Send();
+
+			udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1" + Environment.NewLine + "another.prefix.timer:1|ms" + Environment.NewLine));
+	    }
         private int testMethod()
         {
             return 5;
