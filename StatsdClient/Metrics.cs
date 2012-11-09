@@ -14,9 +14,10 @@ namespace StatsdClient
 				throw new ArgumentNullException("config");
 			}
 
-			if (! string.IsNullOrEmpty(config.StatsdServerName))
+			_prefix = config.Prefix;
+
+			if (!string.IsNullOrEmpty(config.StatsdServerName))
 			{
-				_prefix = config.Prefix;
 				_statsD = new Statsd(new StatsdUDP(config.StatsdServerName, 8125));
 			}
 		}
