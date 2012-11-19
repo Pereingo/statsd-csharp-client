@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using NUnit.Framework;
 using Rhino.Mocks;
 using StatsdClient;
