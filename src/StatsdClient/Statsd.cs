@@ -88,7 +88,7 @@ namespace StatsdClient
         {
             try
             {
-                Udp.Send(string.Join(Environment.NewLine, Commands.ToArray()) + Environment.NewLine);
+                Udp.Send(string.Join(Environment.NewLine, Commands.ToArray()));
                 Commands = new List<string>();
             }
             catch(Exception e)

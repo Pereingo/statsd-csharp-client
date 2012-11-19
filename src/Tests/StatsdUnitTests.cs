@@ -27,7 +27,7 @@ namespace Tests
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Counting>("counter", 5);
-            udp.AssertWasCalled(x => x.Send("counter:5|c" + Environment.NewLine));
+            udp.AssertWasCalled(x => x.Send("counter:5|c"));
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace Tests
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Timing>("timer", 5);
-            udp.AssertWasCalled(x => x.Send("timer:5|ms" + Environment.NewLine));
+            udp.AssertWasCalled(x => x.Send("timer:5|ms"));
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace Tests
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send("counter", 5,0.1);
-            udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1" + Environment.NewLine));
+            udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Tests
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Gauge>("gauge", 5);
-            udp.AssertWasCalled(x => x.Send("gauge:5|g" + Environment.NewLine));
+            udp.AssertWasCalled(x => x.Send("gauge:5|g"));
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Tests
             s.Add<Statsd.Timing>("timer", 1);
             s.Send();
 
-            udp.AssertWasCalled(x => x.Send("counter:1|c|@0.1" + Environment.NewLine + "timer:1|ms" + Environment.NewLine));
+            udp.AssertWasCalled(x => x.Send("counter:1|c|@0.1" + Environment.NewLine + "timer:1|ms"));
         }
 
 
@@ -136,7 +136,7 @@ namespace Tests
             s.Add<Statsd.Counting>("counter", 1);
             s.Send<Statsd.Timing>("timer", 1);
 
-            udp.AssertWasCalled(x => x.Send("timer:1|ms" + Environment.NewLine));
+            udp.AssertWasCalled(x => x.Send("timer:1|ms"));
         }
 
         [Test]
@@ -167,7 +167,7 @@ namespace Tests
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send(() => testMethod(), statName);
 
-            udp.AssertWasCalled(x => x.Send("name:500|ms" + Environment.NewLine));       
+            udp.AssertWasCalled(x => x.Send("name:500|ms"));       
         }
 
         [Test]
@@ -182,7 +182,7 @@ namespace Tests
             int returnValue = 0;
             s.Send(() => returnValue = testMethod(), statName);
 
-            udp.AssertWasCalled(x => x.Send("name:500|ms" + Environment.NewLine));
+            udp.AssertWasCalled(x => x.Send("name:500|ms"));
             Assert.That(returnValue,Is.EqualTo(5));
         }
 
