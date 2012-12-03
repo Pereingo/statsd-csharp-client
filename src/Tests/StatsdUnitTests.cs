@@ -44,9 +44,6 @@ namespace Tests
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send("counter", 5,0.1);
             udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
-
-            s.Send("counter", 5, 0.1);
-            udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1" + Environment.NewLine));
         }
 
         [Test]
@@ -171,9 +168,6 @@ namespace Tests
             s.Send(() => testMethod(), statName);
 
             udp.AssertWasCalled(x => x.Send("name:500|ms"));       
-
-            udp.AssertWasCalled(x => x.Send("name:500|ms" + Environment.NewLine));
-
         }
 
         [Test]
@@ -188,13 +182,8 @@ namespace Tests
             int returnValue = 0;
             s.Send(() => returnValue = testMethod(), statName);
 
-
             udp.AssertWasCalled(x => x.Send("name:500|ms"));
             Assert.That(returnValue,Is.EqualTo(5));
-
-            udp.AssertWasCalled(x => x.Send("name:500|ms" + Environment.NewLine));
-            Assert.That(returnValue, Is.EqualTo(5));
-
         }
 
         [Test]
@@ -204,7 +193,7 @@ namespace Tests
             s.Send<Statsd.Counting>("counter", 5);
             s.Send<Statsd.Counting>("counter", 5);
 
-            udp.AssertWasCalled(x => x.Send("a.prefix.counter:5|c" + Environment.NewLine), x => x.Repeat.Twice());
+            udp.AssertWasCalled(x => x.Send("a.prefix.counter:5|c"), x => x.Repeat.Twice());
         }
 
         [Test]
@@ -216,7 +205,7 @@ namespace Tests
             s.Add<Statsd.Timing>("timer", 1);
             s.Send();
 
-            udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1" + Environment.NewLine + "another.prefix.timer:1|ms" + Environment.NewLine));
+            udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1" + Environment.NewLine + "another.prefix.timer:1|ms"));
         }
         private int testMethod()
         {
