@@ -21,7 +21,7 @@ namespace Tests
             _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(true);
             _stopwatch = MockRepository.GenerateMock<IStopWatchFactory>();
         }
-   
+
         [Test]
         public void Increases_counter_with_value_of_X()
         {
@@ -44,6 +44,9 @@ namespace Tests
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send("counter", 5,0.1);
             udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
+
+            s.Send("counter", 5, 0.1);
+            udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1" + Environment.NewLine));
         }
 
         [Test]
@@ -75,7 +78,7 @@ namespace Tests
         [Test]
         public void gauge_exception_fails_silently()
         {
-            udp.Stub(x=>x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+            udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
             Statsd s = new Statsd(udp);
             s.Send<Statsd.Gauge>("gauge", 5);
             Assert.Pass();
@@ -85,11 +88,11 @@ namespace Tests
         public void add_one_counter_and_one_gauge_shows_in_commands()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add("counter",1,0.1);
-            s.Add<Statsd.Timing>("timer", 1);       
-    
-            Assert.That(s.Commands.Count,Is.EqualTo(2));
-            Assert.That(s.Commands[0],Is.EqualTo("counter:1|c|@0.1"));
+            s.Add("counter", 1, 0.1);
+            s.Add<Statsd.Timing>("timer", 1);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(2));
+            Assert.That(s.Commands[0], Is.EqualTo("counter:1|c|@0.1"));
             Assert.That(s.Commands[1], Is.EqualTo("timer:1|ms"));
         }
 
@@ -126,7 +129,7 @@ namespace Tests
             s.Add<Statsd.Timing>("timer", 1);
             s.Send();
 
-            Assert.That(s.Commands.Count,Is.EqualTo(0));
+            Assert.That(s.Commands.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -151,8 +154,8 @@ namespace Tests
 
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Add(() => testMethod(), statName);
-           
-            Assert.That(s.Commands.Count,Is.EqualTo(1));
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
         }
 
@@ -168,6 +171,9 @@ namespace Tests
             s.Send(() => testMethod(), statName);
 
             udp.AssertWasCalled(x => x.Send("name:500|ms"));       
+
+            udp.AssertWasCalled(x => x.Send("name:500|ms" + Environment.NewLine));
+
         }
 
         [Test]
@@ -182,10 +188,36 @@ namespace Tests
             int returnValue = 0;
             s.Send(() => returnValue = testMethod(), statName);
 
+
             udp.AssertWasCalled(x => x.Send("name:500|ms"));
             Assert.That(returnValue,Is.EqualTo(5));
+
+            udp.AssertWasCalled(x => x.Send("name:500|ms" + Environment.NewLine));
+            Assert.That(returnValue, Is.EqualTo(5));
+
         }
 
+        [Test]
+        public void set_prefix_on_stats_name_when_calling_send()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch, "a.prefix.");
+            s.Send<Statsd.Counting>("counter", 5);
+            s.Send<Statsd.Counting>("counter", 5);
+
+            udp.AssertWasCalled(x => x.Send("a.prefix.counter:5|c" + Environment.NewLine), x => x.Repeat.Twice());
+        }
+
+        [Test]
+        public void add_counter_sets_prefix_on_name()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch, "another.prefix.");
+
+            s.Add("counter", 1, 0.1);
+            s.Add<Statsd.Timing>("timer", 1);
+            s.Send();
+
+            udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1" + Environment.NewLine + "another.prefix.timer:1|ms" + Environment.NewLine));
+        }
         private int testMethod()
         {
             return 5;

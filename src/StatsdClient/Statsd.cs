@@ -10,6 +10,8 @@ namespace StatsdClient
         private IStatsdUDP Udp { get; set; }
         private IRandomGenerator RandomGenerator { get; set; }
 
+        private readonly string _prefix;
+
         public List<string> Commands
         {
             get { return _commands; }
@@ -18,9 +20,9 @@ namespace StatsdClient
 
         private List<string> _commands = new List<string>();
 
-        public class Counting : ICommandType {}
-        public class Timing : ICommandType {}
-        public class Gauge : ICommandType {}
+        public class Counting : ICommandType { }
+        public class Timing : ICommandType { }
+        public class Gauge : ICommandType { }
         public class Histogram : ICommandType { }
         public class Meter : ICommandType { }
 
@@ -33,19 +35,23 @@ namespace StatsdClient
                                                                            {typeof (Meter), "m"}
                                                                        };
 
-        public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory)
+        public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory, string prefix)
         {
             StopwatchFactory = stopwatchFactory;
             Udp = udp;
             RandomGenerator = randomGenerator;
+            _prefix = prefix;
         }
 
+        public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory)
+            : this(udp, randomGenerator, stopwatchFactory, string.Empty) { }
+
+        public Statsd(IStatsdUDP udp, string prefix)
+            : this(udp, new RandomGenerator(), new StopWatchFactory(), prefix) { }
+
         public Statsd(IStatsdUDP udp)
-        {
-            Udp = udp;
-            RandomGenerator = new RandomGenerator();
-            StopwatchFactory = new StopWatchFactory();
-        }
+            : this(udp, "") { }
+
 
         public void Send<TCommandType>(string name, int value) where TCommandType : ICommandType
         {
@@ -59,28 +65,28 @@ namespace StatsdClient
 
         public void Add<TCommandType>(string name, int value) where TCommandType : ICommandType
         {
-            _commands.Add(GetCommand(name, value, _commandToUnit[typeof (TCommandType)], 1));
+            _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1));
         }
 
-	    public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
+        public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                Send(GetCommand(name, value, _commandToUnit[typeof (TCommandType)], sampleRate));
+                Send(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate));
             };
         }
 
-        public void Add(string name, int value, double sampleRate) 
+        public void Add(string name, int value, double sampleRate)
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                _commands.Add(GetCommand(name, value, _commandToUnit[typeof (Counting)], sampleRate));
+                _commands.Add(GetCommand(name, value, _commandToUnit[typeof(Counting)], sampleRate));
             }
         }
 
-	    public void Send(string command)
+        public void Send(string command)
         {
-            Commands = new List<string>() {command};
+            Commands = new List<string>() { command };
             Send();
         }
 
@@ -89,6 +95,8 @@ namespace StatsdClient
             try
             {
                 Udp.Send(string.Join(Environment.NewLine, Commands.ToArray()));
+                var command = string.Join(Environment.NewLine, Commands.ToArray()) + Environment.NewLine;
+                Udp.Send(command);
                 Commands = new List<string>();
             }
             catch(Exception e)
@@ -97,10 +105,10 @@ namespace StatsdClient
             }
         }
 
-        private static string GetCommand(string name, int value, string unit, double sampleRate)
+        private string GetCommand(string name, int value, string unit, double sampleRate)
         {
             string format = sampleRate == 1 ? "{0}:{1}|{2}" : "{0}:{1}|{2}|@{3}";
-            return string.Format(format, name, value, unit, sampleRate);
+            return string.Format(format, _prefix + name, value, unit, sampleRate);
         }
 
         public void Add(Action actionToTime, string statName)
