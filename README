@@ -1,5 +1,41 @@
 C# Statsd Client
 
+Installation: 
+The nuget package is  called "StatsdClient" http://nuget.org/packages/StatsdClient
+Or get the source from here and build it.
+
+Usage:
+
+Via the static Metrics class:
+
+At start of your app, configure the metrics class like this:
+
+	var metricsConfig = new MetricsConfig
+		{
+			StatsdServerName = "host.name",
+			Prefix = "myApp"
+		};
+
+		StatsdClient.Metrics.Configure(metricsConfig);
+		
+Where "host.name" is the name of the statsd server and "myApp" is an optional preficx that is prepended on all stats. How you set it up is up to you, but we read the server name and other settings from web.config and and generate a prefix out of the enviroment (e.g. "Local", "Uat" or "Live"), plus the app name and machine name, seperated with dots. 
+
+Use it like this afterwards:
+
+  Metrics.Counter("stat-name");
+  Metrics.Guage("guage-name", guageValue);
+  
+  And
+    using (Metrics.StartTimer("stat-Name"))
+	{
+		DoSomething();
+	}
+
+And
+  Metrics.Timer("stat-name", (int)stopwatch.ElapsedMilliseconds);
+
+Via the Statsd class:
+
 Statsd s = new Statsd(new StatsdUDP(HOSTNAME, PORT));
 
 //All the standard Statsd message types:
