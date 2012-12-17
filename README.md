@@ -28,6 +28,7 @@ Where "host.name" is the name of the statsd server and "myApp" is an optional pr
 Use it like this afterwards:
 
     Metrics.Counter("stat-name");
+    Metrics.Timer("stat-name", (int)stopwatch.ElapsedMilliseconds);
     Metrics.Gauge("gauge-name", gaugeValue);
   
  And timing around blocks of code:
@@ -36,10 +37,6 @@ Use it like this afterwards:
     {
       DoMagic();
     }
-
-And adding a timer using a stat name and time value calculated by your code:
-
-    Metrics.Timer("stat-name", (int)stopwatch.ElapsedMilliseconds);
 	
 And timing an action
 
