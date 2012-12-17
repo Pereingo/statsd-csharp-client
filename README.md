@@ -49,7 +49,7 @@ or replace a method that returns a value
 
     var result = GetResult();
 
-with a timed `Action&lt;T&gt;` that returns the same value
+with a timed `Action<T>` that returns the same value
 
     var result = Metrics.Timer(() => GetResult(), "stat-name"); 
 
