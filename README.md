@@ -23,7 +23,7 @@ Where "host.name" is the name of the statsd server and "myApp" is an optional pr
 Use it like this afterwards:
 
     Metrics.Counter("stat-name");
-    Metrics.Gauge("guage-name", guageValue);
+    Metrics.Gauge("gauge-name", gaugeValue);
   
  And
     using (Metrics.StartTimer("stat-name"))
