@@ -1,13 +1,17 @@
 C# Statsd Client
+================
 
-Installation: 
+Installation
+------------
 
-The nuget package is  called "StatsdClient" http://nuget.org/packages/StatsdClient
-Or get the source from here and build it.
+You can get the "StatsdClient" package on nuget: http://nuget.org/packages/StatsdClient
+Or get the source from here on giuthub and build it.
 
-Usage:
+Usage
+------
 
 Via the static Metrics class:
+-----------------------------
 
 At start of your app, configure the metrics class like this:
 
@@ -38,17 +42,19 @@ And adding a timer using a sta name and time value from your code:
     Metrics.Timer("stat-name", (int)stopwatch.ElapsedMilliseconds);
 	
 And timing an action
+
     Metrics.Timer(() => DoMagic(), "stat-name");
 
 or replace a method that returns a value
 
     var result = GetResult();
 
-with an action&lt;T&gt;
+with an Action&lt;T&gt;
 
     var result = Metrics.Timer(() => GetResult(), "stat-name"); 
 
 Via the Statsd class:
+---------------------
 
     Statsd s = new Statsd(new StatsdUDP(HOSTNAME, PORT));
 
