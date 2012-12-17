@@ -5,7 +5,7 @@ Installation
 ------------
 
 You can [get the "StatsdClient" package on nuget](http://nuget.org/packages/StatsdClient).
-Or you can get the source from here on giuthub and build it.
+Or you can get the source from here on Github and build it.
 
 Usage
 ------
@@ -23,7 +23,7 @@ At start of your app, configure the `Metrics` class like this:
     
     StatsdClient.Metrics.Configure(metricsConfig);
 		
-Where "host.name" is the name of the statsd server and "myApp" is an optional prefix that is prepended on all stats. How you set it up is up to you, but we read the server name and other settings from web.config and and generate a prefix out of the enviroment (e.g. "Local", "Uat" or "Live"), plus the app name and machine name, seperated with dots. 
+Where "host.name" is the name of the statsd server and "myApp" is an optional prefix that is prepended on all stats. How you set it up is up to you, but we read the server name and other settings from web.config and and generate a prefix out of the environment (e.g. "Local", "Uat" or "Live"), plus the app name and machine name, separated with dots. 
 
 Use it like this afterwards:
 
