@@ -1,6 +1,7 @@
 C# Statsd Client
 
 Installation: 
+
 The nuget package is  called "StatsdClient" http://nuget.org/packages/StatsdClient
 Or get the source from here and build it.
 
@@ -25,21 +26,26 @@ Use it like this afterwards:
     Metrics.Counter("stat-name");
     Metrics.Gauge("gauge-name", gaugeValue);
   
- And
+ And timing blocks of code:
+ 
     using (Metrics.StartTimer("stat-name"))
     {
       DoMagic();
     }
 
-And
+And adding a timer using a sta name and time value from your code:
+
     Metrics.Timer("stat-name", (int)stopwatch.ElapsedMilliseconds);
 	
-And
+And timing an action
     Metrics.Timer(() => DoMagic(), "stat-name");
 
-or replace
+or replace a method that returns a value
+
     var result = GetResult();
-with
+
+with an action&lt;T&gt;
+
     var result = Metrics.Timer(() => GetResult(), "stat-name"); 
 
 Via the Statsd class:
