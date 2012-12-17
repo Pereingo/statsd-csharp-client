@@ -4,8 +4,8 @@ C# Statsd Client
 Installation
 ------------
 
-You can get the "StatsdClient" package on nuget: http://nuget.org/packages/StatsdClient
-Or get the source from here on giuthub and build it.
+You can [get the "StatsdClient" package on nuget](http://nuget.org/packages/StatsdClient).
+Or you can get the source from here on giuthub and build it.
 
 Usage
 ------
@@ -13,7 +13,7 @@ Usage
 Via the static Metrics class:
 -----------------------------
 
-At start of your app, configure the metrics class like this:
+At start of your app, configure the `Metrics` class like this:
 
     var metricsConfig = new MetricsConfig
     {
@@ -30,14 +30,14 @@ Use it like this afterwards:
     Metrics.Counter("stat-name");
     Metrics.Gauge("gauge-name", gaugeValue);
   
- And timing blocks of code:
+ And timing around blocks of code:
  
     using (Metrics.StartTimer("stat-name"))
     {
       DoMagic();
     }
 
-And adding a timer using a sta name and time value from your code:
+And adding a timer using a stat name and time value calculated by your code:
 
     Metrics.Timer("stat-name", (int)stopwatch.ElapsedMilliseconds);
 	
@@ -49,7 +49,7 @@ or replace a method that returns a value
 
     var result = GetResult();
 
-with an Action&lt;T&gt;
+with a timed `Action&lt;T&gt;` that returns the same value
 
     var result = Metrics.Timer(() => GetResult(), "stat-name"); 
 
