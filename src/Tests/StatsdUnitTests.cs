@@ -143,9 +143,8 @@ namespace Tests
         public void add_timer_with_lamba()
         {
             const string statName = "name";
-            const double sampleRate = 0.1;
 
-            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+	        IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
             stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
             _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
@@ -155,6 +154,23 @@ namespace Tests
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
         }
+
+		[Test]
+		public void add_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
+		{
+			const string statName = "name";
+
+			var stopwatch = MockRepository.GenerateMock<IStopwatch>();
+			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+
+			var s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+			Assert.Throws<InvalidOperationException>(() => s.Add(() => { throw new InvalidOperationException(); }, statName));
+
+			Assert.That(s.Commands.Count, Is.EqualTo(1));
+			Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
+		}
 
         [Test]
         public void send_timer_with_lambda()
@@ -169,6 +185,20 @@ namespace Tests
 
             udp.AssertWasCalled(x => x.Send("name:500|ms"));       
         }
+
+		[Test]
+		public void send_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
+		{
+			const string statName = "name";
+			var stopwatch = MockRepository.GenerateMock<IStopwatch>();
+			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+
+			var s = new Statsd(udp, _randomGenerator, _stopwatch);
+			Assert.Throws<InvalidOperationException>(() => s.Send(() => { throw new InvalidOperationException(); }, statName));
+
+			udp.AssertWasCalled(x => x.Send("name:500|ms"));
+		}
 
         [Test]
         public void set_return_value_with_send_timer_with_lambda()
@@ -207,6 +237,7 @@ namespace Tests
 
             udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1" + Environment.NewLine + "another.prefix.timer:1|ms"));
         }
+
         private int testMethod()
         {
             return 5;
