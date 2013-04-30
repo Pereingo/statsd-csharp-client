@@ -53,34 +53,39 @@ with a timed `Action<T>` that returns the same value
 Via the Statsd class:
 ---------------------
 
-    Statsd s = new Statsd(new StatsdUDP(HOSTNAME, PORT));
+	// NB: StatsdUDP is IDisposable and if not disposed, will leak resources
+	StatsdUDP udp = new StatsdUDP(HOSTNAME, PORT);
+	using (udp)
+	{
+		Statsd s = new Statsd(udp);
 
-    //All the standard Statsd message types:
-    s.Send<Statsd.Counting>("stat-name", 1); //counter had one hit
-    s.Send<Statsd.Timing>("stat-name", 5); //timer had one hit of 5ms
-    s.Send<Statsd.Gauge>("stat-name", 5); //gauge had one hit of value 5
-    
-    //All types have sample rate, which will be included in the message for Statsd's own stats crunching:
-    s.Send<Statsd.Counting>("stat-name", 1, 1/10); //counter had one hit, this will be sent 10% of times it is called
+		//All the standard Statsd message types:
+		s.Send<Statsd.Counting>("stat-name", 1); //counter had one hit
+		s.Send<Statsd.Timing>("stat-name", 5); //timer had one hit of 5ms
+		s.Send<Statsd.Gauge>("stat-name", 5); //gauge had one hit of value 5
+		
+		//All types have sample rate, which will be included in the message for Statsd's own stats crunching:
+		s.Send<Statsd.Counting>("stat-name", 1, 1/10); //counter had one hit, this will be sent 10% of times it is called
 
-    //You can add combinations of messages which will be sent in one go:
-    s.Add<Statsd.Counting>("stat-name", 1);
-    s.Add<Statsd.Timer>("stat-name", 5, 1/10);
-    s.Send(); //message will contain counter and will contain timer 10% of the time
-    
-    //All previous commands will be flushed after any Send
-    //Any Adds will be ignored if using a Send directly
-    
-    //Optional naming conventions:
-    // environment named 'env'
-    // application named 'app'
-    // hostname named 'host'
+		//You can add combinations of messages which will be sent in one go:
+		s.Add<Statsd.Counting>("stat-name", 1);
+		s.Add<Statsd.Timer>("stat-name", 5, 1/10);
+		s.Send(); //message will contain counter and will contain timer 10% of the time
+		
+		//All previous commands will be flushed after any Send
+		//Any Adds will be ignored if using a Send directly
+		
+		//Optional naming conventions:
+		// environment named 'env'
+		// application named 'app'
+		// hostname named 'host'
 
-    string name = Naming.withEnvironmentApplicationAndHostname("stat"); //== "env.app.stat.host"
-    string anotherName  = Naming.withEnvironmentAndApplication("stat"); //== "env.app.stat"
+		string name = Naming.withEnvironmentApplicationAndHostname("stat"); //== "env.app.stat.host"
+		string anotherName  = Naming.withEnvironmentAndApplication("stat"); //== "env.app.stat"
 
-    //You can also use Actions to easily time responses:
+		//You can also use Actions to easily time responses:
 
-    s.Send(() => DoMagic(), "stat-name", 1/10); //log the response time for DoMagic call as a timer
-    s.Send(() => DoMagic(), "stat-name"); //same with no sample rate
-    s.Add(() => DoMagic(), "stat-name"); //you can just add it too
+		s.Send(() => DoMagic(), "stat-name", 1/10); //log the response time for DoMagic call as a timer
+		s.Send(() => DoMagic(), "stat-name"); //same with no sample rate
+		s.Add(() => DoMagic(), "stat-name"); //you can just add it too
+     }
