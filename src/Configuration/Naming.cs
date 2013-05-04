@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 
-namespace Configuration
+namespace StatsdClient.Configuration
 {
     public static class Naming
     {

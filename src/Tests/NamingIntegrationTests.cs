@@ -1,4 +1,4 @@
-﻿using Configuration;
+﻿using StatsdClient.Configuration;
 using NUnit.Framework;
 
 namespace Tests
