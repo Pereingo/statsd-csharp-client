@@ -8,8 +8,8 @@
     <ProjectGuid>{11FB3391-9FA5-433B-A0C4-352BD770378F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Configuration</RootNamespace>
-    <AssemblyName>Configuration</AssemblyName>
+    <RootNamespace>StatsdClient.Configuration</RootNamespace>
+    <AssemblyName>StatsdClient.Configuration</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
