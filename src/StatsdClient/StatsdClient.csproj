@@ -53,9 +53,9 @@
     <Compile Include="StopWatchFactory.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Configuration\StatsdConfiguration.csproj">
+    <ProjectReference Include="..\Configuration\StatsdClient.Configuration.csproj">
       <Project>{11FB3391-9FA5-433B-A0C4-352BD770378F}</Project>
-      <Name>StatsdConfiguration</Name>
+      <Name>StatsdClient.Configuration</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

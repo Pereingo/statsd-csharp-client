@@ -14,6 +14,6 @@
     <tags>stats statsd</tags>
   </metadata>
   <files>
-    <file src="..\Configuration\bin\Release\Configuration.dll" target="lib\net35" /> 
+    <file src="..\Configuration\bin\Release\StatsdClient.Configuration.dll" target="lib\net35" /> 
   </files>
 </package>

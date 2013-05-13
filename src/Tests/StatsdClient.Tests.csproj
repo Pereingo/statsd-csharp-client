@@ -61,9 +61,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Configuration\StatsdConfiguration.csproj">
+    <ProjectReference Include="..\Configuration\StatsdClient.Configuration.csproj">
       <Project>{11FB3391-9FA5-433B-A0C4-352BD770378F}</Project>
-      <Name>StatsdConfiguration</Name>
+      <Name>StatsdClient.Configuration</Name>
     </ProjectReference>
     <ProjectReference Include="..\StatsdClient\StatsdClient.csproj">
       <Project>{77B1707A-9123-4CD9-9A18-A8D7F4794D71}</Project>
