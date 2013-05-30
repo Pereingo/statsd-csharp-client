@@ -40,15 +40,15 @@ Use it like this afterwards:
 	
 And timing an action
 
-    Metrics.Timer(() => DoMagic(), "stat-name");
+    Metrics.Time(() => DoMagic(), "stat-name");
 
 or replace a method that returns a value
 
     var result = GetResult();
 
-with a timed `Action<T>` that returns the same value
+with a timed `Func<T>` that returns the same value
 
-    var result = Metrics.Timer(() => GetResult(), "stat-name"); 
+    var result = Metrics.Time(() => GetResult(), "stat-name"); 
 
 Via the Statsd class:
 ---------------------
