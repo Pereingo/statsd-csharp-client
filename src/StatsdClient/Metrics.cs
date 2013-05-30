@@ -74,7 +74,7 @@ namespace StatsdClient
 				return func();
 			}
 
-			using (StartTimer(BuildNamespacedStatName(statName)))
+			using (StartTimer(statName))
 			{
 				return func();
 			}
