@@ -18,7 +18,7 @@ namespace Tests
             try
             {
                 var client = new StatsdUDP(ServerName, ServerPort);
-                client.Send("udp_integration_test:1|c");
+                client.Send("socket2:1|c");
             }
             catch(SocketException ex)
             {
