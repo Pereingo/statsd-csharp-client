@@ -4,3 +4,5 @@
 *.suo
 _ReSharper*
 *.nupkg
+test-results/
+.DS_Store
