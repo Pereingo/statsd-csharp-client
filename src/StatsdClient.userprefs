@@ -1,0 +1,58 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="StatsdClient/Statsd.cs">
+    <Files>
+      <File FileName="Tests/packages.config" Line="1" Column="1" />
+      <File FileName="Tests/App.config" Line="12" Column="1" />
+      <File FileName="Tests/StatsdUnitTests.cs" Line="287" Column="3" />
+      <File FileName="StatsdClient/Statsd.cs" Line="37" Column="76" />
+      <File FileName="StatsdClient/RandomGenerator.cs" Line="1" Column="1" />
+      <File FileName="StatsdClient/Metrics.cs" Line="21" Column="72" />
+      <File FileName="Tests/RandomGeneratorUnitTests.cs" Line="1" Column="1" />
+      <File FileName="Tests/UDPSmokeTests.cs" Line="30" Column="1" />
+      <File FileName="Tests/NamingIntegrationTests.cs" Line="1" Column="1" />
+      <File FileName="StatsdClient/MetricsTimer.cs" Line="1" Column="1" />
+      <File FileName="StatsdClient/ICommandType.cs" Line="1" Column="1" />
+      <File FileName="StatsdClient/IRandomGenerator.cs" Line="1" Column="1" />
+      <File FileName="StatsdClient/IStatsd.cs" Line="19" Column="2" />
+      <File FileName="StatsdClient/IStopwatch.cs" Line="1" Column="1" />
+      <File FileName="StatsdClient/IStopWatchFactory.cs" Line="1" Column="1" />
+      <File FileName="StatsdClient/MetricsConfig.cs" Line="1" Column="1" />
+      <File FileName="StatsdClient/IStatsdUDP.cs" Line="1" Column="1" />
+      <File FileName="StatsdClient/StatsdUDP.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="StatsdClient" expanded="True">
+            <Node name="Statsd.cs" selected="True" />
+          </Node>
+          <Node name="StatsdClient.Tests" expanded="True" />
+        </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
+      <Pad Id="MonoDevelop.NUnit.TestPad">
+        <State expanded="True">
+          <Node name="StatsdClient.Tests" expanded="True">
+            <Node name="Tests" expanded="True">
+              <Node name="NamingIntegrationTests" expanded="True" />
+              <Node name="RandomGeneratorUnitTests" expanded="True" />
+              <Node name="UnitTests" expanded="True">
+                <Node name="metrics_test" selected="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
