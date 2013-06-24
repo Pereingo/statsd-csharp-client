@@ -40,6 +40,24 @@ namespace StatsdClient
 			_statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
 		}
 
+        public static void Histogram (string statName, int value)
+        {
+            if (_statsD == null) 
+            {
+                return;
+            }
+            _statsD.Send<Statsd.Histogram> (BuildNamespacedStatName (statName), value);
+        }
+
+        public static void Set (string statName, int value)
+        {
+            if (_statsD == null) 
+            {
+                return;
+            }
+            _statsD.Send<Statsd.Set> (BuildNamespacedStatName (statName), value);
+        }
+
 		public static void Timer(string statName, int value)
 		{
 			if (_statsD == null)

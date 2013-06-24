@@ -164,8 +164,7 @@ namespace Tests
             s.Send<Statsd.Gauge>("gauge", 5);
             Assert.Pass();
         }
-
-
+		
 		// =-=-=-=- COMBINATION -=-=-=-=
 
         [Test]
@@ -253,6 +252,43 @@ namespace Tests
         private int testMethod()
         {
             return 5;
+        }
+
+        // DOGSTATSD-SPECIFIC
+
+        // =-=-=-=- HISTOGRAM -=-=-=-=
+        [Test]
+        public void adds_histogram ()
+        {
+            Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram> ("histogram", 5);
+            udp.AssertWasCalled (x => x.Send ("histogram:5|h"));
+        }
+
+        [Test]
+        public void adds_histogram_with_sample_rate ()
+        {
+            Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram> ("histogram", 5, 0.5);
+            udp.AssertWasCalled (x => x.Send ("histogram:5|h|@0.5"));
+        }
+
+
+        // =-=-=-=- SET -=-=-=-=
+        [Test]
+        public void adds_set ()
+        {
+            Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Set> ("set", 5);
+            udp.AssertWasCalled (x => x.Send ("set:5|s"));
+        }
+
+        [Test]
+        public void adds_set_with_sample_rate ()
+        {
+            Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Set> ("set", 5, 0.1);
+            udp.AssertWasCalled (x => x.Send ("set:5|s|@0.1"));
         }
     }
 }

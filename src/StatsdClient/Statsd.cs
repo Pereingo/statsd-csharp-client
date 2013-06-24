@@ -25,6 +25,7 @@ namespace StatsdClient
         public class Gauge : ICommandType { }
         public class Histogram : ICommandType { }
         public class Meter : ICommandType { }
+        public class Set : ICommandType { }
 
         private readonly Dictionary<Type, string> _commandToUnit = new Dictionary<Type, string>
                                                                        {
@@ -32,7 +33,8 @@ namespace StatsdClient
                                                                            {typeof (Timing), "ms"},
                                                                            {typeof (Gauge), "g"},
                                                                            {typeof (Histogram), "h"},
-                                                                           {typeof (Meter), "m"}
+                                                                           {typeof (Meter), "m"},
+                                                                           {typeof (Set), "s"}
                                                                        };
 
         public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory, string prefix)
