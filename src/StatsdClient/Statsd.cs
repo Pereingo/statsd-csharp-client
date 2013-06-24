@@ -54,35 +54,39 @@ namespace StatsdClient
         public Statsd(IStatsdUDP udp)
             : this(udp, "") { }
 
-
-        public void Send<TCommandType>(string name, int value) where TCommandType : ICommandType
+        public void Add<TCommandType>(string name, int value, params string[] tags) where TCommandType : ICommandType
         {
-            Send<TCommandType>(name, value, 1);
+            _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1, tags));
         }
 
-        public void Send(string name, int value, double sampleRate)
+        public void Add<TCommandType>(string name, int value, double sampleRate, params string[] tags) where TCommandType : ICommandType
         {
-            Send<Counting>(name, value, sampleRate);
+            _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
         }
 
-        public void Add<TCommandType>(string name, int value) where TCommandType : ICommandType
+        public void Send<TCommandType>(string name, int value, params string[] tags) where TCommandType : ICommandType
         {
-            _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1));
+            Send<TCommandType>(name, value, 1, tags);
         }
 
-        public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
+        public void Send(string name, int value, double sampleRate, params string[] tags)
+        {
+            Send<Counting>(name, value, sampleRate, tags);
+        }
+
+        public void Send<TCommandType>(string name, int value, double sampleRate, params string[] tags) where TCommandType : ICommandType
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                Send(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate));
+                Send(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
             }
         }
 
-        public void Add(string name, int value, double sampleRate)
+        public void Add(string name, int value, double sampleRate, params string[] tags)
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                _commands.Add(GetCommand(name, value, _commandToUnit[typeof(Counting)], sampleRate));
+                _commands.Add(GetCommand(name, value, _commandToUnit[typeof(Counting)], sampleRate, tags));
             }
         }
 
@@ -105,13 +109,21 @@ namespace StatsdClient
             }
         }
 
-        private string GetCommand(string name, int value, string unit, double sampleRate)
+        private string GetCommand(string name, int value, string unit, double sampleRate, params string[] tags)
         {
-            var format = sampleRate == 1 ? "{0}:{1}|{2}" : "{0}:{1}|{2}|@{3}";
-            return string.Format(format, _prefix + name, value, unit, sampleRate);
+            // It would be cleaner to do this with StringBuilder, but we want sending stats to be as fast as possible
+            if (sampleRate == 1 && tags.Length == 0)
+                return string.Format ("{0}:{1}|{2}", _prefix + name, value, unit);
+            else if (sampleRate == 1 && tags.Length > 0) 
+                return string.Format("{0}:{1}|{2}|#{3}", _prefix + name, value, unit, string.Join(",", tags));
+            else if (sampleRate != 1 && tags.Length == 0)
+                return string.Format("{0}:{1}|{2}|@{3}", _prefix + name, value, unit, sampleRate);
+            else // { if (sampleRate != 1 && tags.Length > 0) }
+                return string.Format("{0}:{1}|{2}|@{3}|#{4}", _prefix + name, value, unit, sampleRate, 
+                                     string.Join (",", tags));
         }
 
-        public void Add(Action actionToTime, string statName)
+        public void Add(Action actionToTime, string statName, params string[] tags)
         {
             var stopwatch = StopwatchFactory.Get();
 
@@ -123,11 +135,11 @@ namespace StatsdClient
 	        finally
 	        {
 				stopwatch.Stop();
-				Add<Timing>(statName, stopwatch.ElapsedMilliseconds());
+				Add<Timing>(statName, stopwatch.ElapsedMilliseconds(), tags);
 	        }
         }
 
-        public void Send(Action actionToTime, string statName)
+        public void Send(Action actionToTime, string statName, params string[] tags)
         {
             var stopwatch = StopwatchFactory.Get();
 
@@ -139,7 +151,7 @@ namespace StatsdClient
 	        finally
 	        {
 		        stopwatch.Stop();
-		        Send<Timing>(statName, stopwatch.ElapsedMilliseconds());
+		        Send<Timing>(statName, stopwatch.ElapsedMilliseconds(), tags);
 	        }
         }
     }

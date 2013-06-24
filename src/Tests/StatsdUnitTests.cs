@@ -26,23 +26,55 @@ namespace Tests
 		// =-=-=-=- COUNTER -=-=-=-=
 
         [Test]
-        public void increases_counter_with_value_of_X()
+        public void send_increase_counter_by_x()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Counting>("counter", 5);
             udp.AssertWasCalled(x => x.Send("counter:5|c"));
         }
 
-		[Test]
-		public void increases_counter_with_value_of_X_and_sample_rate()
-		{
-			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-			s.Send("counter", 5,0.1);
-			udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
-		}
+        [Test]
+        public void send_increase_counter_by_x_and_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Counting>("counter", 5, "tag1:true");
+            udp.AssertWasCalled(x => x.Send("counter:5|c|#tag1:true"));
+        }
+
+        [Test]
+        public void send_increase_counter_by_x_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Counting>("counter", 5, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send("counter:5|c|#tag1:true,tag2"));
+        }
 
 		[Test]
-		public void counting_exception_fails_silently()
+        public void send_increase_counter_by_x_and_sample_rate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("counter", 5,0.1);
+            udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
+        }
+
+        [Test]
+        public void send_increase_counter_by_x_and_sample_rate_and_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("counter", 5, 0.1, "tag1:true");
+            udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1|#tag1:true"));
+        }
+
+        [Test]
+        public void send_increase_counter_by_x_and_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("counter", 5, 0.1, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1|#tag1:true,tag2"));
+        }
+
+		[Test]
+		public void send_increase_counter_counting_exception_fails_silently()
 		{
 			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
 			udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
@@ -50,56 +82,125 @@ namespace Tests
 			Assert.Pass();
 		}
 
+        [Test]
+        public void add_increase_counter_by_x()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Counting>("counter", 5);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("counter:5|c"));
+        }
+
+        [Test]
+        public void add_increase_counter_by_x_with_sample_rate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Counting>("counter", 5, 0.5);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("counter:5|c|@0.5"));
+        }
+
+        [Test]
+        public void add_increase_counter_by_x_with_sample_rate_and_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Counting>("counter", 5, 0.5, "tag1:true");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("counter:5|c|@0.5|#tag1:true"));
+        }
+
+        [Test]
+        public void add_increase_counter_by_x_with_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Counting>("counter", 5, 0.5, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("counter:5|c|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void add_increase_counter_by_x_with_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Counting>("counter", 5, "tag1:true");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("counter:5|c|#tag1:true"));
+        }
+
+        [Test]
+        public void add_increase_counter_by_x_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Counting>("counter", 5, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("counter:5|c|#tag1:true,tag2"));
+        }
+
+        // TODO: TEST COUNTER ADD
+
 		// =-=-=-=- TIMER -=-=-=-=
 
         [Test]
-        public void adds_timing()
+        public void send_timer()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Timing>("timer", 5);
             udp.AssertWasCalled(x => x.Send("timer:5|ms"));
         }
 
+        [Test]
+        public void send_timer_with_sample_rate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Timing>("timer", 5, 0.5);
+            udp.AssertWasCalled(x => x.Send("timer:5|ms|@0.5"));
+        }
+
+        [Test]
+        public void send_timer_with_sample_rate_and_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Timing>("timer", 5, 0.5, "tag1:true");
+            udp.AssertWasCalled(x => x.Send("timer:5|ms|@0.5|#tag1:true"));
+        }
+
+        [Test]
+        public void send_timer_with_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Timing>("timer", 5, 0.5, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send("timer:5|ms|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void send_timer_with_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Timing>("timer", 5, "tag1:true");
+            udp.AssertWasCalled(x => x.Send("timer:5|ms|#tag1:true"));
+        }
+
+        [Test]
+        public void send_timer_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Timing>("timer", 5, "tag1:true");
+            udp.AssertWasCalled(x => x.Send("timer:5|ms|#tag1:true"));
+        }
+
 		[Test]
-		public void timing_exception_fails_silently()
+		public void send_timer_exception_fails_silently()
 		{
 			udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
 			Statsd s = new Statsd(udp);
 			s.Send<Statsd.Timing>("timer", 5);
 			Assert.Pass();
-		}
-
-		[Test]
-		public void add_timer_with_lamba()
-		{
-			const string statName = "name";
-
-			IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
-
-			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-			s.Add(() => testMethod(), statName);
-
-			Assert.That(s.Commands.Count, Is.EqualTo(1));
-			Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
-		}
-
-		[Test]
-		public void add_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
-		{
-			const string statName = "name";
-
-			var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
-
-			var s = new Statsd(udp, _randomGenerator, _stopwatch);
-
-			Assert.Throws<InvalidOperationException>(() => s.Add(() => { throw new InvalidOperationException(); }, statName));
-
-			Assert.That(s.Commands.Count, Is.EqualTo(1));
-			Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
 		}
 
 		[Test]
@@ -116,6 +217,34 @@ namespace Tests
 			udp.AssertWasCalled(x => x.Send("name:500|ms"));       
 		}
 
+        [Test]
+        public void send_timer_with_lambda_and_tag()
+        {
+            const string statName = "name";
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send(() => testMethod(), statName, "tag1:true");
+
+            udp.AssertWasCalled(x => x.Send("name:500|ms|#tag1:true"));       
+        }
+
+        [Test]
+        public void send_timer_with_lambda_and_tags()
+        {
+            const string statName = "name";
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send(() => testMethod(), statName, "tag1:true", "tag2");
+
+            udp.AssertWasCalled(x => x.Send("name:500|ms|#tag1:true,tag2"));       
+        }
+
 		[Test]
 		public void send_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
 		{
@@ -131,7 +260,7 @@ namespace Tests
 		}
 
 		[Test]
-		public void set_return_value_with_send_timer_with_lambda()
+		public void send_timer_with_lambda_set_return_value_with()
 		{
 			const string statName = "name";
 			IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
@@ -146,10 +275,75 @@ namespace Tests
 			Assert.That(returnValue,Is.EqualTo(5));
 		}
 
+        [Test]
+        public void add_timer_with_lamba()
+        {
+            const string statName = "name";
+
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add(() => testMethod(), statName);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
+        }
+
+        [Test]
+        public void add_timer_with_lamba_and_tag()
+        {
+            const string statName = "name";
+
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add(() => testMethod(), statName, "tag1:true");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("name:500|ms|#tag1:true"));
+        }
+
+        [Test]
+        public void add_timer_with_lamba_and_tags()
+        {
+            const string statName = "name";
+
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add(() => testMethod(), statName, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("name:500|ms|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void add_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
+        {
+            const string statName = "name";
+
+            var stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+
+            var s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            Assert.Throws<InvalidOperationException>(() => s.Add(() => { throw new InvalidOperationException(); }, statName));
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
+        }
+
 		// =-=-=-=- GAUGE -=-=-=-=
 		
         [Test]
-        public void adds_gauge()
+        public void send_gauge()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Gauge>("gauge", 5);
@@ -157,12 +351,112 @@ namespace Tests
         }
 
         [Test]
-        public void gauge_exception_fails_silently()
+        public void send_gauge_with_sample_rate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Gauge>("gauge", 5, 0.5);
+            udp.AssertWasCalled(x => x.Send("gauge:5|g|@0.5"));
+        }
+
+        [Test]
+        public void send_gauge_with_sample_rate_and_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Gauge>("gauge", 5, 0.5, "tag1:true");
+            udp.AssertWasCalled(x => x.Send("gauge:5|g|@0.5|#tag1:true"));
+        }
+
+        [Test]
+        public void send_gauge_with_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Gauge>("gauge", 5, 0.5, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send("gauge:5|g|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void send_gauge_with_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Gauge>("gauge", 5, "tag1:true");
+            udp.AssertWasCalled(x => x.Send("gauge:5|g|#tag1:true"));
+        }
+
+        [Test]
+        public void send_gauge_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Gauge>("gauge", 5, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send("gauge:5|g|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void send_gauge_exception_fails_silently()
         {
             udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
             Statsd s = new Statsd(udp);
             s.Send<Statsd.Gauge>("gauge", 5);
             Assert.Pass();
+        }
+
+        [Test]
+        public void add_gauge()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Gauge>("gauge", 5);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g"));
+        }
+
+        [Test]
+        public void add_gauge_with_sample_rate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Gauge>("gauge", 5, 0.5);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g|@0.5"));
+        }
+
+        [Test]
+        public void add_gauge_with_sample_rate_and_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Gauge>("gauge", 5, 0.5, "tag1:true");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g|@0.5|#tag1:true"));
+        }
+
+        [Test]
+        public void add_gauge_with_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Gauge>("gauge", 5, 0.5, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void add_gauge_with_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Gauge>("gauge", 5, "tag1:true");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g|#tag1:true"));
+        }
+
+        [Test]
+        public void add_gauge_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Gauge>("gauge", 5, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g|#tag1:true,tag2"));
         }
 		
 		// =-=-=-=- COMBINATION -=-=-=-=
@@ -258,37 +552,221 @@ namespace Tests
 
         // =-=-=-=- HISTOGRAM -=-=-=-=
         [Test]
-        public void adds_histogram ()
+        public void send_histogram()
         {
-            Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Histogram> ("histogram", 5);
             udp.AssertWasCalled (x => x.Send ("histogram:5|h"));
         }
 
         [Test]
-        public void adds_histogram_with_sample_rate ()
+        public void send_histogram_with_sample_rate()
         {
-            Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Histogram> ("histogram", 5, 0.5);
-            udp.AssertWasCalled (x => x.Send ("histogram:5|h|@0.5"));
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram>("histogram", 5, 0.5);
+            udp.AssertWasCalled(x => x.Send ("histogram:5|h|@0.5"));
+        }
+
+        [Test]
+        public void send_histogram_with_sample_rate_and_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram>("histogram", 5, 0.5, "tag1:true");
+            udp.AssertWasCalled(x => x.Send ("histogram:5|h|@0.5|#tag1:true"));
+        }
+
+        [Test]
+        public void send_histogram_with_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram>("histogram", 5, 0.5, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send ("histogram:5|h|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void send_histogram_with_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram>("histogram", 5, "tag1:true");
+            udp.AssertWasCalled(x => x.Send ("histogram:5|h|#tag1:true"));
+        }
+
+        [Test]
+        public void send_histogram_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram>("histogram", 5, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send ("histogram:5|h|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void add_histogram()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Histogram>("histogram", 5);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("histogram:5|h"));
+        }
+
+        [Test]
+        public void add_histogram_with_sample_rate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Histogram>("histogram", 5, 0.5);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("histogram:5|h|@0.5"));
+        }
+
+        [Test]
+        public void add_histogram_with_sample_rate_and_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Histogram>("histogram", 5, 0.5, "tag1:true");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("histogram:5|h|@0.5|#tag1:true"));
+        }
+
+        [Test]
+        public void add_histogram_with_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Histogram>("histogram", 5, 0.5, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("histogram:5|h|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void add_histogram_with_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Histogram>("histogram", 5, "tag1:true");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("histogram:5|h|#tag1:true"));
+        }
+
+        [Test]
+        public void add_histogram_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Histogram>("histogram", 5, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("histogram:5|h|#tag1:true,tag2"));
         }
 
 
         // =-=-=-=- SET -=-=-=-=
         [Test]
-        public void adds_set ()
+        public void send_set()
         {
-            Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Set> ("set", 5);
-            udp.AssertWasCalled (x => x.Send ("set:5|s"));
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Set>("set", 5);
+            udp.AssertWasCalled (x => x.Send("set:5|s"));
         }
 
         [Test]
-        public void adds_set_with_sample_rate ()
+        public void send_set_with_sample_rate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Set>("set", 5, 0.1);
+            udp.AssertWasCalled (x => x.Send("set:5|s|@0.1"));
+        }
+
+        [Test]
+        public void send_set_with_sample_rate_and_tag()
         {
             Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Set> ("set", 5, 0.1);
-            udp.AssertWasCalled (x => x.Send ("set:5|s|@0.1"));
+            s.Send<Statsd.Set> ("set", 5, 0.1, "tag1:true");
+            udp.AssertWasCalled (x => x.Send("set:5|s|@0.1|#tag1:true"));
+        }
+
+        [Test]
+        public void send_set_with_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Set> ("set", 5, 0.1, "tag1:true", "tag2");
+            udp.AssertWasCalled (x => x.Send("set:5|s|@0.1|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void send_set_with_tag()
+        {
+            Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Set> ("set", 5, "tag1:true");
+            udp.AssertWasCalled (x => x.Send("set:5|s|#tag1:true"));
+        }
+
+        [Test]
+        public void send_set_with_tags()
+        {
+            Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Set> ("set", 5, "tag1:true", "tag2");
+            udp.AssertWasCalled (x => x.Send("set:5|s|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void add_set()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Set>("set", 5);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("set:5|s"));
+        }
+
+        [Test]
+        public void add_set_with_sample_rate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Set>("set", 5, 0.5);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("set:5|s|@0.5"));
+        }
+
+        [Test]
+        public void add_set_with_sample_rate_and_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Set>("set", 5, 0.5, "tag1:true");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("set:5|s|@0.5|#tag1:true"));
+        }
+
+        [Test]
+        public void add_set_with_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Set>("set", 5, 0.5, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("set:5|s|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void add_set_with_tag()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Set>("set", 5, "tag1:true");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("set:5|s|#tag1:true"));
+        }
+
+        [Test]
+        public void add_set_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Set>("set", 5, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("set:5|s|#tag1:true,tag2"));
         }
     }
 }

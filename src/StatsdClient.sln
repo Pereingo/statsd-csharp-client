@@ -34,6 +34,7 @@ Global
 		$1.scope = text/x-csharp
 		$0.CSharpFormattingPolicy = $2
 		$2.ElseIfNewLinePlacement = SameLine
+		$2.BeforeMethodCallParentheses = False
 		$2.AfterDelegateDeclarationParameterComma = True
 		$2.inheritsSet = Mono
 		$2.inheritsScope = text/x-csharp
