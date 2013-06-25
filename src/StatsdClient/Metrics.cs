@@ -46,7 +46,7 @@ namespace StatsdClient
             {
                 return;
             }
-            _statsD.Send<Statsd.Histogram> (BuildNamespacedStatName (statName), value);
+            _statsD.Send<Statsd.Histogram>(BuildNamespacedStatName (statName), value);
         }
 
         public static void Set (string statName, int value)
@@ -55,7 +55,7 @@ namespace StatsdClient
             {
                 return;
             }
-            _statsD.Send<Statsd.Set> (BuildNamespacedStatName (statName), value);
+            _statsD.Send<Statsd.Set>(BuildNamespacedStatName (statName), value);
         }
 
 		public static void Timer(string statName, int value)
