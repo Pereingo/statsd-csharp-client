@@ -58,7 +58,7 @@ namespace Tests
                     if (ex.ErrorCode == 10060) // WSAETIMEDOUT; Timeout error
                         lastReceivedBytes = null;
                     else
-                        throw ex;
+                        throw;
                 }
             }
 
