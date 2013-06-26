@@ -15,17 +15,20 @@ namespace Tests
         private Thread listenThread;
         private int randomUnusedLocalPort = 23483;
         private string localhostAddress = "127.0.0.1";
+	    private MetricsConfig _defaultMetricsConfig;
 
-        [TestFixtureSetUp]
+	    [TestFixtureSetUp]
         public void SetUpUdpListener() 
         {
             udpListener = new UdpListener(localhostAddress, randomUnusedLocalPort);
-            var metricsConfig = new MetricsConfig
+            
+			_defaultMetricsConfig = new MetricsConfig
             {
 	            StatsdServerName = localhostAddress,
-				StatsdServerPort = randomUnusedLocalPort
+	            StatsdServerPort = randomUnusedLocalPort
             };
-            StatsdClient.Metrics.Configure(metricsConfig);
+
+			Metrics.Configure(_defaultMetricsConfig);
         }
 
         [TestFixtureTearDown]
@@ -66,6 +69,16 @@ namespace Tests
             Metrics.Counter("counter");
             AssertWasReceived("counter:1|c");
         }
+
+		[Test]
+		public void counter_with_prefix()
+		{
+			_defaultMetricsConfig.Prefix = "test_prefix";
+			Metrics.Configure(_defaultMetricsConfig);
+
+			Metrics.Counter("counter");
+			AssertWasReceived("test_prefix.counter:1|c");
+		}
     }
 }
 
