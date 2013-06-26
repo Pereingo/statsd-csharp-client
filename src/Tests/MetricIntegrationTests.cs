@@ -74,11 +74,78 @@ namespace Tests
         }
 
         [Test]
-        public void timer()
+        public void gauge()
+        {
+            Metrics.Gauge("gauge", 1337);
+            AssertWasReceived("gauge:1337|g");
+        }
+
+        [Test]
+        public void histogram()
+        {
+            Metrics.Histogram("histogram", 42);
+            AssertWasReceived("histogram:42|h");
+        }
+
+        [Test]
+        public void set()
+        {
+            Metrics.Set("set", 42);
+            AssertWasReceived("set:42|s");
+        }
+
+        [Test]
+        public void timer_passed_value()
+        {
+            Metrics.Timer("someevent", 999);
+            AssertWasReceived("someevent:999|ms");
+        }
+
+        [Test]
+        public void timer_method()
         {
             Metrics.Time(() => Thread.Sleep(500), "timer");
             // Make sure that the received timer is of the right order of magnitude.
             // The measured value will probably be a few ms longer than the sleep value.
+            AssertWasReceivedMatches(@"timer:\d{3}\|ms");
+        }
+
+        // [Helper]
+        private int pauseAndReturnInt()
+        {
+            Thread.Sleep(500);
+            return 42;
+        }
+
+        [Test]
+        public void timer_method_sets_return_value()
+        {
+            var returnValue = Metrics.Time(() => pauseAndReturnInt(), "lifetheuniverseandeverything");
+            AssertWasReceivedMatches(@"lifetheuniverseandeverything:\d{3}\|ms");
+            Assert.AreEqual(42, returnValue);
+        }
+
+        // [Helper]
+        private int throwException()
+        {
+            throw new Exception("test exception");
+        }
+
+        [Test]
+        public void timer_method_doesnt_swallow_exception_or_send_metrics()
+        {
+            Assert.Throws<Exception>(() => Metrics.Time(() => throwException(), "somebadcode"));
+            AssertWasReceived(null);
+        }
+
+        [Test]
+        public void timer_block()
+        {
+            using (Metrics.StartTimer("timer"))
+            {
+                Thread.Sleep(200);
+                Thread.Sleep(300);
+            }
             AssertWasReceivedMatches(@"timer:\d{3}\|ms");
         }
     }
