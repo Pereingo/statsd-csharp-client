@@ -15,11 +15,9 @@ namespace StatsdClient
 			}
 
 			_prefix = config.Prefix;
-
-			if (!string.IsNullOrEmpty(config.StatsdServerName))
-			{
-				_statsD = new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort));
-			}
+			_statsD = string.IsNullOrEmpty(config.StatsdServerName)
+				          ? null
+				          : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort));
 		}
 
 		public static void Counter(string statName, int value = 1)	
