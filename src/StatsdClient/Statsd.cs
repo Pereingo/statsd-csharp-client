@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace StatsdClient
 {
@@ -106,7 +107,7 @@ namespace StatsdClient
         private string GetCommand(string name, int value, string unit, double sampleRate)
         {
             var format = sampleRate == 1 ? "{0}:{1}|{2}" : "{0}:{1}|{2}|@{3}";
-            return string.Format(format, _prefix + name, value, unit, sampleRate);
+            return string.Format(CultureInfo.InvariantCulture, format, _prefix + name, value, unit, sampleRate);
         }
 
         public void Add(Action actionToTime, string statName)
