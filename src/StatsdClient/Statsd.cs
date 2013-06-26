@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace StatsdClient
 {
@@ -90,13 +91,13 @@ namespace StatsdClient
         {
             // It would be cleaner to do this with StringBuilder, but we want sending stats to be as fast as possible
             if (sampleRate == 1.0 && (tags == null || tags.Length == 0))
-                return string.Format ("{0}:{1}|{2}", _prefix + name, value, unit);
+                return string.Format (CultureInfo.InvariantCulture, "{0}:{1}|{2}", _prefix + name, value, unit);
             else if (sampleRate == 1.0 && (tags == null|| tags.Length > 0)) 
-                return string.Format("{0}:{1}|{2}|#{3}", _prefix + name, value, unit, string.Join(",", tags));
+                return string.Format(CultureInfo.InvariantCulture, "{0}:{1}|{2}|#{3}", _prefix + name, value, unit, string.Join(",", tags));
             else if (sampleRate != 1.0 && (tags == null || tags.Length == 0))
-                return string.Format("{0}:{1}|{2}|@{3}", _prefix + name, value, unit, sampleRate);
+                return string.Format(CultureInfo.InvariantCulture, "{0}:{1}|{2}|@{3}", _prefix + name, value, unit, sampleRate);
             else // { if (sampleRate != 1 && (tags == null || tags.Length > 0)) }
-                return string.Format("{0}:{1}|{2}|@{3}|#{4}", _prefix + name, value, unit, sampleRate, 
+                return string.Format(CultureInfo.InvariantCulture, "{0}:{1}|{2}|@{3}|#{4}", _prefix + name, value, unit, sampleRate, 
                                      string.Join (",", tags));
         }
 
