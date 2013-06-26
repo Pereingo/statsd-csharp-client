@@ -18,12 +18,13 @@ At start of your app, configure the `Metrics` class like this:
     var metricsConfig = new MetricsConfig
     {
       StatsdServerName = "host.name",
+      StatsdPort = 8125,
       Prefix = "myApp"
     };
     
     StatsdClient.Metrics.Configure(metricsConfig);
 		
-Where "host.name" is the name of the statsd server and "myApp" is an optional prefix that is prepended on all stats. How you set it up is up to you, but we read the server name and other settings from web.config and and generate a prefix out of the environment (e.g. "Local", "Uat" or "Live"), plus the app name and machine name, separated with dots. 
+Where "host.name" is the name of the statsd server, 8125 is the statsd port number (the default is 8125), and "myApp" is an optional prefix that is prepended on all stats. How you set it up is up to you, but we read the server name and other settings from web.config and and generate a prefix out of the environment (e.g. "Local", "Uat" or "Live"), plus the app name and machine name, separated with dots. 
 
 Use it like this afterwards:
 
