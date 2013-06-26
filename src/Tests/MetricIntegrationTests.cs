@@ -1,6 +1,7 @@
 using System;
-using System.Threading;
 using System.Configuration;
+using System.Threading;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
@@ -44,6 +45,15 @@ namespace Tests
                 // Stall until the the listener receives a message or times out 
                 while(listenThread.IsAlive);
                 Assert.AreEqual(shouldBe, udpListener.GetAndClearLastMessage());
+        }
+
+        // Test helper. Waits until the listener is done receiving a message,
+        // then asserts that the passed regular expression matches the received message.
+        private void AssertWasReceivedMatches(string pattern)
+        {
+            // Stall until the the listener receives a message or times out
+            while(listenThread.IsAlive);
+            StringAssert.IsMatch(pattern, udpListener.GetAndClearLastMessage());
 
         }
 
@@ -54,7 +64,6 @@ namespace Tests
                                        Convert.ToInt32(ConfigurationManager.AppSettings["StatsdServerPort"]));
             client.Send("iamnotinsane!");
             AssertWasReceived("iamnotinsane!");
-
         }
 
         [Test]
@@ -62,6 +71,15 @@ namespace Tests
         {
             Metrics.Counter("counter");
             AssertWasReceived("counter:1|c");
+        }
+
+        [Test]
+        public void timer()
+        {
+            Metrics.Time(() => Thread.Sleep(500), "timer");
+            // Make sure that the received timer is of the right order of magnitude.
+            // The measured value will probably be a few ms longer than the sleep value.
+            AssertWasReceivedMatches(@"timer:\d{3}\|ms");
         }
     }
 }

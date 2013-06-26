@@ -81,7 +81,7 @@ namespace StatsdClient
 			}
 			else
 			{
-				_statsD.Add(action, BuildNamespacedStatName(statName));
+				_statsD.Send(action, BuildNamespacedStatName(statName));
 			}
 		}
 
