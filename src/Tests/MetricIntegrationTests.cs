@@ -13,14 +13,18 @@ namespace Tests
     {
         private UdpListener udpListener;
         private Thread listenThread;
-        private int serverPort = Convert.ToInt32(ConfigurationManager.AppSettings["StatsdServerPort"]);
+        private int randomUnusedLocalPort = 23483;
         private string localhostAddress = "127.0.0.1";
 
         [TestFixtureSetUp]
         public void SetUpUdpListener() 
         {
-            udpListener = new UdpListener(localhostAddress, serverPort);
-            var metricsConfig = new MetricsConfig { StatsdServerName = localhostAddress };
+            udpListener = new UdpListener(localhostAddress, randomUnusedLocalPort);
+            var metricsConfig = new MetricsConfig
+            {
+	            StatsdServerName = localhostAddress,
+				StatsdServerPort = randomUnusedLocalPort
+            };
             StatsdClient.Metrics.Configure(metricsConfig);
         }
 
@@ -50,7 +54,7 @@ namespace Tests
         [Test]
         public void _udp_listener_sanity_test()
         {
-            var client = new StatsdUDP(localhostAddress, serverPort);
+            var client = new StatsdUDP(localhostAddress, randomUnusedLocalPort);
             client.Send("iamnotinsane!");
             AssertWasReceived("iamnotinsane!");
 

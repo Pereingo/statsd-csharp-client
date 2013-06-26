@@ -18,7 +18,7 @@ namespace StatsdClient
 
 			if (!string.IsNullOrEmpty(config.StatsdServerName))
 			{
-				_statsD = new Statsd(new StatsdUDP(config.StatsdServerName, 8125));
+				_statsD = new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort));
 			}
 		}
 
