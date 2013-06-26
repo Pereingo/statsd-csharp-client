@@ -10,16 +10,20 @@ namespace StatsdClient
 		public static void Configure(MetricsConfig config)
 		{
 			if (config == null)
-			{
 				throw new ArgumentNullException("config");
-			}
+
+            if (string.IsNullOrEmpty(config.StatsdServerName))
+                throw new ArgumentNullException("config.StatsdServername");
 
 			_prefix = config.Prefix;
 
-			if (!string.IsNullOrEmpty(config.StatsdServerName))
-			{
-				_statsD = new Statsd(new StatsdUDP(config.StatsdServerName, 8125));
-			}
+            int port;
+            if (config.StatsdPort > 0)
+                port = config.StatsdPort;
+            else
+                port = 8125;
+    
+            _statsD = new Statsd(new StatsdUDP(config.StatsdServerName, port));
 		}
 
 		public static void Counter(string statName, int value = 1)	
