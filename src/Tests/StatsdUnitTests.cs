@@ -61,7 +61,7 @@ namespace Tests
         public void send_increase_counter_by_x_and_sample_rate()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send("counter", 5,0.1);
+            s.Send<Statsd.Counting>("counter", 5,0.1);
             udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
         }
 
@@ -69,7 +69,7 @@ namespace Tests
         public void send_increase_counter_by_x_and_sample_rate_and_tag()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send("counter", 5, 0.1, "tag1:true");
+            s.Send<Statsd.Counting>("counter", 5, 0.1, "tag1:true");
             udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1|#tag1:true"));
         }
 
@@ -77,7 +77,7 @@ namespace Tests
         public void send_increase_counter_by_x_and_sample_rate_and_tags()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send("counter", 5, 0.1, "tag1:true", "tag2");
+            s.Send<Statsd.Counting>("counter", 5, 0.1, "tag1:true", "tag2");
             udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1|#tag1:true,tag2"));
         }
 
@@ -473,7 +473,7 @@ namespace Tests
         public void add_one_counter_and_one_gauge_shows_in_commands()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add("counter", 1, 0.1);
+            s.Add<Statsd.Counting>("counter", 1, 0.1);
             s.Add<Statsd.Timing>("timer", 1);
 
             Assert.That(s.Commands.Count, Is.EqualTo(2));
@@ -498,7 +498,7 @@ namespace Tests
         public void add_one_counter_and_one_gauge_sends_in_one_go()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add("counter", 1, 0.1);
+            s.Add<Statsd.Counting>("counter", 1, 0.1);
             s.Add<Statsd.Timing>("timer", 1);
             s.Send();
 
@@ -510,7 +510,7 @@ namespace Tests
         public void add_one_counter_and_one_gauge_sends_and_removes_commands()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add("counter", 1, 0.1);
+            s.Add<Statsd.Counting>("counter", 1, 0.1);
             s.Add<Statsd.Timing>("timer", 1);
             s.Send();
 
@@ -544,7 +544,7 @@ namespace Tests
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch, "another.prefix.");
 
-            s.Add("counter", 1, 0.1);
+            s.Add<Statsd.Counting>("counter", 1, 0.1);
             s.Add<Statsd.Timing>("timer", 1);
             s.Send();
 

@@ -69,24 +69,11 @@ namespace StatsdClient
             Send<TCommandType>(name, value, 1, tags);
         }
 
-        public void Send(string name, int value, double sampleRate, params string[] tags)
-        {
-            Send<Counting>(name, value, sampleRate, tags);
-        }
-
         public void Send<TCommandType>(string name, int value, double sampleRate, params string[] tags) where TCommandType : ICommandType
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
                 Send(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
-            }
-        }
-
-        public void Add(string name, int value, double sampleRate, params string[] tags)
-        {
-            if (RandomGenerator.ShouldSend(sampleRate))
-            {
-                _commands.Add(GetCommand(name, value, _commandToUnit[typeof(Counting)], sampleRate, tags));
             }
         }
 

@@ -7,11 +7,9 @@ namespace StatsdClient
     {
         List<string> Commands { get; }
         void Send<TCommandType>(string name, int value, params string[] tags) where TCommandType : ICommandType;
-        void Send(string name, int value, double sampleRate, params string[] tags);
         void Add<TCommandType>(string name, int value, params string[] tags) where TCommandType : ICommandType;
-        void Add<TCommandType>(string name, int value, double sampleRate, params string[] tags) where TCommandType : ICommandType;
         void Send<TCommandType>(string name, int value, double sampleRate, params string[] tags) where TCommandType : ICommandType;
-        void Add(string name, int value, double sampleRate, params string[] tags);
+        void Add<TCommandType>(string name, int value, double sampleRate, params string[] tags) where TCommandType : ICommandType;
         void Send(string command);
         void Send();
         void Add(Action actionToTime, string statName, params string[] tags);
