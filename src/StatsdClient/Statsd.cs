@@ -149,6 +149,22 @@ namespace StatsdClient
 	        }
         }
 
+        public void Add(Action actionToTime, string statName, double sampleRate, params string[] tags)
+        {
+            var stopwatch = StopwatchFactory.Get();
+
+            try
+            {
+                stopwatch.Start();
+                actionToTime();
+            }
+            finally
+            {
+                stopwatch.Stop();
+                Add<Timing>(statName, stopwatch.ElapsedMilliseconds(), sampleRate, tags);
+            }
+        }
+
         public void Send(Action actionToTime, string statName, params string[] tags)
         {
             var stopwatch = StopwatchFactory.Get();
@@ -163,6 +179,22 @@ namespace StatsdClient
 		        stopwatch.Stop();
 		        Send<Timing>(statName, stopwatch.ElapsedMilliseconds(), tags);
 	        }
+        }
+
+        public void Send(Action actionToTime, string statName, double sampleRate, params string[] tags)
+        {
+            var stopwatch = StopwatchFactory.Get();
+
+            try
+            {
+                stopwatch.Start();
+                actionToTime();
+            }
+            finally
+            {
+                stopwatch.Stop();
+                Send<Timing>(statName, stopwatch.ElapsedMilliseconds(), sampleRate, tags);
+            }
         }
     }
 }

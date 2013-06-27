@@ -150,8 +150,6 @@ namespace Tests
             Assert.That(s.Commands[0], Is.EqualTo("counter:5|c|#tag1:true,tag2"));
         }
 
-        // TODO: TEST COUNTER ADD
-
 		// =-=-=-=- TIMER -=-=-=-=
 
         [Test]
@@ -267,6 +265,34 @@ namespace Tests
             s.Send(() => testMethod(), statName, "tag1:true", "tag2");
 
             udp.AssertWasCalled(x => x.Send("name:500|ms|#tag1:true,tag2"));       
+        }
+
+        [Test]
+        public void send_timer_with_lambda_and_sample_rate()
+        {
+            const string statName = "name";
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send(() => testMethod(), statName, 1.1);
+
+            udp.AssertWasCalled(x => x.Send("name:500|ms|@1.1"));       
+        }
+
+        [Test]
+        public void send_timer_with_lambda_and_sample_rate_and_tags()
+        {
+            const string statName = "name";
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send(() => testMethod(), statName, 1.1, "tag1:true", "tag2");
+
+            udp.AssertWasCalled(x => x.Send("name:500|ms|@1.1|#tag1:true,tag2"));
         }
 
 		[Test]
