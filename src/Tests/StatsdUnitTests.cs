@@ -34,6 +34,14 @@ namespace Tests
         }
 
         [Test]
+        public void send_decrease_counter_by_x()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Counting>("counter", -5);
+            udp.AssertWasCalled(x => x.Send("counter:-5|c"));
+        }
+
+        [Test]
         public void send_increase_counter_by_x_and_tag()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);

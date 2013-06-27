@@ -35,6 +35,24 @@ namespace StatsdClient
             _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value);
         }
 
+        public static void Increment(string statName)  
+        {
+            if (_statsD == null)
+            {
+                return;
+            }
+            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), 1);
+        }
+
+        public static void Decrement(string statName)  
+        {
+            if (_statsD == null)
+            {
+                return;
+            }
+            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), -1);
+        }
+
         public static void Gauge(string statName, int value)
         {
             if (_statsD == null)

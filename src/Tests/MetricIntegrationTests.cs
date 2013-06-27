@@ -74,6 +74,27 @@ namespace Tests
         }
 
         [Test]
+        public void counter_by_more_than_one()
+        {
+            Metrics.Counter("counter", 1337);
+            AssertWasReceived("counter:1337|c");
+        }
+
+        [Test]
+        public void increment()
+        {
+            Metrics.Increment("increment");
+            AssertWasReceived("increment:1|c");
+        }
+
+        [Test]
+        public void decrement()
+        {
+            Metrics.Decrement("decrement");
+            AssertWasReceived("decrement:-1|c");
+        }
+
+        [Test]
         public void gauge()
         {
             Metrics.Gauge("gauge", 1337);
