@@ -128,14 +128,15 @@ namespace Tests
         // [Helper]
         private int throwException()
         {
+            Thread.Sleep(500);
             throw new Exception("test exception");
         }
 
         [Test]
-        public void timer_method_doesnt_swallow_exception_or_send_metrics()
+        public void timer_method_doesnt_swallow_exception_and_submits_metric()
         {
             Assert.Throws<Exception>(() => Metrics.Time(() => throwException(), "somebadcode"));
-            AssertWasReceived(null);
+            AssertWasReceivedMatches(@"somebadcode:\d{3}\|ms");
         }
 
         [Test]
