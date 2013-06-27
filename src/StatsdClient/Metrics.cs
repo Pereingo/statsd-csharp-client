@@ -62,7 +62,25 @@ namespace StatsdClient
             _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
         }
 
+        public static void Gauge(string statName, double value)
+        {
+            if (_statsD == null)
+            {
+                return;
+            }
+            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
+        }
+
         public static void Histogram(string statName, int value)
+        {
+            if (_statsD == null) 
+            {
+                return;
+            }
+            _statsD.Send<Statsd.Histogram>(BuildNamespacedStatName(statName), value);
+        }
+
+        public static void Histogram(string statName, double value)
         {
             if (_statsD == null) 
             {
@@ -81,6 +99,16 @@ namespace StatsdClient
         }
 
         public static void Timer(string statName, int value)
+        {
+            if (_statsD == null)
+            {
+                return;
+            }
+
+            _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value);
+        }
+
+        public static void Timer(string statName, double value)
         {
             if (_statsD == null)
             {

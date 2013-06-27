@@ -163,6 +163,14 @@ namespace Tests
         }
 
         [Test]
+        public void send_timer_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Timing>("timer", 5.5);
+            udp.AssertWasCalled(x => x.Send("timer:5.5|ms"));
+        }
+
+        [Test]
         public void send_timer_with_sample_rate()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -184,6 +192,14 @@ namespace Tests
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Timing>("timer", 5, 0.5, "tag1:true", "tag2");
             udp.AssertWasCalled(x => x.Send("timer:5|ms|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void send_timer_with_sample_rate_and_tags_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Timing>("timer", 5.33, 0.5, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send("timer:5.33|ms|@0.5|#tag1:true,tag2"));
         }
 
         [Test]
@@ -359,6 +375,14 @@ namespace Tests
         }
 
         [Test]
+        public void send_gauge_with_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Gauge>("gauge", 4.2);
+            udp.AssertWasCalled(x => x.Send("gauge:4.2|g"));
+        }
+
+        [Test]
         public void send_gauge_with_sample_rate()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -383,6 +407,14 @@ namespace Tests
         }
 
         [Test]
+        public void send_gauge_with_sample_rate_and_tags_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Gauge>("gauge", 5.4, 0.5, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send("gauge:5.4|g|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
         public void send_gauge_with_tag()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -396,6 +428,14 @@ namespace Tests
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Gauge>("gauge", 5, "tag1:true", "tag2");
             udp.AssertWasCalled(x => x.Send("gauge:5|g|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void send_gauge_with_tags_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Gauge>("gauge", 5.33, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send("gauge:5.33|g|#tag1:true,tag2"));
         }
 
         [Test]
@@ -415,6 +455,16 @@ namespace Tests
 
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g"));
+        }
+
+        [Test]
+        public void add_gauge_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Gauge>("gauge", 5.3);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("gauge:5.3|g"));
         }
 
         [Test]
@@ -448,6 +498,16 @@ namespace Tests
         }
 
         [Test]
+        public void add_gauge_with_sample_rate_and_tags_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Gauge>("gauge", 5, 0.5, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
         public void add_gauge_with_tag()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -465,6 +525,16 @@ namespace Tests
 
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void add_gauge_with_tags_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Gauge>("gauge", 5.33, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("gauge:5.33|g|#tag1:true,tag2"));
         }
 		
 		// =-=-=-=- COMBINATION -=-=-=-=
@@ -526,6 +596,26 @@ namespace Tests
 
             udp.AssertWasCalled(x => x.Send("timer:1|ms"));
         }
+
+        [Test]
+        public void add_one_counter_and_send_one_gauge_sends_only_sends_the_last_one_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Counting>("counter", 1.1);
+            s.Send<Statsd.Timing>("timer", 1);
+
+            udp.AssertWasCalled(x => x.Send("timer:1|ms"));
+        }
+
+        [Test]
+        public void add_one_counter_and_send_one_gauge_sends_only_sends_the_last_two_doubles()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Counting>("counter", 1.1);
+            s.Send<Statsd.Timing>("timer", 1.1);
+
+            udp.AssertWasCalled(x => x.Send("timer:1.1|ms"));
+        }
 		
 		// =-=-=-=- PREFIX -=-=-=-=
 
@@ -568,6 +658,14 @@ namespace Tests
         }
 
         [Test]
+        public void send_histogram_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram> ("histogram", 5.3);
+            udp.AssertWasCalled (x => x.Send ("histogram:5.3|h"));
+        }
+
+        [Test]
         public void send_histogram_with_sample_rate()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -592,6 +690,14 @@ namespace Tests
         }
 
         [Test]
+        public void send_histogram_with_sample_rate_and_tags_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram>("histogram", 5.7, 0.5, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send ("histogram:5.7|h|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
         public void send_histogram_with_tag()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -608,6 +714,14 @@ namespace Tests
         }
 
         [Test]
+        public void send_histogram_with_tags_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram>("histogram", 5.7, "tag1:true", "tag2");
+            udp.AssertWasCalled(x => x.Send ("histogram:5.7|h|#tag1:true,tag2"));
+        }
+
+        [Test]
         public void add_histogram()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -618,13 +732,23 @@ namespace Tests
         }
 
         [Test]
-        public void add_histogram_with_sample_rate()
+        public void add_histogram_double()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add<Statsd.Histogram>("histogram", 5, 0.5);
+            s.Add<Statsd.Histogram>("histogram", 5.3);
 
             Assert.That(s.Commands.Count, Is.EqualTo(1));
-            Assert.That(s.Commands[0], Is.EqualTo("histogram:5|h|@0.5"));
+            Assert.That(s.Commands[0], Is.EqualTo("histogram:5.3|h"));
+        }
+
+        [Test]
+        public void add_histogram_with_sample_rate_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Histogram>("histogram", 5.2, 0.5);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("histogram:5.2|h|@0.5"));
         }
 
         [Test]
@@ -648,6 +772,16 @@ namespace Tests
         }
 
         [Test]
+        public void add_histogram_with_sample_rate_and_tags_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Histogram>("histogram", 5.8, 0.5, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("histogram:5.8|h|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
         public void add_histogram_with_tag()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -665,6 +799,16 @@ namespace Tests
 
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("histogram:5|h|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void add_histogram_with_tags_double()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Histogram>("histogram", 5.999999, "tag1:true", "tag2");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("histogram:5.999999|h|#tag1:true,tag2"));
         }
 
 

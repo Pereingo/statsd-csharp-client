@@ -102,10 +102,31 @@ namespace Tests
         }
 
         [Test]
+        public void gauge_double()
+        {
+            Metrics.Gauge("gauge", 6.3);
+            AssertWasReceived("gauge:6.3|g");
+        }
+
+        [Test]
+        public void gauge_double_rounding()
+        {
+            Metrics.Gauge("gauge", (double)1/9);
+            AssertWasReceived("gauge:0.111111111111111|g");
+        }
+
+        [Test]
         public void histogram()
         {
             Metrics.Histogram("histogram", 42);
             AssertWasReceived("histogram:42|h");
+        }
+
+        [Test]
+        public void histogram_double()
+        {
+            Metrics.Histogram("histogram", 42.1);
+            AssertWasReceived("histogram:42.1|h");
         }
 
         [Test]
@@ -116,10 +137,17 @@ namespace Tests
         }
 
         [Test]
-        public void timer_passed_value()
+        public void timer_passed_int()
         {
             Metrics.Timer("someevent", 999);
             AssertWasReceived("someevent:999|ms");
+        }
+
+        [Test]
+        public void timer_passed_double()
+        {
+            Metrics.Timer("someevent", 999.99);
+            AssertWasReceived("someevent:999.99|ms");
         }
 
         [Test]

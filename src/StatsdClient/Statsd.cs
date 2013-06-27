@@ -56,15 +56,30 @@ namespace StatsdClient
 
         public void Add<TCommandType>(string name, int value, params string[] tags) where TCommandType : ICommandType
         {
-            _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1, tags));
+            _commands.Add(GetCommand<int>(name, value, _commandToUnit[typeof(TCommandType)], 1, tags));
+        }
+
+        public void Add<TCommandType>(string name, double value, params string[] tags) where TCommandType : ICommandType
+        {
+            _commands.Add(GetCommand<double>(name, value, _commandToUnit[typeof(TCommandType)], 1, tags));
         }
 
         public void Add<TCommandType>(string name, int value, double sampleRate, params string[] tags) where TCommandType : ICommandType
         {
-            _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
+            _commands.Add(GetCommand<int>(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
+        }
+
+        public void Add<TCommandType>(string name, double value, double sampleRate, params string[] tags) where TCommandType : ICommandType
+        {
+            _commands.Add(GetCommand<double>(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
         }
 
         public void Send<TCommandType>(string name, int value, params string[] tags) where TCommandType : ICommandType
+        {
+            Send<TCommandType>(name, value, 1, tags);
+        }
+
+        public void Send<TCommandType>(string name, double value, params string[] tags) where TCommandType : ICommandType
         {
             Send<TCommandType>(name, value, 1, tags);
         }
@@ -73,7 +88,15 @@ namespace StatsdClient
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                Send(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
+                Send(GetCommand<int>(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
+            }
+        }
+
+        public void Send<TCommandType>(string name, double value, double sampleRate, params string[] tags) where TCommandType : ICommandType
+        {
+            if (RandomGenerator.ShouldSend(sampleRate))
+            {
+                Send(GetCommand<double>(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
             }
         }
 
@@ -96,7 +119,7 @@ namespace StatsdClient
             }
         }
 
-        private string GetCommand(string name, int value, string unit, double sampleRate, params string[] tags)
+        private string GetCommand<T>(string name, T value, string unit, double sampleRate, params string[] tags)
         {
             // It would be cleaner to do this with StringBuilder, but we want sending stats to be as fast as possible
             if (sampleRate == 1 && tags.Length == 0)
