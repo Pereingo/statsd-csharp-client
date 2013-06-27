@@ -26,6 +26,7 @@ namespace StatsdClient
 			{
 				return;
 			}
+
 			_statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value);
 		}
 
@@ -35,6 +36,7 @@ namespace StatsdClient
 			{
 				return;
 			}
+
 			_statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
 		}
 
@@ -58,11 +60,10 @@ namespace StatsdClient
 			if (_statsD == null)
 			{
 				action();
+				return;
 			}
-			else
-			{
-				_statsD.Send(action, BuildNamespacedStatName(statName));
-			}
+
+			_statsD.Send(action, BuildNamespacedStatName(statName));
 		}
 
 		public static T Time<T>(Func<T> func, string statName)

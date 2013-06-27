@@ -1,35 +1,32 @@
-using System;
 using System.Threading;
-using System.Configuration;
 using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
-
 
 namespace Tests
 {
     [TestFixture]
     public class MetricIntegrationTests
     {
-        private UdpListener udpListener;
-        private Thread listenThread;
-        private int randomUnusedLocalPort = 23483;
-        private string localhostAddress = "127.0.0.1";
+        private UdpListener _udpListener;
+        private Thread _listenThread;
+	    private const int _randomUnusedLocalPort = 23483;
+	    private const string _localhostAddress = "127.0.0.1";
 	    private MetricsConfig _defaultMetricsConfig;
 
-		const string expectedTestPrefixRegex = @"test_prefix\.";
-		const string expectedTimeRegEx = @"time:.\\|ms";
+		const string _expectedTestPrefixRegex = @"test_prefix\.";
+		const string _expectedTimeRegEx = @"time:.\\|ms";
 
 	    [TestFixtureSetUp]
         public void SetUpUdpListener() 
         {
-            udpListener = new UdpListener(localhostAddress, randomUnusedLocalPort);
+            _udpListener = new UdpListener(_localhostAddress, _randomUnusedLocalPort);
         }
 
         [TestFixtureTearDown]
         public void TearDownUdpListener() 
         {
-            udpListener.Dispose();
+            _udpListener.Dispose();
         }
 
         [SetUp]
@@ -37,51 +34,29 @@ namespace Tests
 		{
 			_defaultMetricsConfig = new MetricsConfig
 			{
-				StatsdServerName = localhostAddress,
-				StatsdServerPort = randomUnusedLocalPort
+				StatsdServerName = _localhostAddress,
+				StatsdServerPort = _randomUnusedLocalPort
 			};
 
-            listenThread = new Thread(new ThreadStart(udpListener.Listen));
-            listenThread.Start();
+            _listenThread = new Thread(_udpListener.Listen);
+            _listenThread.Start();
         }
 
-        // Test helper. Waits until the listener is done receiving a message,
-        // then asserts that the passed string is equal to the message received.
-        private void AssertWasReceived(string shouldBe)
-        {
-                // Stall until the the listener receives a message or times out 
-                while(listenThread.IsAlive);
-                Assert.AreEqual(shouldBe, udpListener.GetAndClearLastMessage());
-
-        }
-		
-		// Test helper. Waits until the listener is done receiving a message,
-		// then asserts that the passed string is equal to the message received.
-		private void AssertWasReceivedUsingRegEx(string shouldBe)
+		private string LastPacketMessageReceived()
 		{
-			// Stall until the the listener receives a message or times out 
-			while (listenThread.IsAlive) ;
-			Assert.That(udpListener.GetAndClearLastMessage(), Is.StringMatching(shouldBe));
+			// Stall until the the listener receives a message or times out.
+			while(_listenThread.IsAlive) {}
 
-		}
-
-		// Test helper. Waits until the listener is done receiving a message,
-		// then asserts that the passed string is equal to the message received.
-		private void AssertNothingWasReceived()
-		{
-			// Stall until the the listener receives a message or times out 
-			while (listenThread.IsAlive) ;
-			Assert.That(udpListener.GetAndClearLastMessage(), Is.Null);
-
+			return _udpListener.GetAndClearLastMessage();
 		}
 
         [Test]
         public void _udp_listener_sanity_test()
         {
-            var client = new StatsdUDP(localhostAddress, randomUnusedLocalPort);
+            var client = new StatsdUDP(_localhostAddress, _randomUnusedLocalPort);
             client.Send("iamnotinsane!");
-            AssertWasReceived("iamnotinsane!");
 
+	        Assert.That(LastPacketMessageReceived(), Is.EqualTo("iamnotinsane!"));
         }
 
         [Test]
@@ -90,7 +65,7 @@ namespace Tests
 			Metrics.Configure(_defaultMetricsConfig);
 
             Metrics.Counter("counter");
-            AssertWasReceived("counter:1|c");
+	        Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:1|c"));
         }
 
 		[Test]
@@ -99,7 +74,7 @@ namespace Tests
 			Metrics.Configure(_defaultMetricsConfig);
 
 			Metrics.Counter("counter", 10);
-			AssertWasReceived("counter:10|c");
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:10|c"));
 		}
 
 		[Test]
@@ -109,7 +84,7 @@ namespace Tests
 			Metrics.Configure(_defaultMetricsConfig);
 
 			Metrics.Counter("counter");
-			AssertWasReceived("test_prefix.counter:1|c");
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.counter:1|c"));
 		}
 
 		[Test]
@@ -118,7 +93,7 @@ namespace Tests
 			Metrics.Configure(new MetricsConfig());
 
 			Metrics.Counter("counter");
-			AssertNothingWasReceived();
+			Assert.That(LastPacketMessageReceived(), Is.Null);
 		}
 
 		[Test]
@@ -127,7 +102,7 @@ namespace Tests
 			Metrics.Configure(_defaultMetricsConfig);
 
 			Metrics.Timer("timer", 6);
-			AssertWasReceived("timer:6|ms");
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("timer:6|ms"));
 		}
 
 		[Test]
@@ -137,7 +112,7 @@ namespace Tests
 			Metrics.Configure(_defaultMetricsConfig);
 
 			Metrics.Timer("timer", 6);
-			AssertWasReceived("test_prefix.timer:6|ms");
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:6|ms"));
 		}
 
 		[Test]
@@ -146,7 +121,7 @@ namespace Tests
 			Metrics.Configure(new MetricsConfig());
 
 			Metrics.Timer("timer", 6);
-			AssertNothingWasReceived();
+			Assert.That(LastPacketMessageReceived(), Is.Null);
 		}
 
 		[Test]
@@ -155,7 +130,7 @@ namespace Tests
 			Metrics.Configure(_defaultMetricsConfig);
 
 			Metrics.Time(() => Thread.Sleep(2), "time");
-			AssertWasReceivedUsingRegEx(expectedTimeRegEx);
+			Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTimeRegEx));
 		}
 
 	    [Test]
@@ -165,7 +140,7 @@ namespace Tests
 			Metrics.Configure(_defaultMetricsConfig);
 
 			Metrics.Time(() => Thread.Sleep(2), "time");
-			AssertWasReceivedUsingRegEx(expectedTestPrefixRegex + expectedTimeRegEx);
+		    Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
 		}
 
 		[Test]
@@ -174,7 +149,7 @@ namespace Tests
 			Metrics.Configure(new MetricsConfig());
 
 			Metrics.Time(() => {}, "timer");
-			AssertNothingWasReceived();
+			Assert.That(LastPacketMessageReceived(), Is.Null);
 		}
 
 	    [Test]
@@ -188,8 +163,8 @@ namespace Tests
 				return 5;
 			}, "time");
 
-			AssertWasReceivedUsingRegEx(expectedTimeRegEx);
-			Assert.That(returnValue, Is.EqualTo(5));
+		    Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTimeRegEx));
+		    Assert.That(returnValue, Is.EqualTo(5));
 	    }
 
 		[Test]
@@ -204,7 +179,7 @@ namespace Tests
 				return 5;
 			}, "time");
 
-			AssertWasReceivedUsingRegEx(expectedTestPrefixRegex + expectedTimeRegEx);
+			Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
 			Assert.That(returnValue, Is.EqualTo(5));
 		}
 
@@ -215,7 +190,7 @@ namespace Tests
 
 			var returnValue = Metrics.Time(() => 5, "time");
 
-			AssertNothingWasReceived();
+			Assert.That(LastPacketMessageReceived(), Is.Null);
 			Assert.That(returnValue, Is.EqualTo(5));
 		}
 
@@ -225,7 +200,7 @@ namespace Tests
 			Metrics.Configure(_defaultMetricsConfig);
 
 			Metrics.Gauge("guage", 3);
-			AssertWasReceived("guage:3|g");
+		    Assert.That(LastPacketMessageReceived(), Is.EqualTo("guage:3|g"));
 		}
 
 		[Test]
@@ -235,7 +210,7 @@ namespace Tests
 			Metrics.Configure(_defaultMetricsConfig);
 
 			Metrics.Gauge("guage", 3);
-			AssertWasReceived("test_prefix.guage:3|g");
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.guage:3|g"));
 		}
 
 		[Test]
@@ -244,8 +219,7 @@ namespace Tests
 			Metrics.Configure(new MetricsConfig());
 
 			Metrics.Gauge("guage", 3);
-			AssertNothingWasReceived();
+			Assert.That(LastPacketMessageReceived(), Is.Null);
 		}
     }
 }
-
