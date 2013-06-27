@@ -51,10 +51,10 @@ with a timed `Func<T>` that returns the same value
 
     var result = Metrics.Time(() => GetResult(), "stat-name");
 
-*Metrics will not attempt to handle any exceptions that occur in a
-timed block, action, or method. If an unhandled exception is thrown while
+Metrics will not attempt to handle any exceptions that occur in a
+timed block or method. If an unhandled exception is thrown while
 timing, a timer metric containing the time elapsed before the exception
-occurred will be submitted.*
+occurred will be submitted.
 
 Via the Statsd class:
 ---------------------

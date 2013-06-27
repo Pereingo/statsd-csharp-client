@@ -149,6 +149,26 @@ namespace Tests
             }
             AssertWasReceivedMatches(@"timer:\d{3}\|ms");
         }
+
+        [Test]
+        public void timer_block_doesnt_swallow_exception_and_submits_metric()
+        {
+            // (Wasn't able to get this working with Assert.Throws)
+            try
+            {
+                using (Metrics.StartTimer("timer"))
+                {
+                    throwException();
+                }
+                Assert.Fail();
+            }
+            catch (Exception)
+            {
+                Assert.Pass();
+            }
+
+            AssertWasReceivedMatches(@"timer:\d{3}\|ms");
+        }
     }
 }
 
