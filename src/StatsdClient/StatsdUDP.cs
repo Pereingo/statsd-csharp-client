@@ -7,7 +7,7 @@ namespace StatsdClient
 {
     public class StatsdUDP : IDisposable, IStatsdUDP
     {
-        private IPEndPoint IPEndpoint { get; set; }
+        public IPEndPoint IPEndpoint { get; private set; }
         private Socket UDPSocket { get; set; }
         private string Name { get; set; }
         private int Port { get; set; }
@@ -16,11 +16,28 @@ namespace StatsdClient
         {
             Name = name;
             Port = port;
-            
+
             UDPSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            
-            IPHostEntry entry = Dns.GetHostEntry(Name);
-            IPEndpoint = new IPEndPoint(entry.AddressList[0],Port);
+
+            var ipAddress = GetIpv4Address(name);
+
+            IPEndpoint = new IPEndPoint(ipAddress, Port);
+        }
+
+        private IPAddress GetIpv4Address(string name)
+        {
+            IPAddress ipAddress;
+            bool isValidIPAddress = IPAddress.TryParse(name, out ipAddress);
+
+            if (!isValidIPAddress)
+            {
+                IPAddress[] addressList = Dns.GetHostEntry(Name).AddressList;
+
+                int positionForIpv4 = addressList.Length - 1;
+
+                ipAddress = addressList[positionForIpv4];
+            }
+            return ipAddress;
         }
 
         public void Send(string command)
