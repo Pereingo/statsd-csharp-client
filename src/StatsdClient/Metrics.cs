@@ -15,11 +15,9 @@ namespace StatsdClient
 			}
 
 			_prefix = config.Prefix;
-
-			if (!string.IsNullOrEmpty(config.StatsdServerName))
-			{
-				_statsD = new Statsd(new StatsdUDP(config.StatsdServerName, 8125));
-			}
+			_statsD = string.IsNullOrEmpty(config.StatsdServerName)
+				          ? null
+				          : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort));
 		}
 
 		public static void Counter(string statName, int value = 1)	
@@ -28,6 +26,7 @@ namespace StatsdClient
 			{
 				return;
 			}
+
 			_statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value);
 		}
 
@@ -37,6 +36,7 @@ namespace StatsdClient
 			{
 				return;
 			}
+
 			_statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
 		}
 
@@ -60,11 +60,10 @@ namespace StatsdClient
 			if (_statsD == null)
 			{
 				action();
+				return;
 			}
-			else
-			{
-				_statsD.Send(action, BuildNamespacedStatName(statName));
-			}
+
+			_statsD.Send(action, BuildNamespacedStatName(statName));
 		}
 
 		public static T Time<T>(Func<T> func, string statName)
