@@ -26,346 +26,77 @@ namespace StatsdClient
             _statsD = new Statsd(new StatsdUDP(config.StatsdServerName, port));
         }
 
-        public static void Counter(string statName, int value = 1)  
+        public static void Counter<T>(string statName, T value, double sampleRate = 1.0, string[] tags = null)  
         {
             if (_statsD == null)
             {
                 return;
             }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value);
+            _statsD.Send<Statsd.Counting,T>(BuildNamespacedStatName(statName), value, sampleRate, tags);
         }
 
-        public static void Counter(string statName, params string[] tags)  
+        public static void Increment(string statName, double sampleRate = 1.0, string[] tags = null)  
         {
             if (_statsD == null)
             {
                 return;
             }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), 1, tags);
+            _statsD.Send<Statsd.Counting,int>(BuildNamespacedStatName(statName), 1, sampleRate, tags);
         }
 
-        public static void Counter(string statName, int value, params string[] tags)  
+        public static void Decrement(string statName, double sampleRate = 1.0, params string[] tags)  
         {
             if (_statsD == null)
             {
                 return;
             }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value, tags);
+            _statsD.Send<Statsd.Counting,int>(BuildNamespacedStatName(statName), -1, sampleRate, tags);
         }
 
-        public static void Counter(string statName, double sampleRate, params string[] tags)  
+        public static void Gauge<T>(string statName, T value, double sampleRate = 1.0, string[] tags = null)
         {
             if (_statsD == null)
             {
                 return;
             }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), 1, sampleRate, tags);
+            _statsD.Send<Statsd.Gauge,T>(BuildNamespacedStatName(statName), value, sampleRate, tags);
         }
 
-        public static void Counter(string statName, int value, double sampleRate, params string[] tags)  
+        public static void Histogram<T>(string statName, T value, double sampleRate = 1.0, string[] tags = null)
         {
             if (_statsD == null)
             {
                 return;
             }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value, sampleRate, tags);
+            _statsD.Send<Statsd.Histogram,T>(BuildNamespacedStatName(statName), value, sampleRate, tags);
         }
 
-        public static void Increment(string statName)  
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), 1);
-        }
-
-        public static void Increment(string statName, params string[] tags)  
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), 1, tags);
-        }
-
-        public static void Increment(string statName, double sampleRate)  
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), 1, sampleRate);
-        }
-
-        public static void Increment(string statName, double sampleRate, params string[] tags)  
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), 1, sampleRate, tags);
-        }
-
-        public static void Decrement(string statName)  
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), -1);
-        }
-
-        public static void Decrement(string statName, params string[] tags)  
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), -1, tags);
-        }
-
-        public static void Decrement(string statName, double sampleRate)  
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), -1, sampleRate);
-        }
-
-        public static void Decrement(string statName, double sampleRate, params string[] tags)  
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), -1, sampleRate, tags);
-        }
-
-        public static void Gauge(string statName, int value)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
-        }
-
-        public static void Gauge(string statName, int value, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value, tags);
-        }
-
-        public static void Gauge(string statName, int value, double sampleRate, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value, sampleRate, tags);
-        }
-
-        public static void Gauge(string statName, double value)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
-        }
-
-        public static void Gauge(string statName, double value, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value, tags);
-        }
-
-        public static void Gauge(string statName, double value, double sampleRate, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value, sampleRate, tags);
-        }
-
-        public static void Histogram(string statName, int value)
+        public static void Set<T>(string statName, T value, double sampleRate = 1.0, string[] tags = null)
         {
             if (_statsD == null) 
             {
                 return;
             }
-            _statsD.Send<Statsd.Histogram>(BuildNamespacedStatName(statName), value);
+            _statsD.Send<Statsd.Set,T>(BuildNamespacedStatName(statName), value, sampleRate, tags);
         }
 
-        public static void Histogram(string statName, int value, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Histogram>(BuildNamespacedStatName(statName), value, tags);
-        }
-
-        public static void Histogram(string statName, int value, double sampleRate, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Histogram>(BuildNamespacedStatName(statName), value, sampleRate, tags);
-        }
-
-        public static void Histogram(string statName, double value)
-        {
-            if (_statsD == null) 
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Histogram>(BuildNamespacedStatName(statName), value);
-        }
-
-        public static void Histogram(string statName, double value, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Histogram>(BuildNamespacedStatName(statName), value, tags);
-        }
-
-        public static void Histogram(string statName, double value, double sampleRate, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Histogram>(BuildNamespacedStatName(statName), value, sampleRate, tags);
-        }
-
-        public static void Set(string statName, int value)
-        {
-            if (_statsD == null) 
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value);
-        }
-
-        public static void Set(string statName, int value, params string[] tags)
-        {
-            if (_statsD == null) 
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value, tags);
-        }
-
-        public static void Set(string statName, int value, double sampleRate, params string[] tags)
-        {
-            if (_statsD == null) 
-            {
-                return;
-            }
-            _statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value, sampleRate, tags);
-        }
-
-        public static void Timer(string statName, int value)
+        public static void Timer<T>(string statName, T value, double sampleRate = 1.0, string[] tags = null)
         {
             if (_statsD == null)
             {
                 return;
             }
 
-            _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value);
+            _statsD.Send<Statsd.Timing,T>(BuildNamespacedStatName(statName), value, sampleRate, tags);
         }
 
-        public static void Timer(string statName, int value, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
 
-            _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, tags);
-        }
-
-        public static void Timer(string statName, int value, double sampleRate, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-
-            _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate, tags);
-        }
-
-        public static void Timer(string statName, double value)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-
-            _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value);
-        }
-
-        public static void Timer(string statName, double value, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-
-            _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, tags);
-        }
-
-        public static void Timer(string statName, double value, double sampleRate, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return;
-            }
-
-            _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate, tags);
-        }
-
-        public static IDisposable StartTimer(string name)
-        {
-            return new MetricsTimer(name);
-        }
-
-        public static IDisposable StartTimer(string name, params string[] tags)
-        {
-            return new MetricsTimer(name, tags);
-        }
-
-        public static IDisposable StartTimer(string name, double sampleRate, params string[] tags)
+        public static IDisposable StartTimer(string name, double sampleRate = 1.0, string[] tags = null)
         {
             return new MetricsTimer(name, sampleRate, tags);
         }
 
-        public static void Time(Action action, string statName, params string[] tags) 
-        {
-            if (_statsD == null)
-            {
-                action();
-            }
-            else
-            {
-                _statsD.Send(action, BuildNamespacedStatName(statName), tags);
-            }
-        }
-
-        public static void Time(Action action, string statName, double sampleRate, params string[] tags) 
+        public static void Time(Action action, string statName, double sampleRate = 1.0, string[] tags = null) 
         {
             if (_statsD == null)
             {
@@ -377,33 +108,7 @@ namespace StatsdClient
             }
         }
 
-        public static T Time<T>(Func<T> func, string statName)
-        {
-            if (_statsD == null)
-            {
-                return func();
-            }
-
-            using (StartTimer(statName))
-            {
-                return func();
-            }
-        }
-
-        public static T Time<T>(Func<T> func, string statName, params string[] tags)
-        {
-            if (_statsD == null)
-            {
-                return func();
-            }
-
-            using (StartTimer(statName, tags))
-            {
-                return func();
-            }
-        }
-
-        public static T Time<T>(Func<T> func, string statName, double sampleRate, params string[] tags)
+        public static T Time<T>(Func<T> func, string statName, double sampleRate = 1.0, string[] tags = null)
         {
             if (_statsD == null)
             {

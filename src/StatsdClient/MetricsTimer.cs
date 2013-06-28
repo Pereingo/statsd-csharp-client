@@ -10,16 +10,7 @@ namespace StatsdClient
         private readonly double _sampleRate;
         private readonly string[] _tags; 
 
-        public MetricsTimer(string name, params string[] tags)
-        {
-            _name = name;
-            _stopWatch = new Stopwatch();
-            _stopWatch.Start();
-            _sampleRate = 1.0;
-            _tags = tags;
-        }
-
-        public MetricsTimer(string name, double sampleRate, params string[] tags)
+        public MetricsTimer(string name, double sampleRate = 1.0, string[] tags = null)
         {
             _name = name;
             _stopWatch = new Stopwatch();

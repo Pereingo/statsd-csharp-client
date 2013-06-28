@@ -16,7 +16,7 @@ namespace Tests
             UdpListener udpListener = new UdpListener(testServerName, testPort);
             Thread listenThread = new Thread(new ThreadStart(udpListener.Listen));
             listenThread.Start();
-            Metrics.Counter(testCounterName);
+            Metrics.Increment(testCounterName);
             while(listenThread.IsAlive);
             Assert.AreEqual(expectedOutput, udpListener.GetAndClearLastMessage());
             udpListener.Dispose();
