@@ -18,9 +18,9 @@ At start of your app, configure the `Metrics` class like this:
 
     var metricsConfig = new MetricsConfig
     {
-      StatsdServerName = "host.name",
-      StatsdPort = 8125, // Optional; default is 8125
-      Prefix = "myApp" // Optional; by default no prefix will be prepended
+        StatsdServerName = "host.name",
+        StatsdPort = 8125, // Optional; default is 8125
+        Prefix = "myApp" // Optional; by default no prefix will be prepended
     };
 
     StatsdClient.Metrics.Configure(metricsConfig);
