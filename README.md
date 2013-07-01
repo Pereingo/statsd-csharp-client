@@ -75,11 +75,6 @@ timed block or method. If an unhandled exception is thrown while
 timing, a timer metric containing the time elapsed before the exception
 occurred will be submitted.
 
-Change Log
-----------
-
-To do once first release is out
-
 Usage via the Statsd class:
 ---------------------------
 
@@ -133,6 +128,11 @@ timed method. If an unhandled exception is thrown while
 timing, a timer metric containing the time elapsed before the exception
 occurred will be sent or added to the send queue (depending on whether Send or
 Add is being called).
+
+Change Log
+----------
+
+To do once first release is out
 
 Feedback
 --------
