@@ -488,13 +488,17 @@ namespace Tests
         }
 
         [Test]
-        public void add_one_counter_and_send_one_gauge_sends_only_sends_the_last()
+        public void add_one_counter_and_send_one_gauge_sends_only_sends_the_last_and_clears_queue()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Add<Statsd.Counting,int>("counter", 1);
             s.Send<Statsd.Timing,int>("timer", 1);
 
             udp.AssertWasCalled(x => x.Send("timer:1|ms"));
+
+            s.Send();
+
+            udp.AssertWasNotCalled(x => x.Send("counter:1|c"));
         }
 
         [Test]
