@@ -8,8 +8,7 @@ metric server for [Datadog](http://datadoghq.com).
 Installation
 ------------
 
-Once the first release is completed, you will be able to get it from NuGet.
-For now you can get the source from here and build it.
+Grab the [package from NuGet](https://nuget.org/packages/DogStatsD-CSharp-Client/), or get the source from here and build it yourself.
 
 Usage via the static Metrics class:
 -----------------------------
@@ -28,6 +27,11 @@ At start of your app, configure the `Metrics` class like this:
 Where "host.name" is the name of the statsd server, 8125 is the optional statsd port number, and "myApp" is an optional prefix that is prepended on all stats.
 
 Then start instrumenting your code:
+
+    // The code is located under the StatsdClient namespace
+    using StatsdClient;
+
+    ...
 
     // Increment a counter by 1
     Metrics.Increment("eventname");
@@ -82,6 +86,11 @@ In most cases, the static Metrics class is probably better to use.
 However, the Statsd is useful when you want to queue up a number of metrics to be sent in
 one UDP message (via the Add method).
 
+    // The code is located under the StatsdClient namespace
+    using StatsdClient;
+
+    ...
+
     // NB: StatsdUDP is IDisposable and if not disposed, will leak resources
     StatsdUDP udp = new StatsdUDP(HOSTNAME, PORT);
     using (udp)
@@ -132,7 +141,8 @@ Add is being called).
 Change Log
 ----------
 
-To do once first release is out
+- 1.0.0
+    - Initial release
 
 Feedback
 --------
