@@ -201,7 +201,7 @@ namespace Tests
             s.Add<Statsd.Timing>("timer", 1);
             s.Send();
 
-            udp.AssertWasCalled(x => x.Send("counter:1|c|@0.1" + Environment.NewLine + "timer:1|ms"));
+            udp.AssertWasCalled(x => x.Send("counter:1|c|@0.1\ntimer:1|ms"));
         }
 
 
@@ -247,7 +247,7 @@ namespace Tests
             s.Add<Statsd.Timing>("timer", 1);
             s.Send();
 
-            udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1" + Environment.NewLine + "another.prefix.timer:1|ms"));
+            udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1\nanother.prefix.timer:1|ms"));
         }
 
         private int testMethod()
