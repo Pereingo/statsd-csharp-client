@@ -90,51 +90,53 @@ In most cases, the static Metrics class is probably better to use.
 However, the Statsd is useful when you want to queue up a number of metrics to be sent in
 one UDP message (via the Add method).
 
-    // The code is located under the StatsdClient namespace
-    using StatsdClient;
+``` C#
+// The code is located under the StatsdClient namespace
+using StatsdClient;
 
-    ...
+...
 
-    // NB: StatsdUDP is IDisposable and if not disposed, will leak resources
-    StatsdUDP udp = new StatsdUDP(HOSTNAME, PORT);
-    using (udp)
-    {
-      Statsd s = new Statsd(udp);
+// NB: StatsdUDP is IDisposable and if not disposed, will leak resources
+StatsdUDP udp = new StatsdUDP(HOSTNAME, PORT);
+using (udp)
+{
+  Statsd s = new Statsd(udp);
 
-      // Incrementing a counter by 1
-      s.Send<Statsd.Counting,int>("stat-name", 1);
+  // Incrementing a counter by 1
+  s.Send<Statsd.Counting,int>("stat-name", 1);
 
-      // Recording a gauge
-      s.Send<Statsd.Gauge,double>("stat-name", 5,5);
+  // Recording a gauge
+  s.Send<Statsd.Gauge,double>("stat-name", 5,5);
 
-      // Sampling a histogram
-      s.Send<Statsd.Histogram,int>("stat-name", 1);
+  // Sampling a histogram
+  s.Send<Statsd.Histogram,int>("stat-name", 1);
 
-      // Send an element to a set
-      s.Send<Statsd.Set,int>("stat-name", 1);
+  // Send an element to a set
+  s.Send<Statsd.Set,int>("stat-name", 1);
 
-      // Send a timer
-      s.Send<Statsd.Timing,double>("stat-name", 3.1337);
+  // Send a timer
+  s.Send<Statsd.Timing,double>("stat-name", 3.1337);
 
-      // Time a method
-      s.Send(() => MethodToTime(), "stat-name");
+  // Time a method
+  s.Send(() => MethodToTime(), "stat-name");
 
-      // See note below on how exceptions in timed methods are handled
+  // See note below on how exceptions in timed methods are handled
 
-      // All types have optional sample rates and tags:
-      s.Send<Statsd.Counting,int>("stat-name", 1, sampleRate: 1/10, tags: new[] {"tag1:true", "tag2"});
+  // All types have optional sample rates and tags:
+  s.Send<Statsd.Counting,int>("stat-name", 1, sampleRate: 1/10, tags: new[] {"tag1:true", "tag2"});
 
-      // You can add combinations of messages which will be sent in one go:
-      s.Add<Statsd.Counting,int>("stat-name", 1);
-      s.Add<Statsd.Timing,int>("stat-name", 5, sampleRate: 1/10);
-      s.Send(); // message will contain counter and will contain timer 10% of the time
+  // You can add combinations of messages which will be sent in one go:
+  s.Add<Statsd.Counting,int>("stat-name", 1);
+  s.Add<Statsd.Timing,int>("stat-name", 5, sampleRate: 1/10);
+  s.Send(); // message will contain counter and will contain timer 10% of the time
 
-      // All previous commands will be flushed after any Send
-      // Any Adds will be ignored if using a Send directly
-      s.Add<Statsd.Counting,int>("stat-name", 1);
-      s.Send<Statsd.Timing,double>("stat-name", 4.4); // message will only contain Timer
-      s.Send(); // the counter will not be sent by the command
-     }
+  // All previous commands will be flushed after any Send
+  // Any Adds will be ignored if using a Send directly
+  s.Add<Statsd.Counting,int>("stat-name", 1);
+  s.Send<Statsd.Timing,double>("stat-name", 4.4); // message will only contain Timer
+  s.Send(); // the counter will not be sent by the command
+ }
+```
 
 A note about timing: Statsd will not attempt to handle any exceptions that occur in a
 timed method. If an unhandled exception is thrown while
