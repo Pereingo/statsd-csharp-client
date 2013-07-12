@@ -15,64 +15,68 @@ Usage via the static Metrics class:
 
 At start of your app, configure the `Metrics` class like this:
 
-    var metricsConfig = new MetricsConfig
-    {
-        StatsdServerName = "host.name",
-        StatsdPort = 8125, // Optional; default is 8125
-        Prefix = "myApp" // Optional; by default no prefix will be prepended
-    };
+``` C#
+var metricsConfig = new MetricsConfig
+{
+    StatsdServerName = "host.name",
+    StatsdPort = 8125, // Optional; default is 8125
+    Prefix = "myApp" // Optional; by default no prefix will be prepended
+};
 
-    StatsdClient.Metrics.Configure(metricsConfig);
+StatsdClient.Metrics.Configure(metricsConfig);
+```
 
 Where "host.name" is the name of the statsd server, 8125 is the optional statsd port number, and "myApp" is an optional prefix that is prepended on all stats.
 
 Then start instrumenting your code:
 
-    // The code is located under the StatsdClient namespace
-    using StatsdClient;
+``` C#
+// The code is located under the StatsdClient namespace
+using StatsdClient;
 
-    ...
+// ...
 
-    // Increment a counter by 1
-    Metrics.Increment("eventname");
+// Increment a counter by 1
+Metrics.Increment("eventname");
 
-    // Decrement a counter by 1
-    Metrics.Decrement("eventname");
+// Decrement a counter by 1
+Metrics.Decrement("eventname");
 
-    // Increment a counter by a specific value
-    Metrics.Counter("page.views", page.views);
+// Increment a counter by a specific value
+Metrics.Counter("page.views", page.views);
 
-    // Record a gauge
-    Metrics.Gauge("gas_tank.level", 0.75);
+// Record a gauge
+Metrics.Gauge("gas_tank.level", 0.75);
 
-    // Sample a histogram
-    Metrics.Histogram("file.size", file.size);
+// Sample a histogram
+Metrics.Histogram("file.size", file.size);
 
-    // Add an element to a set
-    Metrics.Set("users.unique", user.id);
+// Add an element to a set
+Metrics.Set("users.unique", user.id);
 
-    // Time a block of code
-    using (Metrics.StartTimer("stat-name"))
-    {
-        DoSomethingAmazing();
-        DoSomethingFantastic();
-    }
+// Time a block of code
+using (Metrics.StartTimer("stat-name"))
+{
+    DoSomethingAmazing();
+    DoSomethingFantastic();
+}
 
-    // Time an action
-    Metrics.Time(() => DoMagic(), "stat-name");
+// Time an action
+Metrics.Time(() => DoMagic(), "stat-name");
 
-    // Timing an action preserves its return value
-    var result = Metrics.Time(() => GetResult(), "stat-name");
+// Timing an action preserves its return value
+var result = Metrics.Time(() => GetResult(), "stat-name");
 
-    // See note below for how exceptions in timed methods or blocks are handled
+// See note below for how exceptions in timed methods or blocks are handled
 
-    // Every metric type supports tags and sample rates
-    Metrics.Set("users.unique", user.id, tags: new[] {"country:canada"});
-    Metrics.Gauge("gas_tank.level", 0.75, sampleRate: 0.5, tags: new[] {"hybrid", "trial_1"});
-    using (Metrics.StartTimer("stat-name", sampleRate: 0.1))
-    {
-        DoSomethingFrequent();
-    }
+// Every metric type supports tags and sample rates
+Metrics.Set("users.unique", user.id, tags: new[] {"country:canada"});
+Metrics.Gauge("gas_tank.level", 0.75, sampleRate: 0.5, tags: new[] {"hybrid", "trial_1"});
+using (Metrics.StartTimer("stat-name", sampleRate: 0.1))
+{
+    DoSomethingFrequent();
+}
+```
 
 A note about timing: Metrics will not attempt to handle any exceptions that occur in a
 timed block or method. If an unhandled exception is thrown while
