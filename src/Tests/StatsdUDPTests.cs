@@ -12,7 +12,7 @@ namespace Tests
     // Most of StatsUDP is tested in StatsdUnitTests. This is mainly to test the splitting of oversized
     // UDP packets
     [TestFixture]
-    public class StatsDTests
+    public class StatsUDPTests
     {
         private UdpListener udpListener;
         private Thread listenThread;
