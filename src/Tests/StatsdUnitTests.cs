@@ -654,6 +654,14 @@ namespace Tests
         }
 
         [Test]
+        public void send_set_string()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Set,string>("set", "objectname");
+            udp.AssertWasCalled (x => x.Send("set:objectname|s"));
+        }
+
+        [Test]
         public void send_set_with_tags()
         {
             Statsd s = new Statsd (udp, _randomGenerator, _stopwatch);
@@ -678,6 +686,15 @@ namespace Tests
         }
 
         [Test]
+        public void send_set_string_with_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Set,string>("set", "objectname", sampleRate: 0.1, tags: new[] {"tag1:true", "tag2"});
+            udp.AssertWasCalled (x => x.Send("set:objectname|s|@0.1|#tag1:true,tag2"));
+        }
+
+
+        [Test]
         public void add_set()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -685,6 +702,16 @@ namespace Tests
 
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("set:5|s"));
+        }
+
+        [Test]
+        public void add_set_string()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Set,string>("set", "string");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("set:string|s"));
         }
 
         [Test]
@@ -715,6 +742,16 @@ namespace Tests
 
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("set:5|s|@0.5|#tag1:true,tag2"));
+        }
+
+        [Test]
+        public void add_set_string_with_sample_rate_and_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add<Statsd.Set,string>("set", "string", sampleRate: 0.5, tags: new[] {"tag1:true", "tag2"});
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("set:string|s|@0.5|#tag1:true,tag2"));
         }
     }
 }

@@ -51,8 +51,9 @@ Metrics.Gauge("gas_tank.level", 0.75);
 // Sample a histogram
 Metrics.Histogram("file.size", file.size);
 
-// Add an element to a set
+// Add elements to a set
 Metrics.Set("users.unique", user.id);
+Metrics.Set("users.unique", "email@string.com");
 
 // Time a block of code
 using (Metrics.StartTimer("stat-name"))
@@ -111,8 +112,9 @@ using (udp)
   // Sampling a histogram
   s.Send<Statsd.Histogram,int>("stat-name", 1);
 
-  // Send an element to a set
+  // Send elements to a set
   s.Send<Statsd.Set,int>("stat-name", 1);
+  s.Send<Statsd.Set,string>("stat-name", "stat-value");
 
   // Send a timer
   s.Send<Statsd.Timing,double>("stat-name", 3.1337);

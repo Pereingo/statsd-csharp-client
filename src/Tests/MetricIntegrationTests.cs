@@ -336,6 +336,34 @@ namespace Tests
         }
 
         [Test]
+        public void set_string()
+        {
+            Metrics.Set("set", "string");
+            AssertWasReceived("set:string|s");
+        }
+
+        [Test]
+        public void set_string_tags()
+        {
+            Metrics.Set("set", "string", tags: new[] {"tag1:true", "tag2"});
+            AssertWasReceived("set:string|s|#tag1:true,tag2");
+        }
+
+        [Test]
+        public void set_string_sample_rate()
+        {
+            Metrics.Set("set", "string", sampleRate: 1.1);
+            AssertWasReceived("set:string|s|@1.1");
+        }
+
+        [Test]
+        public void set_string_sample_rate_tags()
+        {
+            Metrics.Set("set", "string", sampleRate: 12.2, tags: new[] {"tag1:true", "tag2"});
+            AssertWasReceived("set:string|s|@12.2|#tag1:true,tag2");
+        }
+
+        [Test]
         public void timer()
         {
             Metrics.Timer("someevent", 999);
