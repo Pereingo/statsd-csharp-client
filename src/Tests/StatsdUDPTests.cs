@@ -115,5 +115,20 @@ namespace Tests
             AssertWasReceived(String.Format("{0}:2|g", msg), 1);
             AssertWasReceived(null, 2);
         }
+
+        [Test]
+        public void send_oversized_udp_packets_are_split_if_possible_with_multiple_messages_in_one_packet()
+        {
+            var msg = new String('f', StatsdUDP.MAX_UDP_PACKET_SIZE / 2);
+            listenThread.Start(3); // Listen for 3 messages
+            statsd.Add<Statsd.Counting,int>("counter", 1);
+            statsd.Add<Statsd.Counting,int>(msg, 2);
+            statsd.Add<Statsd.Counting,int>(msg, 3);
+            statsd.Send();
+            AssertWasReceived(String.Format("counter:1|c\n{0}:2|c", msg), 0);
+            AssertWasReceived(String.Format("{0}:3|c", msg), 1);
+            AssertWasReceived(null, 2);
+        }
+
     }
 }
