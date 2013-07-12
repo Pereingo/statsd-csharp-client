@@ -18,7 +18,7 @@ namespace Tests
             listenThread.Start();
             Metrics.Increment(testCounterName);
             while(listenThread.IsAlive);
-            Assert.AreEqual(expectedOutput, udpListener.GetAndClearLastMessage());
+            Assert.AreEqual(expectedOutput, udpListener.GetAndClearLastMessages()[0]);
             udpListener.Dispose();
         }
 

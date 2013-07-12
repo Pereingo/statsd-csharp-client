@@ -34,26 +34,32 @@ namespace Tests
         [SetUp]
         public void StartUdpListenerThread()
         {
-            listenThread = new Thread(new ThreadStart(udpListener.Listen));
+            listenThread = new Thread(new ParameterizedThreadStart(udpListener.Listen));
             listenThread.Start();
+        }
+
+        [TearDown]
+        public void ClearUdpListenerMessages()
+        {
+            udpListener.GetAndClearLastMessages(); // just to be sure that nothing is left over
         }
 
         // Test helper. Waits until the listener is done receiving a message,
         // then asserts that the passed string is equal to the message received.
-        private void AssertWasReceived(string shouldBe)
+        private void AssertWasReceived(string shouldBe, int index = 0)
         {
                 // Stall until the the listener receives a message or times out 
                 while(listenThread.IsAlive);
-                Assert.AreEqual(shouldBe, udpListener.GetAndClearLastMessage());
+                Assert.AreEqual(shouldBe, udpListener.GetAndClearLastMessages()[index]);
         }
 
         // Test helper. Waits until the listener is done receiving a message,
         // then asserts that the passed regular expression matches the received message.
-        private void AssertWasReceivedMatches(string pattern)
+        private void AssertWasReceivedMatches(string pattern, int index = 0)
         {
             // Stall until the the listener receives a message or times out
             while(listenThread.IsAlive);
-            StringAssert.IsMatch(pattern, udpListener.GetAndClearLastMessage());
+            StringAssert.IsMatch(pattern, udpListener.GetAndClearLastMessages()[index]);
 
         }
 
@@ -539,10 +545,9 @@ namespace Tests
             }
             catch (Exception)
             {
+                AssertWasReceivedMatches(@"timer:\d{3}\|ms");
                 Assert.Pass();
             }
-
-            AssertWasReceivedMatches(@"timer:\d{3}\|ms");
         }
     }
 }
