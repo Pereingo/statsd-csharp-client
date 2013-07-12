@@ -1,4 +1,5 @@
 using System.Threading;
+using System.Collections.Generic;
 using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
@@ -38,7 +39,7 @@ namespace Tests
 				StatsdServerPort = _randomUnusedLocalPort
 			};
 
-            _listenThread = new Thread(_udpListener.Listen);
+            _listenThread = new Thread(new ParameterizedThreadStart(_udpListener.Listen));
             _listenThread.Start();
         }
 
@@ -47,7 +48,15 @@ namespace Tests
 			// Stall until the the listener receives a message or times out.
 			while(_listenThread.IsAlive) {}
 
-			return _udpListener.GetAndClearLastMessage();
+			List<string> _lastMessages = _udpListener.GetAndClearLastMessages();
+			try
+			{
+				return _lastMessages[0];
+			}
+			catch (System.ArgumentOutOfRangeException)
+			{
+				return null;
+			}
 		}
 
         [Test]
