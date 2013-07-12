@@ -38,7 +38,7 @@ namespace Tests
                 lastReceivedMessages = new List<string>();
                 localIpEndPoint = new IPEndPoint(IPAddress.Parse(hostname), port);
                 socket = new UdpClient(localIpEndPoint);
-                socket.Client.ReceiveTimeout = 5000;
+                socket.Client.ReceiveTimeout = 100;
                 senderIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
             }
 

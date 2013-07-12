@@ -57,6 +57,7 @@
     <Compile Include="MetricIntegrationTests.cs" />
     <Compile Include="UdpListener.cs" />
     <Compile Include="MetricConfigurationTests.cs" />
+    <Compile Include="StatsdUDPTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
