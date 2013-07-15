@@ -96,7 +96,8 @@ namespace Tests
         [Test]
         public void send_unsplittable_oversized_udp_packets_are_not_split_or_sent_and_no_exception_is_raised()
         {
-            var msg = new String('f', StatsdUDP.MAX_UDP_PACKET_SIZE * 100);
+            // This message will be one byte longer than the theoretical limit of a UDP packet
+            var msg = new String('f', 65508);
             listenThread.Start();
             statsd.Add<Statsd.Counting>(msg, 1);
             statsd.Send();
