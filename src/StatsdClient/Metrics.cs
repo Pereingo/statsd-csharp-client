@@ -20,14 +20,14 @@ namespace StatsdClient
 				          : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort));
 		}
 
-		public static void Counter(string statName, int value = 1)	
+        public static void Counter(string statName, int value = 1, double sampleRate = 1)	
 		{
 			if (_statsD == null)
 			{
 				return;
 			}
 
-			_statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value);
+            _statsD.Send(BuildNamespacedStatName(statName), value, sampleRate);
 		}
 
 		public static void Gauge(string statName, int value)
