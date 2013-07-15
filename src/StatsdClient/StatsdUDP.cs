@@ -8,16 +8,18 @@ namespace StatsdClient
 {
     public class StatsdUDP : IDisposable, IStatsdUDP
     {
-        public const int MAX_UDP_PACKET_SIZE = 512; // in bytes
+        private int MaxUDPPacketSize { get; set; } // In bytes; default is MetricsConfig.DefaultStatsdMaxUDPPacketSize.
+                                                   // Set to zero for no limit.
         public IPEndPoint IPEndpoint { get; private set; }
         private Socket UDPSocket { get; set; }
         private string Name { get; set; }
         private int Port { get; set; }
 
-        public StatsdUDP(string name, int port)
+        public StatsdUDP(string name, int port, int maxUDPPacketSize = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
         {
             Name = name;
             Port = port;
+            MaxUDPPacketSize = maxUDPPacketSize;
 
             UDPSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
@@ -49,13 +51,13 @@ namespace StatsdClient
 
         private void Send(byte[] encodedCommand)
         {
-            if (encodedCommand.Length > MAX_UDP_PACKET_SIZE)
+            if (MaxUDPPacketSize > 0 && encodedCommand.Length > MaxUDPPacketSize)
             {
                 // If the command is too big to send, linear search backwards from the maximum
                 // packet size to see if we can find a newline delimiting two stats. If we can,
                 // split the message across the newline and try sending both componenets individually
                 byte newline = Encoding.ASCII.GetBytes("\n")[0];
-                for (int i = MAX_UDP_PACKET_SIZE; i > 0; i--)
+                for (int i = MaxUDPPacketSize; i > 0; i--)
                 {
                     if (encodedCommand[i] == newline)
                     {
