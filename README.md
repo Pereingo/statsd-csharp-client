@@ -18,7 +18,7 @@ At start of your app, configure the `Metrics` class like this:
 ``` C#
 var metricsConfig = new MetricsConfig
 {
-    StatsdServerName = "host.name",
+    StatsdServerName = "127.0.0.1",
     StatsdPort = 8125, // Optional; default is 8125
     Prefix = "myApp" // Optional; by default no prefix will be prepended
 };
@@ -26,7 +26,7 @@ var metricsConfig = new MetricsConfig
 StatsdClient.Metrics.Configure(metricsConfig);
 ```
 
-Where "host.name" is the name of the statsd server, 8125 is the optional statsd port number, and "myApp" is an optional prefix that is prepended on all stats.
+Where `StatsdServerName` is the hostname or address of the StatsD server, `StatsdPort` is the optional DogStatsD port number, and `Prefix` is an optional string that is prepended to all metrics.
 
 Then start instrumenting your code:
 
@@ -89,13 +89,13 @@ Usage via the Statsd class:
 
 In most cases, the static Metrics class is probably better to use.
 However, the Statsd is useful when you want to queue up a number of metrics to be sent in
-one UDP message (via the Add method).
+one UDP message (via the `Add` method).
 
 ``` C#
 // The code is located under the StatsdClient namespace
 using StatsdClient;
 
-...
+// ...
 
 // NB: StatsdUDP is IDisposable and if not disposed, will leak resources
 StatsdUDP udp = new StatsdUDP(HOSTNAME, PORT);
