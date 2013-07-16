@@ -16,6 +16,11 @@ Usage via the static Metrics class:
 At start of your app, configure the `Metrics` class like this:
 
 ``` C#
+// The code is located under the StatsdClient namespace
+using StatsdClient;
+
+// ...
+
 var metricsConfig = new MetricsConfig
 {
     StatsdServerName = "127.0.0.1",
@@ -31,11 +36,6 @@ Where `StatsdServerName` is the hostname or address of the StatsD server, `Stats
 Then start instrumenting your code:
 
 ``` C#
-// The code is located under the StatsdClient namespace
-using StatsdClient;
-
-// ...
-
 // Increment a counter by 1
 Metrics.Increment("eventname");
 
