@@ -17,7 +17,7 @@ namespace StatsdClient
 			_prefix = config.Prefix;
 			_statsD = string.IsNullOrEmpty(config.StatsdServerName)
 				          ? null
-				          : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort));
+				          : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize));
 		}
 
         public static void Counter(string statName, int value = 1, double sampleRate = 1)	
