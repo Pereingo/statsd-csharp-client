@@ -16,14 +16,9 @@ namespace StatsdClient
                 throw new ArgumentNullException("config.StatsdServername");
 
             _prefix = config.Prefix;
-
-            int port;
-            if (config.StatsdPort > 0)
-                port = config.StatsdPort;
-            else
-                port = 8125;
-    
-            _statsD = new Statsd(new StatsdUDP(config.StatsdServerName, port));
+            _statsD = string.IsNullOrEmpty(config.StatsdServerName)
+                      ? null
+                      : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdPort, config.StatsdMaxUDPPacketSize));
         }
 
         public static void Counter<T>(string statName, T value, double sampleRate = 1.0, string[] tags = null)  
