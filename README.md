@@ -131,13 +131,23 @@ using (udp)
   s.Add<Statsd.Counting,int>("stat-name", 1);
   s.Add<Statsd.Timing,int>("stat-name", 5, sampleRate: 1/10);
   s.Send(); // message will contain counter and will contain timer 10% of the time
-
   // All previous commands will be flushed after any Send
   // Any Adds will be ignored if using a Send directly
   s.Add<Statsd.Counting,int>("stat-name", 1);
   s.Send<Statsd.Timing,double>("stat-name", 4.4); // message will only contain Timer
   s.Send(); // the counter will not be sent by the command
- }
+}
+
+// By default, Statsd will split messages containing multiple metrics into
+// UDP messages that are 512 bytes long. To change this limit, create a new
+// instance of StatsUDP
+int maxUDPPacketSize = 4096;
+StatsUDP udpNew = new StatsdUDP(HOSTNAME, PORT, maxUDPPacketSize);
+using (udP)
+{
+  // ...
+}
+// To disable the splitting of UDP messages, set this limit to 0
 ```
 
 A note about timing: Statsd will not attempt to handle any exceptions that occur in a
@@ -149,6 +159,8 @@ Add is being called).
 Change Log
 ----------
 
+- 1.1.0
+    - UDP packets containing multiple metrics (created via the `Statsd.Add` method) will now be split into multiple appropriately-sized packets if possible
 - 1.0.0
     - Initial release
 
