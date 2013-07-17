@@ -3,5 +3,6 @@ pause
 
 lib\NuGet.exe pack src\StatsdClient\StatsdClient.csproj -Prop Configuration=Release
 
-echo "Publish the .nupkg file"
+echo "Publish the .nupkg file by executing:"
+echo "lib\NuGet.exe Push <pkg>"
 pause

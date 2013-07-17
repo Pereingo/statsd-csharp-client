@@ -1,19 +1,16 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>Statsd C# Client</title>
-    <authors>Goncalo Pereira</authors>
-    <owners>Goncalo Pereira</owners>
-    <projectUrl>https://github.com/goncalopereira/statsd-csharp-client</projectUrl>
+    <id>DogStatsD-CSharp-Client</id>
+    <version>1.1.0</version>
+    <authors>Datadog</authors>
+    <owners>Datadog</owners>
+    <licenseUrl>https://github.com/DataDog/dogstatsd-csharp-client/blob/master/MIT-LICENCE.md</licenseUrl>
+    <projectUrl>https://github.com/DataDog/dogstatsd-csharp-client</projectUrl>
+    <iconUrl>https://si0.twimg.com/profile_images/1380708189/dd_logo2_icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Statsd client for C#</description>
-    <releaseNotes>Initial release.</releaseNotes>
-    <copyright>Copyright 2012</copyright>
-    <tags>stats statsd</tags>
+    <description>A DogStatsD client for C#. DogStatsD is an extension of the StatsD metric server for use with Datadog. For more information visit http://datadoghq.com.</description>
+    <copyright>Copyright 2013</copyright>
+    <tags>statsd dogstatsd datadog</tags>
   </metadata>
-  <files>
-    <file src="..\Configuration\bin\Release\StatsdClient.Configuration.dll" target="lib\net35" /> 
-  </files>
 </package>
