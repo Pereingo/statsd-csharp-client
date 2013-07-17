@@ -160,7 +160,7 @@ Change Log
 ----------
 
 - 1.1.0
-    - UDP packets containing multiple metrics (created via the `Statsd.Add` method) will now be split into multiple appropriately-sized packets if possible
+    - UDP packets containing multiple metrics that are over the UDP packet size limit will now be split into multiple appropriately-sized packets if possible
 - 1.0.0
     - Initial release
 
