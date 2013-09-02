@@ -54,22 +54,22 @@ namespace StatsdClient
             : this(udp, "") { }
 
 
-        public void Send<TCommandType>(string name, int value) where TCommandType : ICommandType
+        public void Send<TCommandType>(string name, long value) where TCommandType : ICommandType
         {
             Send<TCommandType>(name, value, 1);
         }
 
-        public void Send(string name, int value, double sampleRate)
+        public void Send(string name, long value, double sampleRate)
         {
             Send<Counting>(name, value, sampleRate);
         }
 
-        public void Add<TCommandType>(string name, int value) where TCommandType : ICommandType
+        public void Add<TCommandType>(string name, long value) where TCommandType : ICommandType
         {
             _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1));
         }
 
-        public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
+        public void Send<TCommandType>(string name, long value, double sampleRate) where TCommandType : ICommandType
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
@@ -104,7 +104,7 @@ namespace StatsdClient
             }
         }
 
-        private string GetCommand(string name, int value, string unit, double sampleRate)
+        private string GetCommand(string name, long value, string unit, double sampleRate)
         {
             var format = sampleRate == 1 ? "{0}:{1}|{2}" : "{0}:{1}|{2}|@{3}";
             return string.Format(CultureInfo.InvariantCulture, format, _prefix + name, value, unit, sampleRate);
