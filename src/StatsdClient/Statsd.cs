@@ -56,12 +56,7 @@ namespace StatsdClient
 
         public void Send<TCommandType>(string name, int value) where TCommandType : ICommandType
         {
-            Send<TCommandType>(name, value, 1);
-        }
-
-        public void Send(string name, int value, double sampleRate)
-        {
-            Send<Counting>(name, value, sampleRate);
+            Send(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1));
         }
 
         public void Add<TCommandType>(string name, int value) where TCommandType : ICommandType
@@ -69,11 +64,11 @@ namespace StatsdClient
             _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1));
         }
 
-        public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType
+        public void Send(string name, int value, double sampleRate)
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                Send(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate));
+                Send(GetCommand(name, value, _commandToUnit[typeof(Counting)], sampleRate));
             }
         }
 
@@ -84,6 +79,7 @@ namespace StatsdClient
                 _commands.Add(GetCommand(name, value, _commandToUnit[typeof(Counting)], sampleRate));
             }
         }
+
 
         public void Send(string command)
         {
