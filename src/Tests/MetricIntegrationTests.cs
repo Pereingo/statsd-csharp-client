@@ -85,15 +85,7 @@ namespace Tests
 			Metrics.Counter("counter", 10);
 			Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:10|c"));
 		}
-
-        [Test]
-        public void counter_with_long_value()
-        {
-            Metrics.Configure(_defaultMetricsConfig);
-
-            Metrics.Counter("counter", 13592356894);
-            Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:13592356894|c"));
-        }
+        
 
 		[Test]
 		public void counter_with_prefix()
@@ -116,17 +108,6 @@ namespace Tests
             Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:10|c|@0.9999"));
         }
 
-        [Test]
-        public void counter_with_long_value_and_sampleRate()
-        {
-
-            Metrics.Configure(_defaultMetricsConfig);
-
-            Metrics.Counter("counter", 1356729305627466, 0.9999);
-
-            Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:1356729305627466|c|@0.9999"));
-        }
-
 		[Test]
 		public void counter_with_no_config_setup_should_not_send_metric()
 		{
@@ -144,15 +125,7 @@ namespace Tests
 			Metrics.Timer("timer", 6);
 			Assert.That(LastPacketMessageReceived(), Is.EqualTo("timer:6|ms"));
 		}
-        [Test]
-		public void timer_with_long_value()
-		{
-			Metrics.Configure(_defaultMetricsConfig);
-
-			Metrics.Timer("timer", 48295602648602);
-            Assert.That(LastPacketMessageReceived(), Is.EqualTo("timer:48295602648602|ms"));
-		}
-
+    
 		[Test]
 		public void timer_with_prefix()
 		{
@@ -251,14 +224,15 @@ namespace Tests
 		    Assert.That(LastPacketMessageReceived(), Is.EqualTo("guage:3|g"));
 		}
  
-        [Test]
-		public void gauge_with_long_value()
-		{
-			Metrics.Configure(_defaultMetricsConfig);
+        //[Test]
+        //public void gauge_with_double_value()
+        //{
+        //    Metrics.Configure(_defaultMetricsConfig);
 
-			Metrics.Gauge("gauge", 34634859436785434);
-            Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:34634859436785434|g"));
-		}
+        //    Metrics.Gauge("gauge", 34634859436785434);
+        //    Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:34634859436785434|g"));
+        //}
+
 		[Test]
 		public void gauge_with_prefix()
 		{

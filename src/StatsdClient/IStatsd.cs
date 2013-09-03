@@ -6,10 +6,10 @@ namespace StatsdClient
     public interface IStatsd
     {
         List<string> Commands { get; }
-        void Send<TCommandType>(string name, long value) where TCommandType : ICommandType;
-        void Send(string name, long value, double sampleRate);
-        void Add<TCommandType>(string name, long value) where TCommandType : ICommandType;
-        void Send<TCommandType>(string name, long value, double sampleRate) where TCommandType : ICommandType;
+        void Send<TCommandType>(string name, int value) where TCommandType : ICommandType;
+        void Send(string name, int value, double sampleRate);
+        void Add<TCommandType>(string name, int value) where TCommandType : ICommandType;
+        void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType;
         void Add(string name, int value, double sampleRate);
         void Send(string command);
         void Send();

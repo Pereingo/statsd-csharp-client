@@ -20,7 +20,7 @@ namespace StatsdClient
 				          : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize));
 		}
 
-        public static void Counter(string statName, long value = 1, double sampleRate = 1)	
+        public static void Counter(string statName, int value = 1, double sampleRate = 1)	
 		{
 			if (_statsD == null)
 			{
@@ -30,7 +30,7 @@ namespace StatsdClient
             _statsD.Send(BuildNamespacedStatName(statName), value, sampleRate);
 		}
 
-		public static void Gauge(string statName, long value)
+		public static void Gauge(string statName, int value)
 		{
 			if (_statsD == null)
 			{
@@ -40,7 +40,7 @@ namespace StatsdClient
 			_statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
 		}
 
-		public static void Timer(string statName, long value)
+		public static void Timer(string statName, int value)
 		{
 			if (_statsD == null)
 			{

@@ -32,14 +32,6 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("counter:5|c"));
         }
 
-        [Test]
-        public void increases_counter_with_value_of_long_value_X()
-        {
-            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Counting>("counter", 535839245869);
-            udp.AssertWasCalled(x => x.Send("counter:535839245869|c"));
-        }
-
 		[Test]
 		public void increases_counter_with_value_of_X_and_sample_rate()
 		{
@@ -47,14 +39,6 @@ namespace Tests
 			s.Send("counter", 5,0.1);
 			udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
 		}
-
-        [Test]
-        public void increases_counter_with_value_of_long_value_X_and_sample_rate()
-        {
-            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Counting>("counter", 535839245869, 0.7);
-            udp.AssertWasCalled(x => x.Send("counter:535839245869|c|@0.7"));
-        }
 
 		[Test]
 		public void counting_exception_fails_silently()
@@ -65,15 +49,6 @@ namespace Tests
 			Assert.Pass();
 		}
 
-        [Test]
-        public void counting_exception_with_long_parameters_fails_silently()
-        {
-            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
-            s.Send<Statsd.Counting>("counter", 535322157899533467);
-            Assert.Pass();
-        }
-
 
 		// =-=-=-=- TIMER -=-=-=-=
 
@@ -83,14 +58,6 @@ namespace Tests
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Send<Statsd.Timing>("timer", 5);
             udp.AssertWasCalled(x => x.Send("timer:5|ms"));
-        }
-
-        [Test]
-        public void adds_timing_with_long_value()
-        {
-            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Timing>("timer", 543986543986435676);
-            udp.AssertWasCalled(x => x.Send("timer:543986543986435676|ms"));
         }
 
 		[Test]
@@ -189,13 +156,13 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("gauge:5|g"));
         }
 
-        [Test]
-        public void adds_gauge_with_long_values()
-        {
-            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Gauge>("gauge", 34563478564785);
-            udp.AssertWasCalled(x => x.Send("gauge:34563478564785|g"));
-        }
+        //[Test]
+        //public void adds_gauge_with_double_values()
+        //{
+        //    Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+        //    s.Send<Statsd.Gauge>("gauge", 34563478564785);
+        //    udp.AssertWasCalled(x => x.Send("gauge:34563478564785|g"));
+        //}
 
         [Test]
         public void gauge_exception_fails_silently()
@@ -232,18 +199,6 @@ namespace Tests
             Assert.That(s.Commands[0], Is.EqualTo("counter:1|c"));
             Assert.That(s.Commands[1], Is.EqualTo("timer:1|ms"));
         }
-        [Test]
-        public void add_one_counter_and_one_gauge_using_long_values_with_no_sample_rate_shows_in_commands()
-        {
-            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Add<Statsd.Counting>("counter", 784353464464323);
-            s.Add<Statsd.Timing>("timer", 653244346423);
-
-            Assert.That(s.Commands.Count, Is.EqualTo(2));
-            Assert.That(s.Commands[0], Is.EqualTo("counter:784353464464323|c"));
-            Assert.That(s.Commands[1], Is.EqualTo("timer:653244346423|ms"));
-        }
-
 
         [Test]
         public void add_one_counter_and_one_gauge_sends_in_one_go()
