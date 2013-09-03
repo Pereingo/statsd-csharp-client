@@ -60,6 +60,14 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("timer:5|ms"));
         }
 
+        [Test]
+        public void timing_with_value_of_X_and_sample_rate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Timing>("timer", 5, 0.1);
+            udp.AssertWasCalled(x => x.Send("timer:5|ms|@0.1"));
+        }
+
 		[Test]
 		public void timing_exception_fails_silently()
 		{

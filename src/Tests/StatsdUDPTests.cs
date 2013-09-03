@@ -1,5 +1,4 @@
 using System;
-using System.Configuration;
 using System.Threading;
 using System.Collections.Generic;
 using NUnit.Framework;
