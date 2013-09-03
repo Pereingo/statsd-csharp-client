@@ -55,7 +55,7 @@ namespace StatsdClient
 			return new MetricsTimer(name);
 		}
 
-		public static void Time(Action action, string statName) 
+		public static void Time(Action action, string statName, double sampleRate=1) 
 		{
 			if (_statsD == null)
 			{
@@ -63,7 +63,7 @@ namespace StatsdClient
 				return;
 			}
 
-			_statsD.Send(action, BuildNamespacedStatName(statName));
+			_statsD.Send(action, BuildNamespacedStatName(statName), sampleRate);
 		}
 
 		public static T Time<T>(Func<T> func, string statName)
