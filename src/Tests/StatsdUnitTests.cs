@@ -181,6 +181,40 @@ namespace Tests
             Assert.Pass();
         }
 
+        [Test]
+        public void adds_meter()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Meter>("meter", 5);
+            udp.AssertWasCalled(x => x.Send("meter:5|m"));
+        }
+
+        [Test]
+        public void meter_exception_fails_silently()
+        {
+            udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+            Statsd s = new Statsd(udp);
+            s.Send<Statsd.Meter>("meter", 5);
+            Assert.Pass();
+        }
+
+        [Test]
+        public void adds_histogram()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Histogram>("histogram", 5);
+            udp.AssertWasCalled(x => x.Send("histogram:5|h"));
+        }
+
+        [Test]
+        public void histrogram_exception_fails_silently()
+        {
+            udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+            Statsd s = new Statsd(udp);
+            s.Send<Statsd.Histogram>("histogram", 5);
+            Assert.Pass();
+        }
+
 
 		// =-=-=-=- COMBINATION -=-=-=-=
 
