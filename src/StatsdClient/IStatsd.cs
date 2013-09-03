@@ -7,11 +7,14 @@ namespace StatsdClient
     {
         List<string> Commands { get; }
         
-        void Send<TCommandType>(string name, int value) where TCommandType : ICommandType;
-        void Add<TCommandType>(string name, int value) where TCommandType : ICommandType;
+        void Send<TCommandType>(string name, int value) where TCommandType : IAllowsInteger;
+        void Add<TCommandType>(string name, int value) where TCommandType : IAllowsInteger;
 
-        void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType, IAllowsSampleRate;
-        void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType, IAllowsSampleRate;  
+        void Send<TCommandType>(string name, double value) where TCommandType : IAllowsDouble;
+        void Add<TCommandType>(string name, double value) where TCommandType : IAllowsDouble;
+
+        void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate;
+        void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate;  
                 
         void Send();
         

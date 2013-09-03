@@ -215,32 +215,34 @@ namespace Tests
 			Assert.That(returnValue, Is.EqualTo(5));
 		}
 
-	    [Test]
-		public void gauge()
-		{
-			Metrics.Configure(_defaultMetricsConfig);
+        [Test]
+        public void gauge_with_double_value()
+        {
+            Metrics.Configure(_defaultMetricsConfig);
 
-			Metrics.Gauge("guage", 3);
-		    Assert.That(LastPacketMessageReceived(), Is.EqualTo("guage:3|g"));
-		}
- 
-        //[Test]
-        //public void gauge_with_double_value()
-        //{
-        //    Metrics.Configure(_defaultMetricsConfig);
+            const double value = 12345678901234567890;
+            Metrics.Gauge("gauge", value);
+            Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:12345678901234600000.000000000000000|g"));
+        }
+        
+        [Test]
+        public void gauge_with_double_value_with_floating_point()
+        {
+            Metrics.Configure(_defaultMetricsConfig);
 
-        //    Metrics.Gauge("gauge", 34634859436785434);
-        //    Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:34634859436785434|g"));
-        //}
+            const double value = 1.234567890123456;
+            Metrics.Gauge("gauge", value);
+            Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:1.234567890123460|g"));
+        }
 
-		[Test]
+        [Test]
 		public void gauge_with_prefix()
 		{
 			_defaultMetricsConfig.Prefix = "test_prefix";
 			Metrics.Configure(_defaultMetricsConfig);
 
 			Metrics.Gauge("gauge", 3);
-			Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.gauge:3|g"));
+            Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.gauge:3.000000000000000|g"));
 		}
 
 		[Test]

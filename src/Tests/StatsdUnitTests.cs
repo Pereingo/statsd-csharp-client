@@ -157,27 +157,19 @@ namespace Tests
 		// =-=-=-=- GAUGE -=-=-=-=
 		
         [Test]
-        public void adds_gauge()
+        public void adds_gauge_with_large_double_values()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-            s.Send<Statsd.Gauge>("gauge", 5);
-            udp.AssertWasCalled(x => x.Send("gauge:5|g"));
+            s.Send<Statsd.Gauge>("gauge", 34563478564785);
+            udp.AssertWasCalled(x => x.Send("gauge:34563478564785.000000000000000|g"));
         }
-
-        //[Test]
-        //public void adds_gauge_with_double_values()
-        //{
-        //    Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-        //    s.Send<Statsd.Gauge>("gauge", 34563478564785);
-        //    udp.AssertWasCalled(x => x.Send("gauge:34563478564785|g"));
-        //}
 
         [Test]
         public void gauge_exception_fails_silently()
         {
             udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
             Statsd s = new Statsd(udp);
-            s.Send<Statsd.Gauge>("gauge", 5);
+            s.Send<Statsd.Gauge>("gauge", 5.0);
             Assert.Pass();
         }
 
@@ -243,7 +235,7 @@ namespace Tests
         }
 
         [Test]
-        public void add_one_counter_and_one_gauge_sends_in_one_go()
+        public void add_one_counter_and_one_timer_sends_in_one_go()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Add<Statsd.Counting>("counter", 1, 0.1);
@@ -253,9 +245,8 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("counter:1|c|@0.1\ntimer:1|ms"));
         }
 
-
         [Test]
-        public void add_one_counter_and_one_gauge_sends_and_removes_commands()
+        public void add_one_counter_and_one_timer_sends_and_removes_commands()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Add<Statsd.Counting>("counter", 1, 0.1);
@@ -266,7 +257,7 @@ namespace Tests
         }
 
         [Test]
-        public void add_one_counter_and_send_one_gauge_sends_only_sends_the_last()
+        public void add_one_counter_and_send_one_timer_sends_only_sends_the_last()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
             s.Add<Statsd.Counting>("counter", 1);

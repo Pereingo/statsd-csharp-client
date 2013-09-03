@@ -112,11 +112,11 @@ namespace Tests
             var msg = new String('f', MetricsConfig.DefaultStatsdMaxUDPPacketSize - 15);
             listenThread.Start(3); // Listen for 3 messages
             statsd.Add<Statsd.Counting>(msg, 1);
-            statsd.Add<Statsd.Gauge>(msg, 2);
+            statsd.Add<Statsd.Timing>(msg, 2);
             statsd.Send();
             // These two metrics should be split as their combined lengths exceed the maximum packet size
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);
-            AssertWasReceived(String.Format("{0}:2|g", msg), 1);
+            AssertWasReceived(String.Format("{0}:2|ms", msg), 1);
             // No extra metric should be sent at the end
             AssertWasReceived(null, 2);
         }
@@ -145,11 +145,11 @@ namespace Tests
             var msg = new String('f', 5);
             listenThread.Start(2);
             statsd.Add<Statsd.Counting>(msg, 1);
-            statsd.Add<Statsd.Gauge>(msg, 2);
+            statsd.Add<Statsd.Timing>(msg, 2);
             statsd.Send();
             // Since our packet size limit is now 10, this (short) message should still be split
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);
-            AssertWasReceived(String.Format("{0}:2|g", msg), 1);
+            AssertWasReceived(String.Format("{0}:2|ms", msg), 1);
         }
     }
 }

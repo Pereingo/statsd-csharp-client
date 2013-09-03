@@ -30,7 +30,7 @@ namespace StatsdClient
             _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value, sampleRate);
 		}
 
-		public static void Gauge(string statName, int value)
+		public static void Gauge(string statName, double value)
 		{
 			if (_statsD == null)
 			{

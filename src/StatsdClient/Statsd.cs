@@ -6,7 +6,9 @@ using System.Globalization;
 namespace StatsdClient
 {
     public interface IAllowsSampleRate { }
-    public interface ICommandType { }
+
+    public interface IAllowsDouble { }
+    public interface IAllowsInteger { }
 
     public class Statsd : IStatsd
     {
@@ -16,19 +18,13 @@ namespace StatsdClient
 
         private readonly string _prefix;
 
-        public List<string> Commands
-        {
-            get { return _commands; }
-            private set { _commands = value; }
-        }
+        public List<string> Commands { get; private set; }
 
-        private List<string> _commands = new List<string>();
-
-        public class Counting : ICommandType, IAllowsSampleRate { }
-        public class Timing : ICommandType, IAllowsSampleRate { }
-        public class Gauge : ICommandType { }
-        public class Histogram : ICommandType { }
-        public class Meter : ICommandType { }
+        public class Counting : IAllowsSampleRate, IAllowsInteger { }
+        public class Timing : IAllowsSampleRate, IAllowsInteger { }
+        public class Gauge : IAllowsDouble { }
+        public class Histogram : IAllowsInteger { }
+        public class Meter : IAllowsInteger { }
 
         private readonly Dictionary<Type, string> _commandToUnit = new Dictionary<Type, string>
                                                                        {
@@ -41,6 +37,7 @@ namespace StatsdClient
 
         public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory, string prefix)
         {
+            Commands = new List<string>();
             StopwatchFactory = stopwatchFactory;
             Udp = udp;
             RandomGenerator = randomGenerator;
@@ -57,31 +54,41 @@ namespace StatsdClient
             : this(udp, "") { }
 
 
-        public void Send<TCommandType>(string name, int value) where TCommandType : ICommandType
+        public void Send<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
         {
-            Commands = new List<string> { GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1) };
+            Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
+            Send();
+        }
+        public void Send<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
+        {
+            Commands = new List<string> { GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1) };
             Send();
         }
 
-        public void Add<TCommandType>(string name, int value) where TCommandType : ICommandType
+        public void Add<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
         {
-            _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1));
+            Commands.Add(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1));
         }
 
-        public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType, IAllowsSampleRate
+        public void Add<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
+        {
+            Commands.Add(GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1));
+        }
+
+        public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                Commands = new List<string> { GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate) };
+                Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], sampleRate) };
                 Send();
             }
         }
 
-        public void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType, IAllowsSampleRate
+        public void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate));
+                Commands.Add(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], sampleRate));
             }
         }
 
@@ -98,7 +105,7 @@ namespace StatsdClient
             }
         }
 
-        private string GetCommand(string name, int value, string unit, double sampleRate)
+        private string GetCommand(string name, string value, string unit, double sampleRate)
         {
             var format = sampleRate == 1 ? "{0}:{1}|{2}" : "{0}:{1}|{2}|@{3}";
             return string.Format(CultureInfo.InvariantCulture, format, _prefix + name, value, unit, sampleRate);
