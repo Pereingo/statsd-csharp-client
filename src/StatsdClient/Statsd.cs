@@ -111,7 +111,7 @@ namespace StatsdClient
             return string.Format(CultureInfo.InvariantCulture, format, _prefix + name, value, unit, sampleRate);
         }
 
-        public void Add(Action actionToTime, string statName)
+        public void Add(Action actionToTime, string statName, double sampleRate=1)
         {
             var stopwatch = StopwatchFactory.Get();
 
@@ -123,11 +123,14 @@ namespace StatsdClient
 	        finally
 	        {
 				stopwatch.Stop();
-				Add<Timing>(statName, stopwatch.ElapsedMilliseconds());
+	            if (RandomGenerator.ShouldSend(sampleRate))
+	            {
+	                Add<Timing>(statName, stopwatch.ElapsedMilliseconds());
+	            }
 	        }
         }
 
-        public void Send(Action actionToTime, string statName)
+        public void Send(Action actionToTime, string statName, double sampleRate=1)
         {
             var stopwatch = StopwatchFactory.Get();
 
@@ -139,10 +142,11 @@ namespace StatsdClient
 	        finally
 	        {
 		        stopwatch.Stop();
-		        Send<Timing>(statName, stopwatch.ElapsedMilliseconds());
+	            if (RandomGenerator.ShouldSend(sampleRate))
+	            {
+	                Send<Timing>(statName, stopwatch.ElapsedMilliseconds());
+	            }
 	        }
         }
     }
-
-
 }

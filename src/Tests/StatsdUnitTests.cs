@@ -93,6 +93,41 @@ namespace Tests
 			Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
 		}
 
+        [Test]
+        public void add_timer_with_lamba_and_sampleRate_passes()
+        {
+            const string statName = "name";
+
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+            _randomGenerator = MockRepository.GenerateMock<IRandomGenerator>();
+            _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(true);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add(() => testMethod(), statName, 0.1);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
+        }
+
+        [Test]
+        public void add_timer_with_lamba_and_sampleRate_fails()
+        {
+            const string statName = "name";
+
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+            _randomGenerator = MockRepository.GenerateMock<IRandomGenerator>();
+            _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(false);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add(() => testMethod(), statName, 0.1);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(0));
+        }
+
 		[Test]
 		public void add_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
 		{
@@ -123,6 +158,39 @@ namespace Tests
 
 			udp.AssertWasCalled(x => x.Send("name:500|ms"));       
 		}
+
+        [Test]
+        public void send_timer_with_lambda_and_sampleRate_passes()
+        {
+            const string statName = "name";
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+            _randomGenerator = MockRepository.GenerateMock<IRandomGenerator>();
+            _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(true);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send(() => testMethod(), statName);
+
+            udp.AssertWasCalled(x => x.Send("name:500|ms"));
+        }
+
+
+        [Test]
+        public void send_timer_with_lambda_and_sampleRate_fails()
+        {
+            const string statName = "name";
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
+            _randomGenerator = MockRepository.GenerateMock<IRandomGenerator>();
+            _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(false);
+
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send(() => testMethod(), statName);
+
+            udp.AssertWasNotCalled(x => x.Send("name:500|ms"));
+        }
 
 		[Test]
 		public void send_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()

@@ -18,7 +18,7 @@ namespace StatsdClient
                 
         void Send();
         
-        void Add(Action actionToTime, string statName);
-        void Send(Action actionToTime, string statName);
+        void Add(Action actionToTime, string statName, double sampleRate=1);
+        void Send(Action actionToTime, string statName, double sampleRate=1);
     }
 }
