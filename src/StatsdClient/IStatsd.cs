@@ -11,9 +11,9 @@ namespace StatsdClient
         void Send<TCommandType>(string name, int value) where TCommandType : ICommandType;
         void Add<TCommandType>(string name, int value) where TCommandType : ICommandType;
 
-        //Counting specific methods, allow sampleRate
-        void Send(string name, int value, double sampleRate);         
-        void Add(string name, int value, double sampleRate);
+        //Counting, Timing specific methods, allow sampleRate
+        void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType, IAllowsSampleRate;
+        void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType, IAllowsSampleRate;  
                 
         void Send(string command);        
         void Send();

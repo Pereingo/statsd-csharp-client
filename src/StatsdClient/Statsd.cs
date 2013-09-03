@@ -5,6 +5,9 @@ using System.Globalization;
 
 namespace StatsdClient
 {
+    public interface IAllowsSampleRate { }
+    public interface ICommandType { }
+
     public class Statsd : IStatsd
     {
         private IStopWatchFactory StopwatchFactory { get; set; }
@@ -21,8 +24,8 @@ namespace StatsdClient
 
         private List<string> _commands = new List<string>();
 
-        public class Counting : ICommandType { }
-        public class Timing : ICommandType { }
+        public class Counting : ICommandType, IAllowsSampleRate { }
+        public class Timing : ICommandType, IAllowsSampleRate { }
         public class Gauge : ICommandType { }
         public class Histogram : ICommandType { }
         public class Meter : ICommandType { }
@@ -64,19 +67,19 @@ namespace StatsdClient
             _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1));
         }
 
-        public void Send(string name, int value, double sampleRate)
+        public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType, IAllowsSampleRate
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                Send(GetCommand(name, value, _commandToUnit[typeof(Counting)], sampleRate));
+                Send(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate));
             }
         }
 
-        public void Add(string name, int value, double sampleRate)
+        public void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType, IAllowsSampleRate
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                _commands.Add(GetCommand(name, value, _commandToUnit[typeof(Counting)], sampleRate));
+                _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate));
             }
         }
 
@@ -138,4 +141,6 @@ namespace StatsdClient
 	        }
         }
     }
+
+
 }

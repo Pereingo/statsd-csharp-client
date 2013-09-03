@@ -27,7 +27,7 @@ namespace StatsdClient
 				return;
 			}
 
-            _statsD.Send(BuildNamespacedStatName(statName), value, sampleRate);
+            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value, sampleRate);
 		}
 
 		public static void Gauge(string statName, int value)
@@ -40,14 +40,14 @@ namespace StatsdClient
 			_statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
 		}
 
-		public static void Timer(string statName, int value)
+		public static void Timer(string statName, int value, double sampleRate = 1)
 		{
 			if (_statsD == null)
 			{
 				return;
 			}
 
-			_statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value);
+			_statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate);
 		}
 
 		public static IDisposable StartTimer(string name)
