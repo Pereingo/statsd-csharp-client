@@ -13,7 +13,6 @@ namespace StatsdClient
         void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType, IAllowsSampleRate;
         void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : ICommandType, IAllowsSampleRate;  
                 
-        void Send(string command);        
         void Send();
         
         void Add(Action actionToTime, string statName);
