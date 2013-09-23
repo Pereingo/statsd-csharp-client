@@ -14,6 +14,7 @@ namespace StatsdClient
         private Socket UDPSocket { get; set; }
         private string Name { get; set; }
         private int Port { get; set; }
+        private bool hostReachable = true;
 
         public StatsdUDP(string name, int port, int maxUDPPacketSize = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
         {
@@ -23,9 +24,14 @@ namespace StatsdClient
 
             UDPSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-            var ipAddress = GetIpv4Address(name);
-
-            IPEndpoint = new IPEndPoint(ipAddress, Port);
+            try
+            {
+                IPEndpoint = new IPEndPoint(GetIpv4Address(name), Port);
+            }
+            catch (SocketException socketException)
+            {
+               hostReachable = false;            }
+            
         }
 
         private IPAddress GetIpv4Address(string name)
@@ -83,7 +89,10 @@ namespace StatsdClient
                     // be sent without issue.
                 }
             }
-            UDPSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
+            if (hostReachable)
+            {
+                UDPSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);   
+            }
         }
 
         public void Dispose()
