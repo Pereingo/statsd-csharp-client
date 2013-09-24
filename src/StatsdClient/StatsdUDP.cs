@@ -28,9 +28,9 @@ namespace StatsdClient
             {
                 IPEndpoint = new IPEndPoint(GetIpv4Address(name), Port);
             }
-            catch (SocketException socketException)
+            catch (SocketException)
             {
-               hostReachable = false;            }
+               HostReachable = false;            }
             
         }
 
@@ -89,7 +89,7 @@ namespace StatsdClient
                     // be sent without issue.
                 }
             }
-            if (hostReachable)
+            if (HostReachable)
             {
                 UDPSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);   
             }
