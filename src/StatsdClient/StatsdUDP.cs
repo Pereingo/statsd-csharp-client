@@ -14,7 +14,7 @@ namespace StatsdClient
         private Socket UDPSocket { get; set; }
         private string Name { get; set; }
         private int Port { get; set; }
-        private bool hostReachable = true;
+        private bool HostReachable = true;
 
         public StatsdUDP(string name, int port, int maxUDPPacketSize = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
         {
