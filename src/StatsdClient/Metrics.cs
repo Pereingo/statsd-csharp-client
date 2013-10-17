@@ -79,6 +79,16 @@ namespace StatsdClient
 			}
 		}
 
+        	public static void Set(string statName, string value)
+        	{
+            		if (_statsD == null)
+            		{
+                		return;
+            		}
+
+            		_statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value);
+        	}
+
 		private static string BuildNamespacedStatName(string statName)
 		{
 			if (string.IsNullOrEmpty(_prefix))

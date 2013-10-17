@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -9,6 +9,7 @@ namespace StatsdClient
 
     public interface IAllowsDouble { }
     public interface IAllowsInteger { }
+    public interface IAllowsString { }
 
     public class Statsd : IStatsd
     {
@@ -25,6 +26,7 @@ namespace StatsdClient
         public class Gauge : IAllowsDouble { }
         public class Histogram : IAllowsInteger { }
         public class Meter : IAllowsInteger { }
+        public class Set : IAllowsString { }
 
         private readonly Dictionary<Type, string> _commandToUnit = new Dictionary<Type, string>
                                                                        {
@@ -32,7 +34,8 @@ namespace StatsdClient
                                                                            {typeof (Timing), "ms"},
                                                                            {typeof (Gauge), "g"},
                                                                            {typeof (Histogram), "h"},
-                                                                           {typeof (Meter), "m"}
+                                                                           {typeof (Meter), "m"},
+                                                                           {typeof (Set), "s"}
                                                                        };
 
         public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory, string prefix)
@@ -62,6 +65,11 @@ namespace StatsdClient
         public void Send<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
         {
             Commands = new List<string> { GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1) };
+            Send();
+        }
+        public void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString
+        {
+            Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
             Send();
         }
 
