@@ -241,6 +241,8 @@ namespace Tests
             Assert.Pass();
         }
 
+        // =-=-=-=- METER -=-=-=-=
+
         [Test]
         public void adds_meter()
         {
@@ -257,6 +259,8 @@ namespace Tests
             s.Send<Statsd.Meter>("meter", 5);
             Assert.Pass();
         }
+
+        // =-=-=-=- HISTOGRAM -=-=-=-=
 
         [Test]
         public void adds_histogram()
@@ -275,6 +279,24 @@ namespace Tests
             Assert.Pass();
         }
 
+        // =-=-=-=- SET -=-=-=-=
+
+        [Test]
+        public void adds_set_with_string_value()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Set>("set", "34563478564785xyz");
+            udp.AssertWasCalled(x => x.Send("set:34563478564785xyz|s"));
+        }
+
+        [Test]
+        public void set_exception_fails_silently()
+        {
+            udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+            Statsd s = new Statsd(udp);
+            s.Send<Statsd.Set>("set", "silent-exception-test");
+            Assert.Pass();
+        }
 
 		// =-=-=-=- COMBINATION -=-=-=-=
 
