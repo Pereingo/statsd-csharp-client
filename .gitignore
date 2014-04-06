@@ -6,3 +6,4 @@ _ReSharper*
 *.nupkg
 test-results/
 .DS_Store
+packages
