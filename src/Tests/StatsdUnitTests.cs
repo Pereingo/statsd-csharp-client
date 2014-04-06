@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Rhino.Mocks;
 using StatsdClient;
@@ -380,7 +381,23 @@ namespace Tests
             _udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1\nanother.prefix.timer:1|ms"));
         }
 
-        private static int TestMethod()
+	    [Test]
+	    public void can_concurrently_add_integer_metrics()
+	    {
+		    var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+
+		    Parallel.For(0, 1000000, x => Assert.DoesNotThrow(() => s.Add<Statsd.Counting>("name", 5)));
+	    }
+
+		[Test]
+		public void can_concurrently_add_double_metrics()
+		{
+			var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+
+			Parallel.For(0, 1000000, x => Assert.DoesNotThrow(() => s.Add<Statsd.Gauge>("name", 5d)));
+		}
+
+	    private static int TestMethod()
         {
             return 5;
         }
