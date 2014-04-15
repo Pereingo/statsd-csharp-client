@@ -151,5 +151,12 @@ namespace Tests
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);
             AssertWasReceived(String.Format("{0}:2|ms", msg), 1);
         }
+
+        [Test] public void client_does_not_crash_when_ipaddress_is_not_resolved_from_hostname()
+        {
+            var statsdUDP = new StatsdUDP("foobar", serverPort, 10);
+            var statsdClient = new Statsd(statsdUDP);
+        }
+
     }
 }
