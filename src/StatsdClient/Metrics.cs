@@ -14,7 +14,9 @@ namespace StatsdClient
 				throw new ArgumentNullException("config");
 			}
 
-			_prefix = config.Prefix;
+			_prefix = config.Prefix ?? "";
+			_prefix = _prefix.TrimEnd('.');
+
 			_statsD = string.IsNullOrEmpty(config.StatsdServerName)
 				          ? null
 				          : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize));
