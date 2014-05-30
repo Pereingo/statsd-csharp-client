@@ -164,11 +164,14 @@ namespace Tests
 		}
 
 		[Test]
-		public void time_with_no_config_setup_should_not_send_metric()
+		public void time_with_no_config_setup_should_not_send_metric_but_still_run_action()
 		{
 			Metrics.Configure(new MetricsConfig());
 
-			Metrics.Time(() => {}, "timer");
+			var someValue = 5;
+			Metrics.Time(() => { someValue = 10; }, "timer");
+
+			Assert.That(someValue, Is.EqualTo(10));
 			Assert.That(LastPacketMessageReceived(), Is.Null);
 		}
 
