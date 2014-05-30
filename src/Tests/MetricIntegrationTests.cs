@@ -85,7 +85,6 @@ namespace Tests
 			Metrics.Counter("counter", 10);
 			Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:10|c"));
 		}
-        
 
 		[Test]
 		public void counter_with_prefix()
