@@ -21,22 +21,91 @@ namespace StatsdClient
 
         private List<string> _commands = new List<string>();
 
-        public class Counting : ICommandType { }
-        public class Timing : ICommandType { }
-        public class Gauge : ICommandType { }
-        public class Histogram : ICommandType { }
-        public class Meter : ICommandType { }
-        public class Set : ICommandType { }
+        public abstract class Metric : ICommandType
+        {
+            private static readonly Dictionary<Type, string> _commandToUnit = new Dictionary<Type, string>
+                                                                {
+                                                                    {typeof (Counting), "c"},
+                                                                    {typeof (Timing), "ms"},
+                                                                    {typeof (Gauge), "g"},
+                                                                    {typeof (Histogram), "h"},
+                                                                    {typeof (Meter), "m"},
+                                                                    {typeof (Set), "s"}
+                                                                };
 
-        private readonly Dictionary<Type, string> _commandToUnit = new Dictionary<Type, string>
-                                                                       {
-                                                                           {typeof (Counting), "c"},
-                                                                           {typeof (Timing), "ms"},
-                                                                           {typeof (Gauge), "g"},
-                                                                           {typeof (Histogram), "h"},
-                                                                           {typeof (Meter), "m"},
-                                                                           {typeof (Set), "s"}
-                                                                       };
+            public static string GetCommand<TCommandType, T>(string prefix, string name, T value, double sampleRate, string[] tags) where TCommandType : Metric
+            {
+                string full_name = prefix + name;
+                string unit = _commandToUnit[typeof(TCommandType)];
+                // It would be cleaner to do this with StringBuilder, but we want sending stats to be as fast as possible
+                if (sampleRate == 1.0 && (tags == null || tags.Length == 0))
+                    return string.Format(CultureInfo.InvariantCulture, "{0}:{1}|{2}", full_name, value, unit);
+                else if (sampleRate == 1.0 && (tags == null || tags.Length > 0))
+                    return string.Format(CultureInfo.InvariantCulture, "{0}:{1}|{2}|#{3}", full_name, value, unit, string.Join(",", tags));
+                else if (sampleRate != 1.0 && (tags == null || tags.Length == 0))
+                    return string.Format(CultureInfo.InvariantCulture, "{0}:{1}|{2}|@{3}", full_name, value, unit, sampleRate);
+                else // { if (sampleRate != 1 && (tags == null || tags.Length > 0)) }
+                    return string.Format(CultureInfo.InvariantCulture, "{0}:{1}|{2}|@{3}|#{4}", full_name, value, unit, sampleRate,
+                                         string.Join(",", tags));
+            }
+        }
+
+        public class Event : ICommandType
+        {
+
+            public static string GetCommand(string title, string text, string alertType, string aggregationKey, string sourceType, int? dateHappened, string priority, string hostname, string[] tags)
+            {
+                string processedTitle = EscapeContent(title);
+                string processedText = EscapeContent(text);
+                string result = string.Format(CultureInfo.InvariantCulture, "_e{{{0},{1}}}:{2}|{3}", processedTitle.Length.ToString(), processedText.Length.ToString(), processedTitle, processedText);
+                if (dateHappened != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|d:{0}", dateHappened);
+                }
+                if (hostname != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|h:{0}", hostname);
+                }
+                if (aggregationKey != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|k:{0}", aggregationKey);
+                }
+                if (priority != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|p:{0}", priority);
+                }
+                if (sourceType != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|s:{0}", sourceType);
+                }
+                if (alertType != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|t:{0}", alertType);
+                }
+                if (tags != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|#{0}", string.Join(",", tags));
+                }
+                if (result.Length > 8 * 1024)
+                {
+                    throw new Exception(string.Format("Event {0} patload is too big (more than 8kB)", title));
+                }
+                return result;
+            }
+
+            private static string EscapeContent(string content)
+            {
+                return content.Replace("\n", "\\n");
+            }
+        }
+
+        public class Counting : Metric { }
+        public class Timing : Metric { }
+        public class Gauge : Metric { }
+        public class Histogram : Metric { }
+        public class Meter : Metric { }
+        public class Set : Metric { }
+
 
         public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory, string prefix)
         {
@@ -55,18 +124,27 @@ namespace StatsdClient
         public Statsd(IStatsdUDP udp)
             : this(udp, "") { }
 
-        public void Add<TCommandType,T>(string name, T value, double sampleRate = 1.0, string[] tags = null) where TCommandType : ICommandType
+        public void Add<TCommandType, T>(string name, T value, double sampleRate = 1.0, string[] tags = null) where TCommandType : Metric
         {
-            _commands.Add(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
+            _commands.Add(Metric.GetCommand<TCommandType, T>(_prefix, name, value, sampleRate, tags));
         }
 
-        public void Send<TCommandType,T>(string name, T value, double sampleRate = 1.0, string[] tags = null) where TCommandType : ICommandType
+        public void Add(string title, string text, string alertType = null, string aggregationKey = null, string sourceType = null, int? dateHappened = null, string priority = null, string hostname = null, string[] tags = null)
+        {
+            _commands.Add(Event.GetCommand(title, text, alertType, aggregationKey, sourceType, dateHappened, priority, hostname, tags));
+        }
+        public void Send(string title, string text, string alertType = null, string aggregationKey = null, string sourceType = null, int? dateHappened = null, string priority = null, string hostname = null, string[] tags = null)
+        {
+            Send(Event.GetCommand(title, text, alertType, aggregationKey, sourceType, dateHappened, priority, hostname, tags));
+        }
+        public void Send<TCommandType, T>(string name, T value, double sampleRate = 1.0, string[] tags = null) where TCommandType : Metric
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
-                Send(GetCommand(name, value, _commandToUnit[typeof(TCommandType)], sampleRate, tags));
+                Send(Metric.GetCommand<TCommandType, T>(_prefix, name, value, sampleRate, tags));
             }
         }
+
 
         public void Send(string command)
         {
@@ -81,24 +159,10 @@ namespace StatsdClient
                 Udp.Send(string.Join("\n", Commands.ToArray()));
                 Commands = new List<string>();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
             }
-        }
-
-        private string GetCommand<T>(string name, T value, string unit, double sampleRate, string[] tags)
-        {
-            // It would be cleaner to do this with StringBuilder, but we want sending stats to be as fast as possible
-            if (sampleRate == 1.0 && (tags == null || tags.Length == 0))
-                return string.Format (CultureInfo.InvariantCulture, "{0}:{1}|{2}", _prefix + name, value, unit);
-            else if (sampleRate == 1.0 && (tags == null|| tags.Length > 0)) 
-                return string.Format(CultureInfo.InvariantCulture, "{0}:{1}|{2}|#{3}", _prefix + name, value, unit, string.Join(",", tags));
-            else if (sampleRate != 1.0 && (tags == null || tags.Length == 0))
-                return string.Format(CultureInfo.InvariantCulture, "{0}:{1}|{2}|@{3}", _prefix + name, value, unit, sampleRate);
-            else // { if (sampleRate != 1 && (tags == null || tags.Length > 0)) }
-                return string.Format(CultureInfo.InvariantCulture, "{0}:{1}|{2}|@{3}|#{4}", _prefix + name, value, unit, sampleRate, 
-                                     string.Join (",", tags));
         }
 
         public void Add(Action actionToTime, string statName, double sampleRate = 1.0, string[] tags = null)
@@ -113,10 +177,10 @@ namespace StatsdClient
             finally
             {
                 stopwatch.Stop();
-                Add<Timing,int>(statName, stopwatch.ElapsedMilliseconds(), sampleRate, tags);
+                Add<Timing, int>(statName, stopwatch.ElapsedMilliseconds(), sampleRate, tags);
             }
         }
- 
+
         public void Send(Action actionToTime, string statName, double sampleRate = 1.0, string[] tags = null)
         {
             var stopwatch = StopwatchFactory.Get();
@@ -129,7 +193,7 @@ namespace StatsdClient
             finally
             {
                 stopwatch.Stop();
-                Send<Timing,int>(statName, stopwatch.ElapsedMilliseconds(), sampleRate, tags);
+                Send<Timing, int>(statName, stopwatch.ElapsedMilliseconds(), sampleRate, tags);
             }
         }
     }

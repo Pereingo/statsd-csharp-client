@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Configuration;
 using System.Threading;
 using System.Text.RegularExpressions;
@@ -10,7 +10,7 @@ using Tests.Helpers;
 namespace Tests
 {
     [TestFixture]
-    public class MetricIntegrationTests
+    public class MetricsAndEventsIntegrationTests
     {
         private UdpListener udpListener;
         private Thread listenThread;
@@ -18,15 +18,15 @@ namespace Tests
         private string serverName = ConfigurationManager.AppSettings["StatsdServerName"];
 
         [TestFixtureSetUp]
-        public void SetUpUdpListener() 
+        public void SetUpUdpListener()
         {
             udpListener = new UdpListener(serverName, serverPort);
-            var metricsConfig = new MetricsConfig { StatsdServerName = serverName };
-            StatsdClient.Metrics.Configure(metricsConfig);
+            var metricsConfig = new StatsdConfig { StatsdServerName = serverName, StatsdPort = serverPort};
+            StatsdClient.DogStatsd.Configure(metricsConfig);
         }
 
         [TestFixtureTearDown]
-        public void TearDownUdpListener() 
+        public void TearDownUdpListener()
         {
             udpListener.Dispose();
         }
@@ -48,9 +48,9 @@ namespace Tests
         // then asserts that the passed string is equal to the message received.
         private void AssertWasReceived(string shouldBe, int index = 0)
         {
-                // Stall until the the listener receives a message or times out 
-                while(listenThread.IsAlive);
-                Assert.AreEqual(shouldBe, udpListener.GetAndClearLastMessages()[index]);
+            // Stall until the the listener receives a message or times out 
+            while (listenThread.IsAlive) ;
+            Assert.AreEqual(shouldBe, udpListener.GetAndClearLastMessages()[index]);
         }
 
         // Test helper. Waits until the listener is done receiving a message,
@@ -58,7 +58,7 @@ namespace Tests
         private void AssertWasReceivedMatches(string pattern, int index = 0)
         {
             // Stall until the the listener receives a message or times out
-            while(listenThread.IsAlive);
+            while (listenThread.IsAlive) ;
             StringAssert.IsMatch(pattern, udpListener.GetAndClearLastMessages()[index]);
 
         }
@@ -75,7 +75,7 @@ namespace Tests
         [Test]
         public void counter()
         {
-            Metrics.Counter("counter", 1337);
+            DogStatsd.Counter("counter", 1337);
             AssertWasReceived("counter:1337|c");
         }
 
@@ -83,7 +83,7 @@ namespace Tests
         [Test]
         public void counter_tags()
         {
-            Metrics.Counter("counter", 1, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Counter("counter", 1, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("counter:1|c|#tag1:true,tag2");
         }
 
@@ -92,343 +92,343 @@ namespace Tests
         {
             // A sample rate over 1 doesn't really make sense, but it allows
             // the test to pass every time
-            Metrics.Counter("counter", 1, sampleRate: 1.1);
+            DogStatsd.Counter("counter", 1, sampleRate: 1.1);
             AssertWasReceived("counter:1|c|@1.1");
         }
 
         [Test]
         public void counter_sample_rate_tags()
         {
-            Metrics.Counter("counter", 1337, sampleRate: 12.2, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Counter("counter", 1337, sampleRate: 12.2, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("counter:1337|c|@12.2|#tag1:true,tag2");
         }
 
         [Test]
         public void counter_sample_rate_tags_double()
         {
-            Metrics.Counter("counter", 1337.3, sampleRate: 12.2, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Counter("counter", 1337.3, sampleRate: 12.2, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("counter:1337.3|c|@12.2|#tag1:true,tag2");
         }
 
         [Test]
         public void increment()
         {
-            Metrics.Increment("increment");
+            DogStatsd.Increment("increment");
             AssertWasReceived("increment:1|c");
         }
 
         [Test]
         public void increment_tags()
         {
-            Metrics.Increment("increment", tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Increment("increment", tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("increment:1|c|#tag1:true,tag2");
         }
 
         [Test]
         public void increment_sample_rate()
         {
-            Metrics.Increment("increment", sampleRate: 1.1);
+            DogStatsd.Increment("increment", sampleRate: 1.1);
             AssertWasReceived("increment:1|c|@1.1");
         }
 
         [Test]
         public void increment_sample_rate_tags()
         {
-            Metrics.Increment("increment", sampleRate: 12.2, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Increment("increment", sampleRate: 12.2, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("increment:1|c|@12.2|#tag1:true,tag2");
         }
 
         [Test]
         public void decrement()
         {
-            Metrics.Decrement("decrement");
+            DogStatsd.Decrement("decrement");
             AssertWasReceived("decrement:-1|c");
         }
 
         [Test]
         public void decrement_tags()
         {
-            Metrics.Decrement("decrement", tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Decrement("decrement", tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("decrement:-1|c|#tag1:true,tag2");
         }
 
         [Test]
         public void decrement_sample_rate()
         {
-            Metrics.Decrement("decrement", sampleRate: 1.1);
+            DogStatsd.Decrement("decrement", sampleRate: 1.1);
             AssertWasReceived("decrement:-1|c|@1.1");
         }
 
         [Test]
         public void decrement_sample_rate_tags()
         {
-            Metrics.Decrement("decrement", sampleRate: 12.2, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Decrement("decrement", sampleRate: 12.2, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("decrement:-1|c|@12.2|#tag1:true,tag2");
         }
 
         [Test]
         public void gauge()
         {
-            Metrics.Gauge("gauge", 1337);
+            DogStatsd.Gauge("gauge", 1337);
             AssertWasReceived("gauge:1337|g");
         }
 
         [Test]
         public void gauge_tags()
         {
-            Metrics.Gauge("gauge", 1337, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Gauge("gauge", 1337, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("gauge:1337|g|#tag1:true,tag2");
         }
 
         [Test]
         public void gauge_sample_rate()
         {
-            Metrics.Gauge("gauge", 1337, sampleRate: 1.1);
+            DogStatsd.Gauge("gauge", 1337, sampleRate: 1.1);
             AssertWasReceived("gauge:1337|g|@1.1");
         }
 
         [Test]
         public void gauge_sample_rate_tags()
         {
-            Metrics.Gauge("gauge", 1337, sampleRate: 1.1, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Gauge("gauge", 1337, sampleRate: 1.1, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("gauge:1337|g|@1.1|#tag1:true,tag2");
         }
 
         [Test]
         public void gauge_double()
         {
-            Metrics.Gauge("gauge", 6.3);
+            DogStatsd.Gauge("gauge", 6.3);
             AssertWasReceived("gauge:6.3|g");
         }
 
         [Test]
         public void gauge_double_tags()
         {
-            Metrics.Gauge("gauge", 3.1337, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Gauge("gauge", 3.1337, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("gauge:3.1337|g|#tag1:true,tag2");
         }
 
         [Test]
         public void gauge_double_sample_rate()
         {
-            Metrics.Gauge("gauge", 3.1337, sampleRate: 1.1);
+            DogStatsd.Gauge("gauge", 3.1337, sampleRate: 1.1);
             AssertWasReceived("gauge:3.1337|g|@1.1");
         }
 
         [Test]
         public void gauge_double_sample_rate_tags()
         {
-            Metrics.Gauge("gauge", 3.1337, sampleRate: 1.1, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Gauge("gauge", 3.1337, sampleRate: 1.1, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("gauge:3.1337|g|@1.1|#tag1:true,tag2");
         }
 
         [Test]
         public void gauge_double_rounding()
         {
-            Metrics.Gauge("gauge", (double)1/9);
+            DogStatsd.Gauge("gauge", (double)1 / 9);
             AssertWasReceived("gauge:0.111111111111111|g");
         }
 
         [Test]
         public void histogram()
         {
-            Metrics.Histogram("histogram", 42);
+            DogStatsd.Histogram("histogram", 42);
             AssertWasReceived("histogram:42|h");
         }
 
         [Test]
         public void histogram_tags()
         {
-            Metrics.Histogram("histogram", 42, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Histogram("histogram", 42, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("histogram:42|h|#tag1:true,tag2");
         }
 
         [Test]
         public void histogram_sample_rate()
         {
-            Metrics.Histogram("histogram", 42, sampleRate: 1.1);
+            DogStatsd.Histogram("histogram", 42, sampleRate: 1.1);
             AssertWasReceived("histogram:42|h|@1.1");
         }
 
         [Test]
         public void histogram_sample_rate_tags()
         {
-            Metrics.Histogram("histogram", 42, sampleRate: 1.1, tags: new[] {"tag1:true,tag2"});
+            DogStatsd.Histogram("histogram", 42, sampleRate: 1.1, tags: new[] { "tag1:true,tag2" });
             AssertWasReceived("histogram:42|h|@1.1|#tag1:true,tag2");
         }
 
         [Test]
         public void histogram_double()
         {
-            Metrics.Histogram("histogram", 42.1);
+            DogStatsd.Histogram("histogram", 42.1);
             AssertWasReceived("histogram:42.1|h");
         }
 
         [Test]
         public void histogram_double_tags()
         {
-            Metrics.Histogram("histogram", 42.1, tags: new[] {"tag1:true,tag2"});
+            DogStatsd.Histogram("histogram", 42.1, tags: new[] { "tag1:true,tag2" });
             AssertWasReceived("histogram:42.1|h|#tag1:true,tag2");
         }
 
         [Test]
         public void histogram_double_sample_rate()
         {
-            Metrics.Histogram("histogram", 42.1, 1.1);
+            DogStatsd.Histogram("histogram", 42.1, 1.1);
             AssertWasReceived("histogram:42.1|h|@1.1");
         }
 
         [Test]
         public void histogram_double_sample_rate_tags()
         {
-            Metrics.Histogram("histogram", 42.1, sampleRate: 1.1, tags: new[] {"tag1:true,tag2"});
+            DogStatsd.Histogram("histogram", 42.1, sampleRate: 1.1, tags: new[] { "tag1:true,tag2" });
             AssertWasReceived("histogram:42.1|h|@1.1|#tag1:true,tag2");
         }
 
         [Test]
         public void set()
         {
-            Metrics.Set("set", 42);
+            DogStatsd.Set("set", 42);
             AssertWasReceived("set:42|s");
         }
 
         [Test]
         public void set_tags()
         {
-            Metrics.Set("set", 42, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Set("set", 42, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("set:42|s|#tag1:true,tag2");
         }
 
         [Test]
         public void set_sample_rate()
         {
-            Metrics.Set("set", 42, sampleRate: 1.1);
+            DogStatsd.Set("set", 42, sampleRate: 1.1);
             AssertWasReceived("set:42|s|@1.1");
         }
 
         [Test]
         public void set_sample_rate_tags()
         {
-            Metrics.Set("set", 42, sampleRate: 12.2, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Set("set", 42, sampleRate: 12.2, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("set:42|s|@12.2|#tag1:true,tag2");
         }
 
         [Test]
         public void set_double()
         {
-            Metrics.Set("set", 42.2);
+            DogStatsd.Set("set", 42.2);
             AssertWasReceived("set:42.2|s");
         }
 
         [Test]
         public void set_double_tags()
         {
-            Metrics.Set("set", 42.2, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Set("set", 42.2, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("set:42.2|s|#tag1:true,tag2");
         }
 
         [Test]
         public void set_double_sample_rate()
         {
-            Metrics.Set("set", 42.2, sampleRate: 1.1);
+            DogStatsd.Set("set", 42.2, sampleRate: 1.1);
             AssertWasReceived("set:42.2|s|@1.1");
         }
 
         [Test]
         public void set_double_sample_rate_tags()
         {
-            Metrics.Set("set", 42.2, sampleRate: 12.2, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Set("set", 42.2, sampleRate: 12.2, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("set:42.2|s|@12.2|#tag1:true,tag2");
         }
 
         [Test]
         public void set_string()
         {
-            Metrics.Set("set", "string");
+            DogStatsd.Set("set", "string");
             AssertWasReceived("set:string|s");
         }
 
         [Test]
         public void set_string_tags()
         {
-            Metrics.Set("set", "string", tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Set("set", "string", tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("set:string|s|#tag1:true,tag2");
         }
 
         [Test]
         public void set_string_sample_rate()
         {
-            Metrics.Set("set", "string", sampleRate: 1.1);
+            DogStatsd.Set("set", "string", sampleRate: 1.1);
             AssertWasReceived("set:string|s|@1.1");
         }
 
         [Test]
         public void set_string_sample_rate_tags()
         {
-            Metrics.Set("set", "string", sampleRate: 12.2, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Set("set", "string", sampleRate: 12.2, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("set:string|s|@12.2|#tag1:true,tag2");
         }
 
         [Test]
         public void timer()
         {
-            Metrics.Timer("someevent", 999);
+            DogStatsd.Timer("someevent", 999);
             AssertWasReceived("someevent:999|ms");
         }
 
         [Test]
         public void timer_tags()
         {
-            Metrics.Timer("someevent", 999, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Timer("someevent", 999, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("someevent:999|ms|#tag1:true,tag2");
         }
 
         [Test]
         public void timer_sample_rate()
         {
-            Metrics.Timer("someevent", 999, sampleRate: 1.1);
+            DogStatsd.Timer("someevent", 999, sampleRate: 1.1);
             AssertWasReceived("someevent:999|ms|@1.1");
         }
 
         [Test]
         public void timer_sample_rate_tags()
         {
-            Metrics.Timer("someevent", 999, sampleRate: 1.1, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Timer("someevent", 999, sampleRate: 1.1, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("someevent:999|ms|@1.1|#tag1:true,tag2");
         }
 
         [Test]
         public void timer_double()
         {
-            Metrics.Timer("someevent", 999.99);
+            DogStatsd.Timer("someevent", 999.99);
             AssertWasReceived("someevent:999.99|ms");
         }
 
         [Test]
         public void timer_double_tags()
         {
-            Metrics.Timer("someevent", 999.99, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Timer("someevent", 999.99, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("someevent:999.99|ms|#tag1:true,tag2");
         }
 
         [Test]
         public void timer_double_sample_rate()
         {
-            Metrics.Timer("someevent", 999.99, sampleRate: 1.1);
+            DogStatsd.Timer("someevent", 999.99, sampleRate: 1.1);
             AssertWasReceived("someevent:999.99|ms|@1.1");
         }
 
         [Test]
         public void timer_double_sample_rate_tags()
         {
-            Metrics.Timer("someevent", 999.99, sampleRate: 1.1, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Timer("someevent", 999.99, sampleRate: 1.1, tags: new[] { "tag1:true", "tag2" });
             AssertWasReceived("someevent:999.99|ms|@1.1|#tag1:true,tag2");
         }
 
         [Test]
         public void timer_method()
         {
-            Metrics.Time(() => Thread.Sleep(500), "timer");
+            DogStatsd.Time(() => Thread.Sleep(500), "timer");
             // Make sure that the received timer is of the right order of magnitude.
             // The measured value will probably be a few ms longer than the sleep value.
             AssertWasReceivedMatches(@"timer:\d{3}\|ms");
@@ -437,7 +437,7 @@ namespace Tests
         [Test]
         public void timer_method_tags()
         {
-            Metrics.Time(() => Thread.Sleep(500), "timer", tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Time(() => Thread.Sleep(500), "timer", tags: new[] { "tag1:true", "tag2" });
             // Make sure that the received timer is of the right order of magnitude.
             // The measured value will probably be a few ms longer than the sleep value.
             AssertWasReceivedMatches(@"timer:\d{3}\|ms\|#tag1:true,tag2");
@@ -446,7 +446,7 @@ namespace Tests
         [Test]
         public void timer_method_sample_rate()
         {
-            Metrics.Time(() => Thread.Sleep(500), "timer", sampleRate: 1.1);
+            DogStatsd.Time(() => Thread.Sleep(500), "timer", sampleRate: 1.1);
             // Make sure that the received timer is of the right order of magnitude.
             // The measured value will probably be a few ms longer than the sleep value.
             AssertWasReceivedMatches(@"timer:\d{3}\|ms\|@1\.1");
@@ -455,7 +455,7 @@ namespace Tests
         [Test]
         public void timer_method_sample_rate_tags()
         {
-            Metrics.Time(() => Thread.Sleep(500), "timer", sampleRate: 1.1, tags: new[] {"tag1:true", "tag2"});
+            DogStatsd.Time(() => Thread.Sleep(500), "timer", sampleRate: 1.1, tags: new[] { "tag1:true", "tag2" });
             // Make sure that the received timer is of the right order of magnitude.
             // The measured value will probably be a few ms longer than the sleep value.
             AssertWasReceivedMatches(@"timer:\d{3}\|ms\|@1\.1\|#tag1:true,tag2");
@@ -471,7 +471,7 @@ namespace Tests
         [Test]
         public void timer_method_sets_return_value()
         {
-            var returnValue = Metrics.Time(() => pauseAndReturnInt(), "lifetheuniverseandeverything");
+            var returnValue = DogStatsd.Time(() => pauseAndReturnInt(), "lifetheuniverseandeverything");
             AssertWasReceivedMatches(@"lifetheuniverseandeverything:\d{3}\|ms");
             Assert.AreEqual(42, returnValue);
         }
@@ -479,7 +479,7 @@ namespace Tests
         [Test]
         public void timer_method_sets_return_value_tags()
         {
-            var returnValue = Metrics.Time(() => pauseAndReturnInt(), "lifetheuniverseandeverything", tags: new[] {"towel:present"});
+            var returnValue = DogStatsd.Time(() => pauseAndReturnInt(), "lifetheuniverseandeverything", tags: new[] { "towel:present" });
             AssertWasReceivedMatches(@"lifetheuniverseandeverything:\d{3}\|ms\|#towel:present");
             Assert.AreEqual(42, returnValue);
         }
@@ -487,7 +487,7 @@ namespace Tests
         [Test]
         public void timer_method_sets_return_value_sample_rate()
         {
-            var returnValue = Metrics.Time(() => pauseAndReturnInt(), "lifetheuniverseandeverything", sampleRate: 4.2);
+            var returnValue = DogStatsd.Time(() => pauseAndReturnInt(), "lifetheuniverseandeverything", sampleRate: 4.2);
             AssertWasReceivedMatches(@"lifetheuniverseandeverything:\d{3}\|ms\|@4\.2");
             Assert.AreEqual(42, returnValue);
         }
@@ -495,7 +495,7 @@ namespace Tests
         [Test]
         public void timer_method_sets_return_value_sample_rate_and_tag()
         {
-            var returnValue = Metrics.Time(() => pauseAndReturnInt(), "lifetheuniverseandeverything", sampleRate: 4.2, tags: new[] {"fjords"});
+            var returnValue = DogStatsd.Time(() => pauseAndReturnInt(), "lifetheuniverseandeverything", sampleRate: 4.2, tags: new[] { "fjords" });
             AssertWasReceivedMatches(@"lifetheuniverseandeverything:\d{3}\|ms\|@4\.2\|#fjords");
             Assert.AreEqual(42, returnValue);
         }
@@ -510,14 +510,14 @@ namespace Tests
         [Test]
         public void timer_method_doesnt_swallow_exception_and_submits_metric()
         {
-            Assert.Throws<Exception>(() => Metrics.Time(() => throwException(), "somebadcode"));
+            Assert.Throws<Exception>(() => DogStatsd.Time(() => throwException(), "somebadcode"));
             AssertWasReceivedMatches(@"somebadcode:\d{3}\|ms");
         }
 
         [Test]
         public void timer_block()
         {
-            using (Metrics.StartTimer("timer"))
+            using (DogStatsd.StartTimer("timer"))
             {
                 Thread.Sleep(200);
                 Thread.Sleep(300);
@@ -528,7 +528,7 @@ namespace Tests
         [Test]
         public void timer_block_tags()
         {
-            using (Metrics.StartTimer("timer", tags: new[] {"tag1:true", "tag2"}))
+            using (DogStatsd.StartTimer("timer", tags: new[] { "tag1:true", "tag2" }))
             {
                 Thread.Sleep(200);
                 Thread.Sleep(300);
@@ -539,7 +539,7 @@ namespace Tests
         [Test]
         public void timer_block_sampleRate()
         {
-            using (Metrics.StartTimer("timer", sampleRate: 1.1))
+            using (DogStatsd.StartTimer("timer", sampleRate: 1.1))
             {
                 Thread.Sleep(200);
                 Thread.Sleep(300);
@@ -550,7 +550,7 @@ namespace Tests
         [Test]
         public void timer_block_sampleRate_and_tag()
         {
-            using (Metrics.StartTimer("timer", sampleRate: 1.1, tags: new[] {"tag1:true", "tag2"}))
+            using (DogStatsd.StartTimer("timer", sampleRate: 1.1, tags: new[] { "tag1:true", "tag2" }))
             {
                 Thread.Sleep(200);
                 Thread.Sleep(300);
@@ -565,7 +565,7 @@ namespace Tests
             // (Wasn't able to get this working with Assert.Throws)
             try
             {
-                using (Metrics.StartTimer("timer"))
+                using (DogStatsd.StartTimer("timer"))
                 {
                     throwException();
                 }
@@ -576,6 +576,20 @@ namespace Tests
                 AssertWasReceivedMatches(@"timer:\d{3}\|ms");
                 Assert.Pass();
             }
+        }
+        
+        [Test]
+        public void events_priority_and_date()
+        {
+            DogStatsd.Event("Title", "L1\nL2", priority: "low", dateHappened: 1375296969);
+            AssertWasReceived("_e{5,6}:Title|L1\\nL2|d:1375296969|p:low");
+        }
+
+        [Test]
+        public void events_aggregation_key_and_tags()
+        {
+            DogStatsd.Event("Title", "♬ †øU †øU ¥ºu T0µ ♪", aggregationKey: "key", tags: new[] { "t1", "t2:v2" });
+            AssertWasReceived("_e{5,19}:Title|♬ †øU †øU ¥ºu T0µ ♪|k:key|#t1,t2:v2");
         }
     }
 }

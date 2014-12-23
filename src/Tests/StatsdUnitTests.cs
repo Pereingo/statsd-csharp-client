@@ -520,7 +520,73 @@ namespace Tests
 
             udp.AssertWasCalled(x => x.Send("timer:1.1|ms"));
         }
-		
+
+        // =-=-=-=- EVENT -=-=-=-=
+        //Event(string title, string text, string alertType = null, string aggregationKey = null, string sourceType = null, int? dateHappened = null, string priority = null, string hostname = null, string[] tags = null)
+
+        [Test]
+        public void send_event()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("title", "text");
+            udp.AssertWasCalled(x => x.Send("_e{5,4}:title|text"));
+        }
+
+        [Test]
+        public void send_event_with_alertType()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("title", "text", alertType:"warning");
+            udp.AssertWasCalled(x => x.Send("_e{5,4}:title|text|t:warning"));
+        }
+
+        [Test]
+        public void send_event_with_aggregationKey()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("title", "text", aggregationKey: "key");
+            udp.AssertWasCalled(x => x.Send("_e{5,4}:title|text|k:key"));
+        }
+
+        [Test]
+        public void send_event_with_sourceType()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("title", "text", sourceType: "source");
+            udp.AssertWasCalled(x => x.Send("_e{5,4}:title|text|s:source"));
+        }
+
+        [Test]
+        public void send_event_with_dateHappened()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("title", "text", dateHappened: 123456);
+            udp.AssertWasCalled(x => x.Send("_e{5,4}:title|text|d:123456"));
+        }
+
+        [Test]
+        public void send_event_with_priority()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("title", "text", priority: "low");
+            udp.AssertWasCalled(x => x.Send("_e{5,4}:title|text|p:low"));
+        }
+
+        [Test]
+        public void send_event_with_hostname()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("title", "text", hostname: "hostname");
+            udp.AssertWasCalled(x => x.Send("_e{5,4}:title|text|h:hostname"));
+        }
+
+        [Test]
+        public void send_event_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("title", "text", tags: new[] { "tag1", "tag2" });
+            udp.AssertWasCalled(x => x.Send("_e{5,4}:title|text|#tag1,tag2"));
+        }
 		// =-=-=-=- PREFIX -=-=-=-=
 
         [Test]

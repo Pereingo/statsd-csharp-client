@@ -54,9 +54,9 @@
     <Compile Include="UDPSmokeTests.cs" />
     <Compile Include="StatsdUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MetricIntegrationTests.cs" />
+    <Compile Include="MetricsAndEventsIntegrationTests.cs" />
     <Compile Include="UdpListener.cs" />
-    <Compile Include="MetricConfigurationTests.cs" />
+    <Compile Include="StatsdConfigurationTests.cs" />
     <Compile Include="StatsdUDPTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -74,6 +74,9 @@
       <Project>{77B1707A-9123-4CD9-9A18-A8D7F4794D71}</Project>
       <Name>StatsdClient</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
