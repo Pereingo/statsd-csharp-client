@@ -175,7 +175,10 @@ Add is being called).
 
 Change Log
 ----------
-
+- 2.0.0
+    - Event support
+    - Increment/decrement by value
+    - UDP packets UTF-8 encoding (was ASCII)
 - 1.1.0
     - UDP packets containing multiple metrics that are over the UDP packet size limit will now be split into multiple appropriately-sized packets if possible
 - 1.0.0
