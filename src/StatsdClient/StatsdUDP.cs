@@ -46,7 +46,7 @@ namespace StatsdClient
 
         public void Send(string command)
         {
-            Send(Encoding.Unicode.GetBytes(command));
+            Send(Encoding.UTF8.GetBytes(command));
         }
 
         private void Send(byte[] encodedCommand)
@@ -56,20 +56,20 @@ namespace StatsdClient
                 // If the command is too big to send, linear search backwards from the maximum
                 // packet size to see if we can find a newline delimiting two stats. If we can,
                 // split the message across the newline and try sending both componenets individually
-                byte[] newline = Encoding.Unicode.GetBytes("\n");
-                for (int i = MaxUDPPacketSize-1; i > 0; i--)
+                byte newline = Encoding.UTF8.GetBytes("\n")[0];
+                for (int i = MaxUDPPacketSize; i > 0; i--)
                 {
-                    if (encodedCommand[i] == newline[0] && encodedCommand[i+1] == newline[1])
+                    if (encodedCommand[i] == newline)
                     {
                         byte[] encodedCommandFirst = new byte[i];
                         Array.Copy(encodedCommand, encodedCommandFirst, encodedCommandFirst.Length); // encodedCommand[0..i-1]
                         Send(encodedCommandFirst);
 
-                        int remainingCharacters = encodedCommand.Length - i - 2;
+                        int remainingCharacters = encodedCommand.Length - i - 1;
                         if (remainingCharacters > 0)
                         {
                             byte[] encodedCommandSecond = new byte[remainingCharacters];
-                            Array.Copy(encodedCommand, i + 2, encodedCommandSecond, 0, encodedCommandSecond.Length); // encodedCommand[i+1..end]
+                            Array.Copy(encodedCommand, i + 1, encodedCommandSecond, 0, encodedCommandSecond.Length); // encodedCommand[i+1..end]
                             Send(encodedCommandSecond);
                         }
 

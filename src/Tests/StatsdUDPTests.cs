@@ -110,7 +110,7 @@ namespace Tests
         [Test]
         public void send_oversized_udp_packets_are_split_if_possible()
         {
-            var msg = new String('f', (StatsdConfig.DefaultStatsdMaxUDPPacketSize - 15)/2);
+            var msg = new String('f', (StatsdConfig.DefaultStatsdMaxUDPPacketSize - 15));
             listenThread.Start(3); // Listen for 3 messages
             statsd.Add<Statsd.Counting, int>(msg, 1);
             statsd.Add<Statsd.Gauge, int>(msg, 2);
@@ -125,7 +125,7 @@ namespace Tests
         [Test]
         public void send_oversized_udp_packets_are_split_if_possible_with_multiple_messages_in_one_packet()
         {
-            var msg = new String('f', StatsdConfig.DefaultStatsdMaxUDPPacketSize / 4);
+            var msg = new String('f', StatsdConfig.DefaultStatsdMaxUDPPacketSize / 2);
             listenThread.Start(3); // Listen for 3 messages
             statsd.Add<Statsd.Counting, int>("counter", 1);
             statsd.Add<Statsd.Counting, int>(msg, 2);
@@ -140,7 +140,7 @@ namespace Tests
         public void set_max_udp_packet_size()
         {
             // Make sure that we can set the max UDP packet size
-            udp = new StatsdUDP(serverName, serverPort, 20);
+            udp = new StatsdUDP(serverName, serverPort, 10);
             statsd = new Statsd(udp);
             var msg = new String('f', 5);
             listenThread.Start(2);

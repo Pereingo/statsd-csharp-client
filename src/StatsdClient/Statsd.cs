@@ -88,7 +88,7 @@ namespace StatsdClient
                 }
                 if (result.Length > 8 * 1024)
                 {
-                    throw new Exception(string.Format("Event {0} patload is too big (more than 8kB)", title));
+                    throw new Exception(string.Format("Event {0} payload is too big (more than 8kB)", title));
                 }
                 return result;
             }
