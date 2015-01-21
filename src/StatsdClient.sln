@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatsdClient", "StatsdClient\StatsdClient.csproj", "{77B1707A-9123-4CD9-9A18-A8D7F4794D71}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatsdClient.Tests", "Tests\StatsdClient.Tests.csproj", "{C4355D8F-BAB4-4C53-8E10-3ABB571A6F05}"
@@ -13,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{11FB3391-9FA5-433B-A0C4-352BD770378F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{11FB3391-9FA5-433B-A0C4-352BD770378F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{11FB3391-9FA5-433B-A0C4-352BD770378F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{11FB3391-9FA5-433B-A0C4-352BD770378F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{77B1707A-9123-4CD9-9A18-A8D7F4794D71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{77B1707A-9123-4CD9-9A18-A8D7F4794D71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77B1707A-9123-4CD9-9A18-A8D7F4794D71}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -25,11 +23,18 @@ Global
 		{C4355D8F-BAB4-4C53-8E10-3ABB571A6F05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4355D8F-BAB4-4C53-8E10-3ABB571A6F05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4355D8F-BAB4-4C53-8E10-3ABB571A6F05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11FB3391-9FA5-433B-A0C4-352BD770378F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11FB3391-9FA5-433B-A0C4-352BD770378F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11FB3391-9FA5-433B-A0C4-352BD770378F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11FB3391-9FA5-433B-A0C4-352BD770378F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = StatsdClient\StatsdClient.csproj
 		Policies = $0
-		$0.TextStylePolicy = $1
+		$0.TextStylePolicy = $3
 		$1.inheritsSet = null
 		$1.scope = text/x-csharp
 		$0.CSharpFormattingPolicy = $2
@@ -39,7 +44,6 @@ Global
 		$2.inheritsSet = Mono
 		$2.inheritsScope = text/x-csharp
 		$2.scope = text/x-csharp
-		$0.TextStylePolicy = $3
 		$3.FileWidth = 120
 		$3.inheritsSet = VisualStudio
 		$3.inheritsScope = text/plain
@@ -47,8 +51,5 @@ Global
 		$0.StandardHeader = $4
 		$4.Text = 
 		$4.IncludeInNewFiles = True
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

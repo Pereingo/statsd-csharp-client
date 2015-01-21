@@ -10,10 +10,10 @@ Installation
 
 Grab the [package from NuGet](https://nuget.org/packages/DogStatsD-CSharp-Client/), or get the source from here and build it yourself.
 
-Usage via the static Metrics class:
+Usage via the static DogStatsd class:
 -----------------------------
 
-At start of your app, configure the `Metrics` class like this:
+At start of your app, configure the `DogStatsd` class like this:
 
 ``` C#
 // The code is located under the StatsdClient namespace
@@ -21,14 +21,14 @@ using StatsdClient;
 
 // ...
 
-var metricsConfig = new MetricsConfig
+var dogstatsdConfig = new StatsdConfig
 {
     StatsdServerName = "127.0.0.1",
     StatsdPort = 8125, // Optional; default is 8125
     Prefix = "myApp" // Optional; by default no prefix will be prepended
 };
 
-StatsdClient.Metrics.Configure(metricsConfig);
+StatsdClient.DogStatsd.Configure(dogstatsdConfig);
 ```
 
 Where `StatsdServerName` is the hostname or address of the StatsD server, `StatsdPort` is the optional DogStatsD port number, and `Prefix` is an optional string that is prepended to all metrics.
@@ -37,58 +37,71 @@ Then start instrumenting your code:
 
 ``` C#
 // Increment a counter by 1
-Metrics.Increment("eventname");
+DogStatsd.Increment("eventname");
 
 // Decrement a counter by 1
-Metrics.Decrement("eventname");
+DogStatsd.Decrement("eventname");
 
 // Increment a counter by a specific value
-Metrics.Counter("page.views", page.views);
+DogStatsd.Counter("page.views", page.views);
 
 // Record a gauge
-Metrics.Gauge("gas_tank.level", 0.75);
+DogStatsd.Gauge("gas_tank.level", 0.75);
 
 // Sample a histogram
-Metrics.Histogram("file.size", file.size);
+DogStatsd.Histogram("file.size", file.size);
 
 // Add elements to a set
-Metrics.Set("users.unique", user.id);
-Metrics.Set("users.unique", "email@string.com");
+DogStatsd.Set("users.unique", user.id);
+DogStatsd.Set("users.unique", "email@string.com");
 
 // Time a block of code
-using (Metrics.StartTimer("stat-name"))
+using (DogStatsd.StartTimer("stat-name"))
 {
     DoSomethingAmazing();
     DoSomethingFantastic();
 }
 
 // Time an action
-Metrics.Time(() => DoMagic(), "stat-name");
+DogStatsd.Time(() => DoMagic(), "stat-name");
 
 // Timing an action preserves its return value
-var result = Metrics.Time(() => GetResult(), "stat-name");
+var result = DogStatsd.Time(() => GetResult(), "stat-name");
 
 // See note below for how exceptions in timed methods or blocks are handled
 
 // Every metric type supports tags and sample rates
-Metrics.Set("users.unique", user.id, tags: new[] {"country:canada"});
-Metrics.Gauge("gas_tank.level", 0.75, sampleRate: 0.5, tags: new[] {"hybrid", "trial_1"});
-using (Metrics.StartTimer("stat-name", sampleRate: 0.1))
+DogStatsd.Set("users.unique", user.id, tags: new[] {"country:canada"});
+DogStatsd.Gauge("gas_tank.level", 0.75, sampleRate: 0.5, tags: new[] {"hybrid", "trial_1"});
+using (DogStatsd.StartTimer("stat-name", sampleRate: 0.1))
 {
     DoSomethingFrequent();
 }
 ```
 
-A note about timing: Metrics will not attempt to handle any exceptions that occur in a
+A note about timing: DogStatsd will not attempt to handle any exceptions that occur in a
 timed block or method. If an unhandled exception is thrown while
 timing, a timer metric containing the time elapsed before the exception
 occurred will be submitted.
 
+
+You can also post events to your stream. You can tag them, set priority and even aggregate them with other events.
+Aggregation in the stream is made on hostname/alertType/sourceType/aggregationKey.
+
+``` C#
+// Post a simple message
+DogStatsd.Event("There might be a storm tomorrow", "A friend warned me earlier.");
+
+// Cry for help
+DogStatsd.Event("SO MUCH SNOW", "Started yesterday and it won't stop !!", alertType: "error", tags: new[] { "urgent", "endoftheworld" });
+```
+
+
 Usage via the Statsd class:
 ---------------------------
 
-In most cases, the static Metrics class is probably better to use.
-However, the Statsd is useful when you want to queue up a number of metrics to be sent in
+In most cases, the static DogStatsd class is probably better to use.
+However, the Statsd is useful when you want to queue up a number of metrics/events to be sent in
 one UDP message (via the `Add` method).
 
 ``` C#
@@ -127,9 +140,13 @@ using (udp)
   // All types have optional sample rates and tags:
   s.Send<Statsd.Counting,int>("stat-name", 1, sampleRate: 1/10, tags: new[] {"tag1:true", "tag2"});
 
+  // Send an event
+  s.Send("title", "content");
+
   // You can add combinations of messages which will be sent in one go:
   s.Add<Statsd.Counting,int>("stat-name", 1);
   s.Add<Statsd.Timing,int>("stat-name", 5, sampleRate: 1/10);
+  s.Add("event title", "content", priority: "low");
   s.Send(); // message will contain counter and will contain timer 10% of the time
   // All previous commands will be flushed after any Send
   // Any Adds will be ignored if using a Send directly
@@ -138,7 +155,7 @@ using (udp)
   s.Send(); // the counter will not be sent by the command
 }
 
-// By default, Statsd will split messages containing multiple metrics into
+// By default, Statsd will split messages containing multiple metrics/events into
 // UDP messages that are 512 bytes long. To change this limit, create a new
 // instance of StatsUDP
 int maxUDPPacketSize = 4096;
@@ -158,7 +175,10 @@ Add is being called).
 
 Change Log
 ----------
-
+- 2.0.0
+    - Event support
+    - Increment/decrement by value
+    - UDP packets UTF-8 encoding (was ASCII)
 - 1.1.0
     - UDP packets containing multiple metrics that are over the UDP packet size limit will now be split into multiple appropriately-sized packets if possible
 - 1.0.0

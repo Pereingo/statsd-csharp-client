@@ -23,17 +23,17 @@ namespace Tests
         private List<string> lastPulledMessages;
 
         [TestFixtureSetUp]
-        public void SetUpUdpListenerAndStatsd() 
+        public void SetUpUdpListenerAndStatsd()
         {
             udpListener = new UdpListener(serverName, serverPort);
-            var metricsConfig = new MetricsConfig { StatsdServerName = serverName };
-            StatsdClient.Metrics.Configure(metricsConfig);
+            var metricsConfig = new StatsdConfig { StatsdServerName = serverName };
+            StatsdClient.DogStatsd.Configure(metricsConfig);
             udp = new StatsdUDP(serverName, serverPort);
             statsd = new Statsd(udp);
         }
 
         [TestFixtureTearDown]
-        public void TearDownUdpListener() 
+        public void TearDownUdpListener()
         {
             udpListener.Dispose();
             udp.Dispose();
@@ -59,7 +59,7 @@ namespace Tests
             if (lastPulledMessages.Count == 0)
             {
                 // Stall until the the listener receives a message or times out
-                while(listenThread.IsAlive);
+                while (listenThread.IsAlive) ;
                 lastPulledMessages = udpListener.GetAndClearLastMessages();
             }
 
@@ -88,7 +88,7 @@ namespace Tests
         [Test]
         public void send_equal_to_udp_packet_limit_is_still_sent()
         {
-            var msg = new String('f', MetricsConfig.DefaultStatsdMaxUDPPacketSize);
+            var msg = new String('f', StatsdConfig.DefaultStatsdMaxUDPPacketSize);
             listenThread.Start();
             udp.Send(msg);
             // As long as we're at or below the limit, the packet should still be sent 
@@ -101,7 +101,7 @@ namespace Tests
             // This message will be one byte longer than the theoretical limit of a UDP packet
             var msg = new String('f', 65508);
             listenThread.Start();
-            statsd.Add<Statsd.Counting,int>(msg, 1);
+            statsd.Add<Statsd.Counting, int>(msg, 1);
             statsd.Send();
             // It shouldn't be split or sent, and no exceptions should be raised.
             AssertWasReceived(null);
@@ -110,10 +110,10 @@ namespace Tests
         [Test]
         public void send_oversized_udp_packets_are_split_if_possible()
         {
-            var msg = new String('f', MetricsConfig.DefaultStatsdMaxUDPPacketSize - 15);
+            var msg = new String('f', (StatsdConfig.DefaultStatsdMaxUDPPacketSize - 15));
             listenThread.Start(3); // Listen for 3 messages
-            statsd.Add<Statsd.Counting,int>(msg, 1);
-            statsd.Add<Statsd.Gauge,int>(msg, 2);
+            statsd.Add<Statsd.Counting, int>(msg, 1);
+            statsd.Add<Statsd.Gauge, int>(msg, 2);
             statsd.Send();
             // These two metrics should be split as their combined lengths exceed the maximum packet size
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);
@@ -125,11 +125,11 @@ namespace Tests
         [Test]
         public void send_oversized_udp_packets_are_split_if_possible_with_multiple_messages_in_one_packet()
         {
-            var msg = new String('f', MetricsConfig.DefaultStatsdMaxUDPPacketSize / 2);
+            var msg = new String('f', StatsdConfig.DefaultStatsdMaxUDPPacketSize / 2);
             listenThread.Start(3); // Listen for 3 messages
-            statsd.Add<Statsd.Counting,int>("counter", 1);
-            statsd.Add<Statsd.Counting,int>(msg, 2);
-            statsd.Add<Statsd.Counting,int>(msg, 3);
+            statsd.Add<Statsd.Counting, int>("counter", 1);
+            statsd.Add<Statsd.Counting, int>(msg, 2);
+            statsd.Add<Statsd.Counting, int>(msg, 3);
             statsd.Send();
             AssertWasReceived(String.Format("counter:1|c\n{0}:2|c", msg), 0);
             AssertWasReceived(String.Format("{0}:3|c", msg), 1);
@@ -144,8 +144,8 @@ namespace Tests
             statsd = new Statsd(udp);
             var msg = new String('f', 5);
             listenThread.Start(2);
-            statsd.Add<Statsd.Counting,int>(msg, 1);
-            statsd.Add<Statsd.Gauge,int>(msg, 2);
+            statsd.Add<Statsd.Counting, int>(msg, 1);
+            statsd.Add<Statsd.Gauge, int>(msg, 2);
             statsd.Send();
             // Since our packet size limit is now 10, this (short) message should still be split
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);

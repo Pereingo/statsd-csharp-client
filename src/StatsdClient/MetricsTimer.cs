@@ -8,7 +8,7 @@ namespace StatsdClient
         private readonly Stopwatch _stopWatch;
         private bool _disposed;
         private readonly double _sampleRate;
-        private readonly string[] _tags; 
+        private readonly string[] _tags;
 
         public MetricsTimer(string name, double sampleRate = 1.0, string[] tags = null)
         {
@@ -25,7 +25,7 @@ namespace StatsdClient
             {
                 _disposed = true;
                 _stopWatch.Stop();
-                Metrics.Timer(_name, _stopWatch.ElapsedMilliseconds(), _sampleRate, _tags);
+                DogStatsd.Timer(_name, _stopWatch.ElapsedMilliseconds(), _sampleRate, _tags);
             }
         }
     }
