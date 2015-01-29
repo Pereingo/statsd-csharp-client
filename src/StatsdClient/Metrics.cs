@@ -14,7 +14,9 @@ namespace StatsdClient
 				throw new ArgumentNullException("config");
 			}
 
-			_prefix = config.Prefix;
+			_prefix = config.Prefix ?? "";
+			_prefix = _prefix.TrimEnd('.');
+
 			_statsD = string.IsNullOrEmpty(config.StatsdServerName)
 				          ? null
 				          : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize));
@@ -79,15 +81,15 @@ namespace StatsdClient
 			}
 		}
 
-        	public static void Set(string statName, string value)
-        	{
-            		if (_statsD == null)
-            		{
-                		return;
-            		}
+		public static void Set(string statName, string value)
+		{
+			if (_statsD == null)
+			{
+				return;
+			}
 
-            		_statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value);
-        	}
+			_statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value);
+		}
 
 		private static string BuildNamespacedStatName(string statName)
 		{

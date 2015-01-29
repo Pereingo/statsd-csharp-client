@@ -13,6 +13,8 @@ namespace StatsdClient
 
     public class Statsd : IStatsd
     {
+		private readonly object _commandCollectionLock = new object();
+
         private IStopWatchFactory StopwatchFactory { get; set; }
         private IStatsdUDP Udp { get; set; }
         private IRandomGenerator RandomGenerator { get; set; }
@@ -75,12 +77,12 @@ namespace StatsdClient
 
         public void Add<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
         {
-            Commands.Add(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1));
+			ThreadSafeAddCommand(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof (TCommandType)], 1));
         }
 
         public void Add<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
         {
-            Commands.Add(GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1));
+            ThreadSafeAddCommand(GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1));
         }
 
         public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
@@ -100,7 +102,15 @@ namespace StatsdClient
             }
         }
 
-        public void Send()
+		private void ThreadSafeAddCommand(string command)
+		{
+			lock (_commandCollectionLock)
+			{
+				Commands.Add(command);
+			}
+		}
+
+		public void Send()
         {
             try
             {

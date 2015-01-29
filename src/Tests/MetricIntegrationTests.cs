@@ -85,12 +85,21 @@ namespace Tests
 			Metrics.Counter("counter", 10);
 			Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:10|c"));
 		}
-        
 
 		[Test]
 		public void counter_with_prefix()
 		{
 			_defaultMetricsConfig.Prefix = "test_prefix";
+			Metrics.Configure(_defaultMetricsConfig);
+
+			Metrics.Counter("counter");
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.counter:1|c"));
+		}
+
+		[Test]
+		public void counter_with_prefix_having_a_trailing_dot()
+		{
+			_defaultMetricsConfig.Prefix = "test_prefix.";
 			Metrics.Configure(_defaultMetricsConfig);
 
 			Metrics.Counter("counter");
@@ -137,6 +146,16 @@ namespace Tests
 		}
 
 		[Test]
+		public void timer_with_prefix_having_a_trailing_dot()
+		{
+			_defaultMetricsConfig.Prefix = "test_prefix.";
+			Metrics.Configure(_defaultMetricsConfig);
+
+			Metrics.Timer("timer", 6);
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:6|ms"));
+		}
+
+		[Test]
 		public void timer_with_no_config_setup_should_not_send_metric()
 		{
 			Metrics.Configure(new MetricsConfig());
@@ -165,11 +184,24 @@ namespace Tests
 		}
 
 		[Test]
-		public void time_with_no_config_setup_should_not_send_metric()
+		public void time_with_prefix_having_trailing_dot()
+		{
+			_defaultMetricsConfig.Prefix = "test_prefix.";
+			Metrics.Configure(_defaultMetricsConfig);
+
+			Metrics.Time(() => Thread.Sleep(2), "time");
+			Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
+		}
+
+		[Test]
+		public void time_with_no_config_setup_should_not_send_metric_but_still_run_action()
 		{
 			Metrics.Configure(new MetricsConfig());
 
-			Metrics.Time(() => {}, "timer");
+			var someValue = 5;
+			Metrics.Time(() => { someValue = 10; }, "timer");
+
+			Assert.That(someValue, Is.EqualTo(10));
 			Assert.That(LastPacketMessageReceived(), Is.Null);
 		}
 
@@ -192,6 +224,22 @@ namespace Tests
 		public void time_with_return_value_and_prefix()
 		{
 			_defaultMetricsConfig.Prefix = "test_prefix";
+			Metrics.Configure(_defaultMetricsConfig);
+
+			var returnValue = Metrics.Time(() =>
+			{
+				Thread.Sleep(2);
+				return 5;
+			}, "time");
+
+			Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
+			Assert.That(returnValue, Is.EqualTo(5));
+		}
+
+		[Test]
+		public void time_with_return_value_and_prefix_having_a_trailing_dot()
+		{
+			_defaultMetricsConfig.Prefix = "test_prefix.";
 			Metrics.Configure(_defaultMetricsConfig);
 
 			var returnValue = Metrics.Time(() =>
@@ -246,11 +294,59 @@ namespace Tests
 		}
 
 		[Test]
+		public void gauge_with_prefix_having_a_trailing_dot()
+		{
+			_defaultMetricsConfig.Prefix = "test_prefix.";
+			Metrics.Configure(_defaultMetricsConfig);
+
+			Metrics.Gauge("gauge", 3);
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.gauge:3.000000000000000|g"));
+		}
+
+		[Test]
 		public void gauge_with_no_config_setup_should_not_send_metric()
 		{
 			Metrics.Configure(new MetricsConfig());
 
 			Metrics.Gauge("gauge", 3);
+			Assert.That(LastPacketMessageReceived(), Is.Null);
+		}
+
+		[Test]
+		public void set()
+		{
+			Metrics.Configure(_defaultMetricsConfig);
+
+			Metrics.Set("timer", "value");
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("timer:value|s"));
+		}
+
+		[Test]
+		public void set_with_prefix()
+		{
+			_defaultMetricsConfig.Prefix = "test_prefix";
+			Metrics.Configure(_defaultMetricsConfig);
+
+			Metrics.Set("timer", "value");
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:value|s"));
+		}
+
+		[Test]
+		public void set_with_prefix_having_a_trailing_dot()
+		{
+			_defaultMetricsConfig.Prefix = "test_prefix.";
+			Metrics.Configure(_defaultMetricsConfig);
+
+			Metrics.Set("timer", "value");
+			Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:value|s"));
+		}
+
+		[Test]
+		public void set_with_no_config_setup_should_not_send_metric()
+		{
+			Metrics.Configure(new MetricsConfig());
+
+			Metrics.Set("timer", "value");
 			Assert.That(LastPacketMessageReceived(), Is.Null);
 		}
     }
