@@ -4,15 +4,26 @@ namespace StatsdClient
 {
     public class RandomGenerator : IRandomGenerator
     {
-        readonly Random _random;
+        [ThreadStatic]
+        static Random _random;
+
+        private static Random Random
+        {
+            get
+            {
+                var random = _random;
+                if (random != null) return random;
+                return _random = new Random(Guid.NewGuid().GetHashCode());
+            }
+        }
+
         public RandomGenerator()
         {
-            _random = new Random();
         }
 
         public bool ShouldSend(double sampleRate)
         {
-            return _random.NextDouble() < sampleRate;
+            return Random.NextDouble() < sampleRate;
         }
     }
 }
