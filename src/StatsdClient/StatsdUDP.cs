@@ -13,6 +13,7 @@ namespace StatsdClient
         private Socket UDPSocket { get; set; }
         private string Name { get; set; }
         private int Port { get; set; }
+        private bool _disposed;
 
         public StatsdUDP(string name, int port, int maxUDPPacketSize = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
         {
@@ -85,9 +86,42 @@ namespace StatsdClient
             UDPSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
         }
 
+
+        //reference : https://lostechies.com/chrispatterson/2012/11/29/idisposable-done-right/
         public void Dispose()
         {
-            UDPSocket.Close();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        ~StatsdUDP() 
+        {
+            // Finalizer calls Dispose(false)
+            Dispose(false);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                if (UDPSocket != null)
+                {
+                    try
+                    {
+                        UDPSocket.Close();
+                    }
+                    catch (Exception)
+                    {
+                        //Swallow since we are not using a logger, should we add LibLog and start logging??
+                    }
+                    
+                }
+            }
+
+            
+
+            _disposed = true;
         }
     }
 }

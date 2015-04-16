@@ -44,6 +44,7 @@
     <Compile Include="Metrics.cs" />
     <Compile Include="MetricsConfig.cs" />
     <Compile Include="MetricsTimer.cs" />
+    <Compile Include="NullStatsd.cs" />
     <Compile Include="RandomGenerator.cs" />
     <Compile Include="Statsd.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

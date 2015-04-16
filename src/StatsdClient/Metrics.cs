@@ -4,7 +4,8 @@ namespace StatsdClient
 {
 	public static class Metrics
 	{
-	 	private static Statsd _statsD;
+	 	private static IStatsd _statsD;
+	    private static StatsdUDP _statsdUdp;
 	 	private static string _prefix;
 
 		public static void Configure(MetricsConfig config)
@@ -16,39 +17,42 @@ namespace StatsdClient
 
 			_prefix = config.Prefix ?? "";
 			_prefix = _prefix.TrimEnd('.');
-
-			_statsD = string.IsNullOrEmpty(config.StatsdServerName)
-				          ? null
-				          : new Statsd(new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize));
+		    CreateStatsD(config);
+			
 		}
 
+	    private static void CreateStatsD(MetricsConfig config)
+	    {
+	        if (_statsdUdp != null)
+	        {
+	            _statsdUdp.Dispose();
+	        }
+	        _statsdUdp = null;
+	        
+	        if (!string.IsNullOrEmpty(config.StatsdServerName))
+	        {
+	            _statsdUdp = new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize);
+                _statsD=new Statsd(_statsdUdp);
+	        }
+	        else
+	        {
+	            _statsD = new NullStatsd();
+	        }
+          
+
+	    }
         public static void Counter(string statName, int value = 1, double sampleRate = 1)	
 		{
-			if (_statsD == null)
-			{
-				return;
-			}
-
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value, sampleRate);
+			_statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value, sampleRate);
 		}
 
 		public static void Gauge(string statName, double value)
 		{
-			if (_statsD == null)
-			{
-				return;
-			}
-
 			_statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
 		}
 
 		public static void Timer(string statName, int value, double sampleRate = 1)
 		{
-			if (_statsD == null)
-			{
-				return;
-			}
-
 			_statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate);
 		}
 
@@ -59,22 +63,11 @@ namespace StatsdClient
 
 		public static void Time(Action action, string statName, double sampleRate=1) 
 		{
-			if (_statsD == null)
-			{
-				action();
-				return;
-			}
-
 			_statsD.Send(action, BuildNamespacedStatName(statName), sampleRate);
 		}
 
 		public static T Time<T>(Func<T> func, string statName)
 		{
-			if (_statsD == null)
-			{
-				return func();
-			}
-
 			using (StartTimer(statName))
 			{
 				return func();
@@ -83,11 +76,6 @@ namespace StatsdClient
 
 		public static void Set(string statName, string value)
 		{
-			if (_statsD == null)
-			{
-				return;
-			}
-
 			_statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value);
 		}
 
