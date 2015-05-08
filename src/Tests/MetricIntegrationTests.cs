@@ -1,5 +1,4 @@
 using System.Threading;
-using System.Collections.Generic;
 using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
@@ -19,7 +18,7 @@ namespace Tests
         const string _expectedTimeRegEx = @"time:.\\|ms";
 
         [TestFixtureSetUp]
-        public void SetUpUdpListener() 
+        public void SetUpUdpListener()
         {
             _udpListener = new UdpListener(_localhostAddress, _randomUnusedLocalPort);
         }
@@ -48,10 +47,10 @@ namespace Tests
             // Stall until the the listener receives a message or times out.
             while(_listenThread.IsAlive) {}
 
-            List<string> _lastMessages = _udpListener.GetAndClearLastMessages();
+            var lastMessages = _udpListener.GetAndClearLastMessages();
             try
             {
-                return _lastMessages[0];
+                return lastMessages[0];
             }
             catch (System.ArgumentOutOfRangeException)
             {
@@ -60,7 +59,7 @@ namespace Tests
         }
 
         [Test]
-        public void _udp_listener_sanity_test()
+        public void udp_listener_sanity_test()
         {
             var client = new StatsdUDP(_localhostAddress, _randomUnusedLocalPort);
             client.Send("iamnotinsane!");
@@ -109,11 +108,9 @@ namespace Tests
         [Test]
         public void counter_with_value_and_sampleRate()
         {
-
             Metrics.Configure(_defaultMetricsConfig);
 
             Metrics.Counter("counter", 10, 0.9999);
-
             Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:10|c|@0.9999"));
         }
 
