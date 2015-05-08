@@ -4,7 +4,7 @@ namespace StatsdClient
     {
         public IStopwatch Get()
         {
-            return new Stopwatch();            
+            return new Stopwatch();
         }
     }
 }

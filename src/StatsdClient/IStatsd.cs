@@ -17,9 +17,9 @@ namespace StatsdClient
         void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate;
 
         void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString;
-                
+
         void Send();
-        
+
         void Add(Action actionToTime, string statName, double sampleRate=1);
         void Send(Action actionToTime, string statName, double sampleRate=1);
     }

@@ -4,8 +4,6 @@ using System.Collections.Generic;
 namespace StatsdClient
 {
     public class NullStatsd : IStatsd
-
-
     {
         public NullStatsd()
         {
@@ -42,7 +40,6 @@ namespace StatsdClient
 
         public void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString
         {
-            
         }
 
         public void Send()

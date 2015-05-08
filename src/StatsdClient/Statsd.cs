@@ -13,7 +13,7 @@ namespace StatsdClient
 
     public class Statsd : IStatsd
     {
-		private readonly object _commandCollectionLock = new object();
+        private readonly object _commandCollectionLock = new object();
 
         private IStopWatchFactory StopwatchFactory { get; set; }
         private IStatsdUDP Udp { get; set; }
@@ -77,7 +77,7 @@ namespace StatsdClient
 
         public void Add<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
         {
-			ThreadSafeAddCommand(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof (TCommandType)], 1));
+            ThreadSafeAddCommand(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof (TCommandType)], 1));
         }
 
         public void Add<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
@@ -102,15 +102,15 @@ namespace StatsdClient
             }
         }
 
-		private void ThreadSafeAddCommand(string command)
-		{
-			lock (_commandCollectionLock)
-			{
-				Commands.Add(command);
-			}
-		}
+        private void ThreadSafeAddCommand(string command)
+        {
+            lock (_commandCollectionLock)
+            {
+                Commands.Add(command);
+            }
+        }
 
-		public void Send()
+        public void Send()
         {
             try
             {
@@ -133,38 +133,38 @@ namespace StatsdClient
         {
             var stopwatch = StopwatchFactory.Get();
 
-	        try
-	        {
-		        stopwatch.Start();
-		        actionToTime();
-	        }
-	        finally
-	        {
-				stopwatch.Stop();
-	            if (RandomGenerator.ShouldSend(sampleRate))
-	            {
-	                Add<Timing>(statName, stopwatch.ElapsedMilliseconds());
-	            }
-	        }
+            try
+            {
+                stopwatch.Start();
+                actionToTime();
+            }
+            finally
+            {
+                stopwatch.Stop();
+                if (RandomGenerator.ShouldSend(sampleRate))
+                {
+                    Add<Timing>(statName, stopwatch.ElapsedMilliseconds());
+                }
+            }
         }
 
         public void Send(Action actionToTime, string statName, double sampleRate=1)
         {
             var stopwatch = StopwatchFactory.Get();
 
-	        try
-	        {
-		        stopwatch.Start();
-		        actionToTime();
-	        }
-	        finally
-	        {
-		        stopwatch.Stop();
-	            if (RandomGenerator.ShouldSend(sampleRate))
-	            {
-	                Send<Timing>(statName, stopwatch.ElapsedMilliseconds());
-	            }
-	        }
+            try
+            {
+                stopwatch.Start();
+                actionToTime();
+            }
+            finally
+            {
+                stopwatch.Stop();
+                if (RandomGenerator.ShouldSend(sampleRate))
+                {
+                    Send<Timing>(statName, stopwatch.ElapsedMilliseconds());
+                }
+            }
         }
     }
 }

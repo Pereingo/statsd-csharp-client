@@ -23,7 +23,7 @@ namespace Tests
         }
 
 
-		// =-=-=-=- COUNTER -=-=-=-=
+        // =-=-=-=- COUNTER -=-=-=-=
 
         [Test]
         public void increases_counter_with_value_of_X()
@@ -33,25 +33,25 @@ namespace Tests
             _udp.AssertWasCalled(x => x.Send("counter:5|c"));
         }
 
-		[Test]
-		public void increases_counter_with_value_of_X_and_sample_rate()
-		{
-			var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-			s.Send<Statsd.Counting>("counter", 5,0.1);
-			_udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
-		}
+        [Test]
+        public void increases_counter_with_value_of_X_and_sample_rate()
+        {
+            var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+            s.Send<Statsd.Counting>("counter", 5,0.1);
+            _udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
+        }
 
-		[Test]
-		public void counting_exception_fails_silently()
-		{
-			var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-			_udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
-			s.Send<Statsd.Counting>("counter", 5);
-			Assert.Pass();
-		}
+        [Test]
+        public void counting_exception_fails_silently()
+        {
+            var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+            _udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+            s.Send<Statsd.Counting>("counter", 5);
+            Assert.Pass();
+        }
 
 
-		// =-=-=-=- TIMER -=-=-=-=
+        // =-=-=-=- TIMER -=-=-=-=
 
         [Test]
         public void adds_timing()
@@ -69,30 +69,30 @@ namespace Tests
             _udp.AssertWasCalled(x => x.Send("timer:5|ms|@0.1"));
         }
 
-		[Test]
-		public void timing_exception_fails_silently()
-		{
-			_udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
-			var s = new Statsd(_udp);
-			s.Send<Statsd.Timing>("timer", 5);
-			Assert.Pass();
-		}
+        [Test]
+        public void timing_exception_fails_silently()
+        {
+            _udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+            var s = new Statsd(_udp);
+            s.Send<Statsd.Timing>("timer", 5);
+            Assert.Pass();
+        }
 
-		[Test]
-		public void add_timer_with_lamba()
-		{
-			const string statName = "name";
+        [Test]
+        public void add_timer_with_lamba()
+        {
+            const string statName = "name";
 
-			var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+            var stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-			s.Add(() => TestMethod(), statName);
+            var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+            s.Add(() => TestMethod(), statName);
 
-			Assert.That(s.Commands.Count, Is.EqualTo(1));
-			Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
-		}
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
+        }
 
         [Test]
         public void add_timer_with_lamba_and_sampleRate_passes()
@@ -129,36 +129,36 @@ namespace Tests
             Assert.That(s.Commands.Count, Is.EqualTo(0));
         }
 
-		[Test]
-		public void add_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
-		{
-			const string statName = "name";
+        [Test]
+        public void add_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
+        {
+            const string statName = "name";
 
-			var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+            var stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+            var s = new Statsd(_udp, _randomGenerator, _stopwatch);
 
-			Assert.Throws<InvalidOperationException>(() => s.Add(() => { throw new InvalidOperationException(); }, statName));
+            Assert.Throws<InvalidOperationException>(() => s.Add(() => { throw new InvalidOperationException(); }, statName));
 
-			Assert.That(s.Commands.Count, Is.EqualTo(1));
-			Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
-		}
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
+        }
 
-		[Test]
-		public void send_timer_with_lambda()
-		{
-			const string statName = "name";
-			var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+        [Test]
+        public void send_timer_with_lambda()
+        {
+            const string statName = "name";
+            var stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-			s.Send(() => TestMethod(), statName);
+            var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+            s.Send(() => TestMethod(), statName);
 
-			_udp.AssertWasCalled(x => x.Send("name:500|ms"));       
-		}
+            _udp.AssertWasCalled(x => x.Send("name:500|ms"));       
+        }
 
         [Test]
         public void send_timer_with_lambda_and_sampleRate_passes()
@@ -193,38 +193,38 @@ namespace Tests
             _udp.AssertWasNotCalled(x => x.Send("name:500|ms"));
         }
 
-		[Test]
-		public void send_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
-		{
-			const string statName = "name";
-			var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+        [Test]
+        public void send_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
+        {
+            const string statName = "name";
+            var stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-			Assert.Throws<InvalidOperationException>(() => s.Send(() => { throw new InvalidOperationException(); }, statName));
+            var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+            Assert.Throws<InvalidOperationException>(() => s.Send(() => { throw new InvalidOperationException(); }, statName));
 
-			_udp.AssertWasCalled(x => x.Send("name:500|ms"));
-		}
+            _udp.AssertWasCalled(x => x.Send("name:500|ms"));
+        }
 
-		[Test]
-		public void set_return_value_with_send_timer_with_lambda()
-		{
-			const string statName = "name";
-			var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+        [Test]
+        public void set_return_value_with_send_timer_with_lambda()
+        {
+            const string statName = "name";
+            var stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-			var returnValue = 0;
-			s.Send(() => returnValue = TestMethod(), statName);
+            var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+            var returnValue = 0;
+            s.Send(() => returnValue = TestMethod(), statName);
 
-			_udp.AssertWasCalled(x => x.Send("name:500|ms"));
-			Assert.That(returnValue,Is.EqualTo(5));
-		}
+            _udp.AssertWasCalled(x => x.Send("name:500|ms"));
+            Assert.That(returnValue,Is.EqualTo(5));
+        }
 
-		// =-=-=-=- GAUGE -=-=-=-=
-		
+        // =-=-=-=- GAUGE -=-=-=-=
+        
         [Test]
         public void adds_gauge_with_large_double_values()
         {
@@ -299,7 +299,7 @@ namespace Tests
             Assert.Pass();
         }
 
-		// =-=-=-=- COMBINATION -=-=-=-=
+        // =-=-=-=- COMBINATION -=-=-=-=
 
         [Test]
         public void add_one_counter_and_one_gauge_shows_in_commands()
@@ -356,8 +356,8 @@ namespace Tests
 
             _udp.AssertWasCalled(x => x.Send("timer:1|ms"));
         }
-		
-		// =-=-=-=- PREFIX -=-=-=-=
+        
+        // =-=-=-=- PREFIX -=-=-=-=
 
         [Test]
         public void set_prefix_on_stats_name_when_calling_send()
@@ -381,23 +381,23 @@ namespace Tests
             _udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1\nanother.prefix.timer:1|ms"));
         }
 
-	    [Test]
-	    public void can_concurrently_add_integer_metrics()
-	    {
-		    var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+        [Test]
+        public void can_concurrently_add_integer_metrics()
+        {
+            var s = new Statsd(_udp, _randomGenerator, _stopwatch);
 
-		    Parallel.For(0, 1000000, x => Assert.DoesNotThrow(() => s.Add<Statsd.Counting>("name", 5)));
-	    }
+            Parallel.For(0, 1000000, x => Assert.DoesNotThrow(() => s.Add<Statsd.Counting>("name", 5)));
+        }
 
-		[Test]
-		public void can_concurrently_add_double_metrics()
-		{
-			var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+        [Test]
+        public void can_concurrently_add_double_metrics()
+        {
+            var s = new Statsd(_udp, _randomGenerator, _stopwatch);
 
-			Parallel.For(0, 1000000, x => Assert.DoesNotThrow(() => s.Add<Statsd.Gauge>("name", 5d)));
-		}
+            Parallel.For(0, 1000000, x => Assert.DoesNotThrow(() => s.Add<Statsd.Gauge>("name", 5d)));
+        }
 
-	    private static int TestMethod()
+        private static int TestMethod()
         {
             return 5;
         }
