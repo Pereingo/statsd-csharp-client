@@ -4,7 +4,7 @@ namespace StatsdClient
 {
     public static class Metrics
     {
-        private static IStatsd _statsD;
+        private static IStatsd _statsD = new NullStatsd();
         private static StatsdUDP _statsdUdp;
         private static string _prefix;
 
@@ -28,15 +28,11 @@ namespace StatsdClient
             }
 
             _statsdUdp = null;
-            
+
             if (!string.IsNullOrEmpty(config.StatsdServerName))
             {
                 _statsdUdp = new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize);
-                _statsD=new Statsd(_statsdUdp);
-            }
-            else
-            {
-                _statsD = new NullStatsd();
+                _statsD = new Statsd(_statsdUdp);
             }
         }
 
