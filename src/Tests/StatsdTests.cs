@@ -7,7 +7,7 @@ using StatsdClient;
 namespace Tests
 {
     [TestFixture]
-    public class UnitTests
+    public class StatsdTests
     {
         private IStatsdUDP _udp;
         private IRandomGenerator _randomGenerator;
@@ -22,7 +22,7 @@ namespace Tests
             _stopwatch = MockRepository.GenerateMock<IStopWatchFactory>();
         }
 
-        public class Counter : UnitTests
+        public class Counter : StatsdTests
         {
             [Test]
             public void increases_counter_with_value_of_X()
@@ -50,7 +50,7 @@ namespace Tests
             }
         }
 
-        public class Timer : UnitTests
+        public class Timer : StatsdTests
         {
             [Test]
             public void adds_timing()
@@ -223,7 +223,7 @@ namespace Tests
             }
         }
 
-        public class Guage : UnitTests
+        public class Guage : StatsdTests
         {
             [Test]
             public void adds_gauge_with_large_double_values()
@@ -243,7 +243,7 @@ namespace Tests
             }
         }
 
-        public class Meter : UnitTests
+        public class Meter : StatsdTests
         {
             [Test]
             public void adds_meter()
@@ -263,7 +263,7 @@ namespace Tests
             }
         }
 
-        public class Historgram : UnitTests
+        public class Historgram : StatsdTests
         {
             [Test]
             public void adds_histogram()
@@ -283,7 +283,7 @@ namespace Tests
             }
         }
 
-        public class Set : UnitTests
+        public class Set : StatsdTests
         {
             [Test]
             public void adds_set_with_string_value()
@@ -303,7 +303,7 @@ namespace Tests
             }
         }
 
-        public class Combination : UnitTests
+        public class Combination : StatsdTests
         {
             [Test]
             public void add_one_counter_and_one_gauge_shows_in_commands()
@@ -362,7 +362,7 @@ namespace Tests
             }
         }
 
-        public class NamePrefixing : UnitTests
+        public class NamePrefixing : StatsdTests
         {
             [Test]
             public void set_prefix_on_stats_name_when_calling_send()
@@ -387,7 +387,7 @@ namespace Tests
             }
         }
 
-        public class Concurrency : UnitTests
+        public class Concurrency : StatsdTests
         {
             [Test]
             public void can_concurrently_add_integer_metrics()
