@@ -17,10 +17,6 @@ namespace StatsdClient
             }
         }
 
-        public RandomGenerator()
-        {
-        }
-
         public bool ShouldSend(double sampleRate)
         {
             return Random.NextDouble() < sampleRate;
