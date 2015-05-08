@@ -15,11 +15,11 @@ namespace StatsdClient
         private int Port { get; set; }
         private bool _disposed;
 
-        public StatsdUDP(string name, int port, int maxUDPPacketSize = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
+        public StatsdUDP(string name, int port, int maxUdpPacketSize = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
         {
             Name = name;
             Port = port;
-            MaxUDPPacketSize = maxUDPPacketSize;
+            MaxUDPPacketSize = maxUdpPacketSize;
 
             UDPSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
@@ -31,13 +31,13 @@ namespace StatsdClient
         private IPAddress GetIpv4Address(string name)
         {
             IPAddress ipAddress;
-            bool isValidIPAddress = IPAddress.TryParse(name, out ipAddress);
+            var isValidIpAddress = IPAddress.TryParse(name, out ipAddress);
 
-            if (!isValidIPAddress)
+            if (!isValidIpAddress)
             {
-                IPAddress[] addressList = Dns.GetHostEntry(Name).AddressList;
+                var addressList = Dns.GetHostEntry(Name).AddressList;
 
-                int positionForIpv4 = addressList.Length - 1;
+                var positionForIpv4 = addressList.Length - 1;
 
                 ipAddress = addressList[positionForIpv4];
             }
@@ -56,25 +56,27 @@ namespace StatsdClient
                 // If the command is too big to send, linear search backwards from the maximum
                 // packet size to see if we can find a newline delimiting two stats. If we can,
                 // split the message across the newline and try sending both componenets individually
-                byte newline = Encoding.ASCII.GetBytes("\n")[0];
-                for (int i = MaxUDPPacketSize; i > 0; i--)
+                var newline = Encoding.ASCII.GetBytes("\n")[0];
+                for (var i = MaxUDPPacketSize; i > 0; i--)
                 {
-                    if (encodedCommand[i] == newline)
+                    if (encodedCommand[i] != newline)
                     {
-                        byte[] encodedCommandFirst = new byte[i];
-                        Array.Copy(encodedCommand, encodedCommandFirst, encodedCommandFirst.Length); // encodedCommand[0..i-1]
-                        Send(encodedCommandFirst);
-
-                        int remainingCharacters = encodedCommand.Length - i - 1;
-                        if (remainingCharacters > 0) 
-                        {
-                            byte[] encodedCommandSecond = new byte[remainingCharacters];
-                            Array.Copy(encodedCommand, i + 1, encodedCommandSecond, 0, encodedCommandSecond.Length); // encodedCommand[i+1..end]
-                            Send(encodedCommandSecond);
-                        }
-
-                        return; // We're done here if we were able to split the message.
+                        continue;
                     }
+
+                    var encodedCommandFirst = new byte[i];
+                    Array.Copy(encodedCommand, encodedCommandFirst, encodedCommandFirst.Length); // encodedCommand[0..i-1]
+                    Send(encodedCommandFirst);
+
+                    var remainingCharacters = encodedCommand.Length - i - 1;
+                    if (remainingCharacters > 0) 
+                    {
+                        var encodedCommandSecond = new byte[remainingCharacters];
+                        Array.Copy(encodedCommand, i + 1, encodedCommandSecond, 0, encodedCommandSecond.Length); // encodedCommand[i+1..end]
+                        Send(encodedCommandSecond);
+                    }
+
+                    return; // We're done here if we were able to split the message.
                     // At this point we found an oversized message but we weren't able to find a 
                     // newline to split upon. We'll still send it to the UDP socket, which upon sending an oversized message 
                     // will fail silently if the user is running in release mode or report a SocketException if the user is 
@@ -85,7 +87,6 @@ namespace StatsdClient
             }
             UDPSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
         }
-
 
         //reference : https://lostechies.com/chrispatterson/2012/11/29/idisposable-done-right/
         public void Dispose()
@@ -118,8 +119,6 @@ namespace StatsdClient
                     
                 }
             }
-
-            
 
             _disposed = true;
         }
