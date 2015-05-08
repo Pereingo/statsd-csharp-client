@@ -28,7 +28,7 @@ namespace StatsdClient
             }
 
             _statsdUdp = null;
-            
+
             if (!string.IsNullOrEmpty(config.StatsdServerName))
             {
                 _statsdUdp = new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize);

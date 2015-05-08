@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IPV4ParsingTests.cs" />
+    <Compile Include="MetricsTests.cs" />
     <Compile Include="NamingIntegrationTests.cs" />
     <Compile Include="RandomGeneratorUnitTests.cs" />
     <Compile Include="UDPSmokeTests.cs" />
