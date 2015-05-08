@@ -15,7 +15,7 @@ namespace Tests
     {
         private UdpListener udpListener;
         private Thread listenThread;
-		private const int serverPort = 23483;
+        private const int serverPort = 23483;
         private const string serverName = "127.0.0.1";
         private StatsdUDP udp;
         private Statsd statsd;
