@@ -95,7 +95,9 @@ namespace StatsdClient
 
             private static string EscapeContent(string content)
             {
-                return content.Replace("\n", "\\n");
+                return content
+                    .Replace("\r", "")
+                    .Replace("\n", "\\n");
             }
         }
 
