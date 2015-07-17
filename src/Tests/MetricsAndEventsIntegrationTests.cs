@@ -581,7 +581,7 @@ namespace Tests
         [Test]
         public void events_priority_and_date()
         {
-            DogStatsd.Event("Title", "L1\nL2", priority: "low", dateHappened: 1375296969);
+            DogStatsd.Event("Title", "L1\r\nL2", priority: "low", dateHappened: 1375296969);
             AssertWasReceived("_e{5,6}:Title|L1\\nL2|d:1375296969|p:low");
         }
 
