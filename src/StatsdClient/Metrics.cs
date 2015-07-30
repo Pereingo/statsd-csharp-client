@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StatsdClient.MetricTypes;
+using System;
 
 namespace StatsdClient
 {
@@ -32,23 +33,23 @@ namespace StatsdClient
             if (!string.IsNullOrEmpty(config.StatsdServerName))
             {
                 _statsdUdp = new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize);
-                _statsD = new Statsd(_statsdUdp);
+                _statsD = new Statsd(new Statsd.Configuration() { Udp = _statsdUdp, Sender = config.Sender });
             }
         }
 
         public static void Counter(string statName, int value = 1, double sampleRate = 1)
         {
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value, sampleRate);
+            _statsD.Send<Counting>(BuildNamespacedStatName(statName), value, sampleRate);
         }
 
         public static void Gauge(string statName, double value)
         {
-            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value);
+            _statsD.Send<Gauge>(BuildNamespacedStatName(statName), value);
         }
 
         public static void Timer(string statName, int value, double sampleRate = 1)
         {
-            _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate);
+            _statsD.Send<Timing>(BuildNamespacedStatName(statName), value, sampleRate);
         }
 
         public static IDisposable StartTimer(string name)
@@ -71,7 +72,7 @@ namespace StatsdClient
 
         public static void Set(string statName, string value)
         {
-            _statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value);
+            _statsD.Send<Set>(BuildNamespacedStatName(statName), value);
         }
 
         private static string BuildNamespacedStatName(string statName)

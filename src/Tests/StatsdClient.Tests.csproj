@@ -54,6 +54,7 @@
     <Compile Include="MetricsTests.cs" />
     <Compile Include="NamingIntegrationTests.cs" />
     <Compile Include="RandomGeneratorUnitTests.cs" />
+    <Compile Include="StatsdSenderTests.cs" />
     <Compile Include="UDPSmokeTests.cs" />
     <Compile Include="StatsdTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
