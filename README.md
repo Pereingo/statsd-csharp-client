@@ -70,7 +70,7 @@ Via the Statsd class:
 StatsdUDP udp = new StatsdUDP(HOSTNAME, PORT);
 using (udp)
 {
-  Statsd s = new Statsd(udp);
+  Statsd s = new Statsd(new Statsd.Configuration() { Udp = udp });
 
   //All the standard Statsd message types:
   s.Send<Statsd.Counting>("stat-name", 1); //counter had one hit
