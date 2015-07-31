@@ -2,6 +2,7 @@ using System.Threading;
 using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
+using StatsdClient.Senders;
 
 namespace Tests
 {
@@ -35,7 +36,8 @@ namespace Tests
             _defaultMetricsConfig = new MetricsConfig
             {
                 StatsdServerName = _localhostAddress,
-                StatsdServerPort = _randomUnusedLocalPort
+                StatsdServerPort = _randomUnusedLocalPort,
+                Sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 100 })
             };
 
             _listenThread = new Thread(_udpListener.Listen);

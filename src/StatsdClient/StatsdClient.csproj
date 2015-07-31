@@ -53,6 +53,7 @@
     <Compile Include="MetricTypes\Counting.cs" />
     <Compile Include="NullStatsd.cs" />
     <Compile Include="RandomGenerator.cs" />
+    <Compile Include="Senders\BatchSender.cs" />
     <Compile Include="Senders\MockSender.cs" />
     <Compile Include="Senders\ISender.cs" />
     <Compile Include="Senders\ImmediateSender.cs" />
