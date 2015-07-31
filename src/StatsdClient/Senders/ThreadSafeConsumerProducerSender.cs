@@ -14,13 +14,33 @@ namespace StatsdClient.Senders
         private BlockingCollection<Metric> _queue = new BlockingCollection<Metric>();
         private CancellationTokenSource _cancelSource = null;
         private List<Thread> _sendWorkerThreads = new List<Thread>();
-
         private readonly Configuration _config = null;
+        private object _lock = new object();
+
+        public ThreadSafeConsumerProducerSender() : this(new Configuration())
+        {
+        }
 
         public ThreadSafeConsumerProducerSender(Configuration config)
         {
             _config = config;
-            Start();
+        }
+
+        private IStatsdUDP _statsdUDP;
+        public IStatsdUDP StatsdUDP
+        {
+            get { return _statsdUDP; }
+            set
+            {
+                lock (_lock)
+                {
+                    if (_statsdUDP != null)
+                        Stop();
+                    _statsdUDP = value;
+                    if (_statsdUDP != null)
+                        Start();
+                }
+            }
         }
 
         private void Start()
@@ -57,7 +77,7 @@ namespace StatsdClient.Senders
             try
             {
                 Metric carryoverMetric = null;
-                var maxPacketSize = _config.StatsdUDP.MaxUDPPacketSize;
+                var maxPacketSize = StatsdUDP.MaxUDPPacketSize;
 
                 while (true)
                 {
@@ -131,7 +151,7 @@ namespace StatsdClient.Senders
                     if (metric.Count != 0)
                     {
                         var data = string.Join("\n", metricsAsString.ToArray());
-                        _config.StatsdUDP.Send(data);
+                        StatsdUDP.Send(data);
                     }
                 }
             }
@@ -155,13 +175,11 @@ namespace StatsdClient.Senders
 
         public class Configuration
         {
-            public IStatsdUDP StatsdUDP { get; set; }
             public int MaxSendDelayMS { get; set; }
             public int MaxThreads { get; set; }
 
             public Configuration()
             {
-                this.StatsdUDP = null;
                 this.MaxSendDelayMS = 5000;
                 this.MaxThreads = 1;
             }

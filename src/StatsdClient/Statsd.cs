@@ -17,7 +17,9 @@ namespace StatsdClient
                 throw new ArgumentNullException("Configuration.Udp");
 
             if (config.Sender == null)
-                config.Sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = config.Udp });
+                config.Sender = new ThreadSafeConsumerProducerSender();
+            config.Sender.StatsdUDP = config.Udp;
+
             if(config.RandomGenerator == null)
                 config.RandomGenerator = new RandomGenerator();
             if(config.StopwatchFactory == null)

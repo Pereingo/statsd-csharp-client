@@ -11,16 +11,11 @@ namespace StatsdClient.Senders
 {
     public class MockSender : ISender
     {
-        private readonly Configuration _config = null;
+        // Not used
+        public IStatsdUDP StatsdUDP { get; set; }
 
-        public MockSender() : this(null)
+        public MockSender() 
         {
-
-        }
-
-        public MockSender(Configuration config)
-        {
-            _config = config;
         }
 
         public void Send(Metric metric)
@@ -33,13 +28,6 @@ namespace StatsdClient.Senders
             catch(System.Exception ex)
             {
                 Trace.TraceError("StatsdClient::MockSender - Error: {0}", ex.ToString());
-            }
-        }
-
-        public class Configuration
-        {
-            public Configuration()
-            {
             }
         }
     }

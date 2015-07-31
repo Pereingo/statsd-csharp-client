@@ -8,6 +8,7 @@ namespace StatsdClient.Senders
 {
     public interface ISender
     {
+        IStatsdUDP StatsdUDP { get; set; }
         void Send(Metric metric);
     }
 }

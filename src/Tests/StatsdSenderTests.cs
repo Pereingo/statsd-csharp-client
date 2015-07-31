@@ -53,7 +53,8 @@ namespace Tests
                 var metric = MockRepository.GenerateStub<Counting>();
                 metric.Stub(x => x.Command).Throw(new Exception());
 
-                var sender = new ImmediateSender(new ImmediateSender.Configuration() { StatsdUDP = _udp });
+                var sender = new ImmediateSender();
+                sender.StatsdUDP = _udp;
                 sender.Send(metric);
                 Assert.Pass();
             }
@@ -64,7 +65,8 @@ namespace Tests
                 var udpStub = MockRepository.GenerateStub<IStatsdUDP>();
                 udpStub.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
                 var metric = new Counting() { Name = "testMetric", ValueAsInt = 1 };
-                var sender = new ImmediateSender(new ImmediateSender.Configuration() { StatsdUDP = udpStub });
+                var sender = new ImmediateSender();
+                sender.StatsdUDP = udpStub;
                 sender.Send(metric);
                 Assert.Pass();
             }
@@ -73,7 +75,8 @@ namespace Tests
             public void sends_metric_immediately()
             {
                 var metric = new Counting() { Name = "testMetric", ValueAsInt = 5 };
-                var sender = new ImmediateSender(new ImmediateSender.Configuration() { StatsdUDP = _udp });
+                var sender = new ImmediateSender();
+                sender.StatsdUDP = _udp;
                 sender.Send(metric);
 
                 IList<object[]> argsPerCall = _udp.GetArgumentsForCallsMadeOn(x => x.Send(Arg<string>.Is.Anything));
@@ -87,7 +90,8 @@ namespace Tests
                 var metric1 = new Counting() { Name = "testMetric", ValueAsInt = 5 };
                 var metric2 = new Timing() { Name = "testtimer", ValueAsInt = 10 };
 
-                var sender = new ImmediateSender(new ImmediateSender.Configuration() { StatsdUDP = _udp });
+                var sender = new ImmediateSender();
+                sender.StatsdUDP = _udp;
                 sender.Send(metric1);
                 sender.Send(metric2);
 
@@ -106,7 +110,8 @@ namespace Tests
                 var metric = MockRepository.GenerateStub<Counting>();
                 metric.Stub(x => x.Command).Throw(new Exception());
 
-                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = _udp, MaxSendDelayMS = 2000 });
+                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 2000 });
+                sender.StatsdUDP = _udp;
                 sender.Send(metric);
                 Assert.Pass();
             }
@@ -117,7 +122,8 @@ namespace Tests
                 var udpStub = MockRepository.GenerateStub<IStatsdUDP>();
                 udpStub.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
                 var metric = new Counting() { Name = "testMetric", ValueAsInt = 1 };
-                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = udpStub, MaxSendDelayMS = 2000 });
+                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 2000 });
+                sender.StatsdUDP = udpStub;
                 sender.Send(metric);
                 Assert.Pass();
             }
@@ -131,7 +137,8 @@ namespace Tests
                 udpStub.Stub(x => x.Send(Arg<string>.Is.Anything))
                     .WhenCalled(m => timeCalled = DateTime.Now);
 
-                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = udpStub, MaxSendDelayMS = 2000 });
+                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 2000 });
+                sender.StatsdUDP = udpStub;
                 DateTime startTime = DateTime.Now;
                 sender.Send(metric);
                 Thread.Sleep(3000);
@@ -150,7 +157,8 @@ namespace Tests
                 var udpStub = MockRepository.GenerateStub<IStatsdUDP>();
                 udpStub.Stub(x => x.MaxUDPPacketSize).Return(300);
 
-                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = udpStub, MaxSendDelayMS = 1000 });
+                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 1000 });
+                sender.StatsdUDP = udpStub;
 
                 for (var i = 0; i < 100; i ++)
                 {
@@ -171,7 +179,8 @@ namespace Tests
             [Test]
             public void bundles_multiple_metrics_into_one_packet()
             {
-                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = _udp, MaxSendDelayMS = 1000 });
+                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 1000 });
+                sender.StatsdUDP = _udp;
                 var metricsToSend = 10;
                 for (var i = 0; i < metricsToSend; i++)
                 {
@@ -190,7 +199,8 @@ namespace Tests
             public void does_not_block()
             {
                 var metric = new Counting() { Name = "testMetric", ValueAsInt = 5 };
-                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = _udp, MaxSendDelayMS = 2000 });
+                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 2000 });
+                sender.StatsdUDP = _udp;
                 
                 DateTime startTime = DateTime.Now;
                 sender.Send(metric);
@@ -203,7 +213,8 @@ namespace Tests
             [Test]
             public void aggregates_counters()
             {
-                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = _udp, MaxSendDelayMS = 1000 });
+                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 1000 });
+                sender.StatsdUDP = _udp;
                 var metricsToSend = 10;
                 for (var i = 0; i < metricsToSend; i++)
                 {
@@ -220,7 +231,8 @@ namespace Tests
             [Test]
             public void aggregates_gauges()
             {
-                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = _udp, MaxSendDelayMS = 1000 });
+                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 1000 });
+                sender.StatsdUDP = _udp;
                 var metricsToSend = 10;
                 Metric lastMetricSent = null;
                 for (var i = 0; i < metricsToSend; i++)
@@ -239,7 +251,8 @@ namespace Tests
             [Test]
             public void does_not_aggregate_timers()
             {
-                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = _udp, MaxSendDelayMS = 1000 });
+                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 1000 });
+                sender.StatsdUDP = _udp;
                 var metricsToSend = 10;
                 var metric = new Timing() { Name = "testMetric", ValueAsInt = 50 };
                 for (var i = 0; i < metricsToSend; i++)
@@ -262,7 +275,8 @@ namespace Tests
             [Test]
             public void stops_worker_threads_after_dispose()
             {
-                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { StatsdUDP = _udp, MaxSendDelayMS = 1000 });
+                var sender = new ThreadSafeConsumerProducerSender(new ThreadSafeConsumerProducerSender.Configuration() { MaxSendDelayMS = 1000 });
+                sender.StatsdUDP = _udp;
                 var metric = new Timing() { Name = "testMetric", ValueAsInt = 50 };
 
                 sender.Dispose();

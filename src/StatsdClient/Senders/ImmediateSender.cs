@@ -11,11 +11,10 @@ namespace StatsdClient.Senders
 {
     public class ImmediateSender : ISender
     {
-        private readonly Configuration _config = null;
+        public IStatsdUDP StatsdUDP { get; set; }
 
-        public ImmediateSender(Configuration config)
+        public ImmediateSender()
         {
-            _config = config;
         }
 
         public void Send(Metric metric)
@@ -23,21 +22,12 @@ namespace StatsdClient.Senders
             try
             {
                 var data = string.Join("\n", metric.Command);
-                _config.StatsdUDP.Send(data);
+                if(StatsdUDP != null)
+                    StatsdUDP.Send(data);
             }
             catch(System.Exception ex)
             {
                 Trace.TraceError("StatsdClient::ImmediateSender - Error: {0}", ex.ToString());
-            }
-        }
-
-        public class Configuration
-        {
-            public IStatsdUDP StatsdUDP { get; set; }
-
-            public Configuration()
-            {
-                this.StatsdUDP = null;
             }
         }
     }
