@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>StatsdClient</RootNamespace>
     <AssemblyName>StatsdClient</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -36,6 +36,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MetricTypes\Metric.cs" />
     <Compile Include="IRandomGenerator.cs" />
     <Compile Include="IStatsd.cs" />
     <Compile Include="IStatsdUDP.cs" />
@@ -44,8 +45,19 @@
     <Compile Include="Metrics.cs" />
     <Compile Include="MetricsConfig.cs" />
     <Compile Include="MetricsTimer.cs" />
+    <Compile Include="MetricTypes\Gauge.cs" />
+    <Compile Include="MetricTypes\Set.cs" />
+    <Compile Include="MetricTypes\Meter.cs" />
+    <Compile Include="MetricTypes\Histogram.cs" />
+    <Compile Include="MetricTypes\Timing.cs" />
+    <Compile Include="MetricTypes\Counting.cs" />
     <Compile Include="NullStatsd.cs" />
     <Compile Include="RandomGenerator.cs" />
+    <Compile Include="Senders\BatchSender.cs" />
+    <Compile Include="Senders\MockSender.cs" />
+    <Compile Include="Senders\ISender.cs" />
+    <Compile Include="Senders\ImmediateSender.cs" />
+    <Compile Include="Senders\ThreadSafeConsumerProducerSender.cs" />
     <Compile Include="Statsd.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StatsdUDP.cs" />

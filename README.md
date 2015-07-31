@@ -70,7 +70,7 @@ Via the Statsd class:
 StatsdUDP udp = new StatsdUDP(HOSTNAME, PORT);
 using (udp)
 {
-  Statsd s = new Statsd(udp);
+  Statsd s = new Statsd(new Statsd.Configuration() { Udp = udp });
 
   //All the standard Statsd message types:
   s.Send<Statsd.Counting>("stat-name", 1); //counter had one hit
@@ -79,15 +79,7 @@ using (udp)
   
   //All types have sample rate, which will be included in the message for Statsd's own stats crunching:
   s.Send<Statsd.Counting>("stat-name", 1, 1/10); //counter had one hit, this will be sent 10% of times it is called
-
-  //You can add combinations of messages which will be sent in one go:
-  s.Add<Statsd.Counting>("stat-name", 1);
-  s.Add<Statsd.Timer>("stat-name", 5, 1/10);
-  s.Send(); //message will contain counter and will contain timer 10% of the time
-  
-  //All previous commands will be flushed after any Send
-  //Any Adds will be ignored if using a Send directly
-  
+ 
   //Optional naming conventions:
   // environment named 'env'
   // application named 'app'
@@ -100,6 +92,5 @@ using (udp)
 
   s.Send(() => DoMagic(), "stat-name", 1/10); //log the response time for DoMagic call as a timer
   s.Send(() => DoMagic(), "stat-name"); //same with no sample rate
-  s.Add(() => DoMagic(), "stat-name"); //you can just add it too
 }
 ```

@@ -1,4 +1,5 @@
-﻿namespace StatsdClient
+﻿using StatsdClient.Senders;
+namespace StatsdClient
 {
     public class MetricsConfig
     {
@@ -23,6 +24,11 @@
         /// </summary>
         public string Prefix { get; set; }
 
+        /// <summary>
+        /// Allows you to configure the Sender that is used to transmit data to StatsD.
+        /// </summary>
+        public ISender Sender { get; set; }
+
         public const int DefaultStatsdServerPort = 8125;
         public const int DefaultStatsdMaxUDPPacketSize = 512;
 
@@ -30,6 +36,7 @@
         {
             StatsdServerPort = DefaultStatsdServerPort;
             StatsdMaxUDPPacketSize = DefaultStatsdMaxUDPPacketSize;
+            Sender = null;
         }
     }
 }

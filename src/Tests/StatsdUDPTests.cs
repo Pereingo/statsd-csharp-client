@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
+using StatsdClient.Senders;
 
 
 namespace Tests
@@ -18,21 +19,17 @@ namespace Tests
         private const int serverPort = 23483;
         private const string serverName = "127.0.0.1";
         private StatsdUDP udp;
-        private Statsd statsd;
         private List<string> lastPulledMessages;
 
         [TestFixtureSetUp]
-        public void SetUpUdpListenerAndStatsd() 
+        public void SetUpUdpListenerAndStatsd()
         {
             udpListener = new UdpListener(serverName, serverPort);
-            var metricsConfig = new MetricsConfig { StatsdServerName = serverName };
-            StatsdClient.Metrics.Configure(metricsConfig);
             udp = new StatsdUDP(serverName, serverPort);
-            statsd = new Statsd(udp);
         }
 
         [TestFixtureTearDown]
-        public void TearDownUdpListener() 
+        public void TearDownUdpListener()
         {
             udpListener.Dispose();
             udp.Dispose();
@@ -58,7 +55,7 @@ namespace Tests
             if (lastPulledMessages.Count == 0)
             {
                 // Stall until the the listener receives a message or times out
-                while(listenThread.IsAlive);
+                while (listenThread.IsAlive) ;
                 lastPulledMessages = udpListener.GetAndClearLastMessages();
             }
 
@@ -100,8 +97,9 @@ namespace Tests
             // This message will be one byte longer than the theoretical limit of a UDP packet
             var msg = new String('f', 65508);
             listenThread.Start();
-            statsd.Add<Statsd.Counting>(msg, 1);
-            statsd.Send();
+
+            var statsd = new Statsd(new Statsd.Configuration() { Udp = udp, Sender = new ImmediateSender() });
+            statsd.Send<Statsd.Counting>(msg, 1);
             // It shouldn't be split or sent, and no exceptions should be raised.
             AssertWasReceived(null);
         }
@@ -111,9 +109,14 @@ namespace Tests
         {
             var msg = new String('f', MetricsConfig.DefaultStatsdMaxUDPPacketSize - 15);
             listenThread.Start(3); // Listen for 3 messages
-            statsd.Add<Statsd.Counting>(msg, 1);
-            statsd.Add<Statsd.Timing>(msg, 2);
-            statsd.Send();
+
+            var sender = new BatchSender();
+            var statsd = new Statsd(new Statsd.Configuration() { Udp = udp, Sender = sender });
+
+            statsd.Send<Statsd.Counting>(msg, 1);
+            statsd.Send<Statsd.Timing>(msg, 2);
+            sender.Flush();
+
             // These two metrics should be split as their combined lengths exceed the maximum packet size
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);
             AssertWasReceived(String.Format("{0}:2|ms", msg), 1);
@@ -126,10 +129,15 @@ namespace Tests
         {
             var msg = new String('f', MetricsConfig.DefaultStatsdMaxUDPPacketSize / 2);
             listenThread.Start(3);
-            statsd.Add<Statsd.Counting>("counter", 1);
-            statsd.Add<Statsd.Counting>(msg, 2);
-            statsd.Add<Statsd.Counting>(msg, 3);
-            statsd.Send();
+
+            var sender = new BatchSender();
+            var statsd = new Statsd(new Statsd.Configuration() { Udp = udp, Sender = sender });
+
+            statsd.Send<Statsd.Counting>("counter", 1);
+            statsd.Send<Statsd.Counting>(msg, 2);
+            statsd.Send<Statsd.Counting>(msg, 3);
+            sender.Flush();
+
             // Make sure that a split packet can contain mulitple metrics
             AssertWasReceived(String.Format("counter:1|c\n{0}:2|c", msg), 0);
             AssertWasReceived(String.Format("{0}:3|c", msg), 1);
@@ -141,12 +149,15 @@ namespace Tests
         {
             // Make sure that we can set the max UDP packet size
             udp = new StatsdUDP(serverName, serverPort, 10);
-            statsd = new Statsd(udp);
             var msg = new String('f', 5);
             listenThread.Start(2);
-            statsd.Add<Statsd.Counting>(msg, 1);
-            statsd.Add<Statsd.Timing>(msg, 2);
-            statsd.Send();
+
+            var sender = new BatchSender();
+            var statsd = new Statsd(new Statsd.Configuration() { Udp = udp, Sender = sender });
+            statsd.Send<Statsd.Counting>(msg, 1);
+            statsd.Send<Statsd.Timing>(msg, 2);
+            sender.Flush();
+
             // Since our packet size limit is now 10, this (short) message should still be split
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);
             AssertWasReceived(String.Format("{0}:2|ms", msg), 1);

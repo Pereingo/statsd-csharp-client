@@ -1,3 +1,5 @@
+using StatsdClient.MetricTypes;
+using StatsdClient.Senders;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -5,133 +7,56 @@ using System.Globalization;
 
 namespace StatsdClient
 {
-    public interface IAllowsSampleRate { }
-
-    public interface IAllowsDouble { }
-    public interface IAllowsInteger { }
-    public interface IAllowsString { }
-
     public class Statsd : IStatsd
     {
-        private readonly object _commandCollectionLock = new object();
+        private readonly Configuration _config = null;
 
-        private IStopWatchFactory StopwatchFactory { get; set; }
-        private IStatsdUDP Udp { get; set; }
-        private IRandomGenerator RandomGenerator { get; set; }
-
-        private readonly string _prefix;
-
-        public List<string> Commands { get; private set; }
-
-        public class Counting : IAllowsSampleRate, IAllowsInteger { }
-        public class Timing : IAllowsSampleRate, IAllowsInteger { }
-        public class Gauge : IAllowsDouble { }
-        public class Histogram : IAllowsInteger { }
-        public class Meter : IAllowsInteger { }
-        public class Set : IAllowsString { }
-
-        private readonly Dictionary<Type, string> _commandToUnit = new Dictionary<Type, string>
-                                                                       {
-                                                                           {typeof (Counting), "c"},
-                                                                           {typeof (Timing), "ms"},
-                                                                           {typeof (Gauge), "g"},
-                                                                           {typeof (Histogram), "h"},
-                                                                           {typeof (Meter), "m"},
-                                                                           {typeof (Set), "s"}
-                                                                       };
-
-        public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory, string prefix)
+        public Statsd(Configuration config)
         {
-            Commands = new List<string>();
-            StopwatchFactory = stopwatchFactory;
-            Udp = udp;
-            RandomGenerator = randomGenerator;
-            _prefix = prefix;
+            if (config.Udp == null)
+                throw new ArgumentNullException("Configuration.Udp");
+
+            if (config.Sender == null)
+                config.Sender = new ThreadSafeConsumerProducerSender();
+            config.Sender.StatsdUDP = config.Udp;
+
+            if(config.RandomGenerator == null)
+                config.RandomGenerator = new RandomGenerator();
+            if(config.StopwatchFactory == null)
+                config.StopwatchFactory = new StopWatchFactory();
+            if (config.Prefix == null)
+                config.Prefix = string.Empty;
+            else
+                config.Prefix = config.Prefix.TrimEnd('.');
+            _config = config;
+        }
+        
+        public void Send<TCommandType>(string name, int value) where TCommandType : Metric, IAllowsInteger, new()
+        {
+            _config.Sender.Send(new TCommandType() { Name = BuildNamespacedStatName(name), ValueAsInt = value });
         }
 
-        public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory)
-            : this(udp, randomGenerator, stopwatchFactory, string.Empty) { }
-
-        public Statsd(IStatsdUDP udp, string prefix)
-            : this(udp, new RandomGenerator(), new StopWatchFactory(), prefix) { }
-
-        public Statsd(IStatsdUDP udp)
-            : this(udp, "") { }
-
-
-        public void Send<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
+        public void Send<TCommandType>(string name, double value) where TCommandType : Metric, IAllowsDouble, new()
         {
-            Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
-            Send();
-        }
-        public void Send<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
-        {
-            Commands = new List<string> { GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1) };
-            Send();
-        }
-        public void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString
-        {
-            Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
-            Send();
+            _config.Sender.Send(new TCommandType() { Name = BuildNamespacedStatName(name), ValueAsDouble = value });
         }
 
-        public void Add<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
+        public void Send<TCommandType>(string name, string value) where TCommandType : Metric, IAllowsString, new()
         {
-            ThreadSafeAddCommand(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof (TCommandType)], 1));
+            _config.Sender.Send(new TCommandType() { Name = BuildNamespacedStatName(name), Value = value });
         }
 
-        public void Add<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
+        public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : Metric, IAllowsInteger, IAllowsSampleRate, new()
         {
-            ThreadSafeAddCommand(GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1));
-        }
-
-        public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
-        {
-            if (RandomGenerator.ShouldSend(sampleRate))
+            if (_config.RandomGenerator.ShouldSend(sampleRate))
             {
-                Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], sampleRate) };
-                Send();
+                _config.Sender.Send(new TCommandType() { Name = BuildNamespacedStatName(name), ValueAsInt = value, SampleRate = sampleRate });
             }
         }
 
-        public void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
+        public void Send(Action actionToTime, string statName, double sampleRate = 1)
         {
-            if (RandomGenerator.ShouldSend(sampleRate))
-            {
-                Commands.Add(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], sampleRate));
-            }
-        }
-
-        private void ThreadSafeAddCommand(string command)
-        {
-            lock (_commandCollectionLock)
-            {
-                Commands.Add(command);
-            }
-        }
-
-        public void Send()
-        {
-            try
-            {
-                Udp.Send(string.Join("\n", Commands.ToArray()));
-                Commands = new List<string>();
-            }
-            catch(Exception e)
-            {
-                Debug.WriteLine(e.Message);
-            }
-        }
-
-        private string GetCommand(string name, string value, string unit, double sampleRate)
-        {
-            var format = sampleRate == 1 ? "{0}:{1}|{2}" : "{0}:{1}|{2}|@{3}";
-            return string.Format(CultureInfo.InvariantCulture, format, _prefix + name, value, unit, sampleRate);
-        }
-
-        public void Add(Action actionToTime, string statName, double sampleRate=1)
-        {
-            var stopwatch = StopwatchFactory.Get();
+            var stopwatch = _config.StopwatchFactory.Get();
 
             try
             {
@@ -141,30 +66,35 @@ namespace StatsdClient
             finally
             {
                 stopwatch.Stop();
-                if (RandomGenerator.ShouldSend(sampleRate))
-                {
-                    Add<Timing>(statName, stopwatch.ElapsedMilliseconds());
-                }
-            }
-        }
-
-        public void Send(Action actionToTime, string statName, double sampleRate=1)
-        {
-            var stopwatch = StopwatchFactory.Get();
-
-            try
-            {
-                stopwatch.Start();
-                actionToTime();
-            }
-            finally
-            {
-                stopwatch.Stop();
-                if (RandomGenerator.ShouldSend(sampleRate))
+                if (_config.RandomGenerator.ShouldSend(sampleRate))
                 {
                     Send<Timing>(statName, stopwatch.ElapsedMilliseconds());
                 }
             }
         }
+
+        private string BuildNamespacedStatName(string statName)
+        {
+            return ((string.IsNullOrEmpty(_config.Prefix)) ? statName : String.Concat(_config.Prefix, ".", statName));
+        }
+
+        public class Configuration
+        {
+            public IStopWatchFactory StopwatchFactory { get; set; }
+            public IStatsdUDP Udp { get; set; }
+            public IRandomGenerator RandomGenerator { get; set; }
+            public ISender Sender { get; set; }
+            public string Prefix { get; set; }
+        }
+
+        #region Backward Compatibility
+        public class Counting : MetricTypes.Counting { }
+        public class Gauge : MetricTypes.Gauge { }
+        public class Histogram : MetricTypes.Histogram { }
+        public class Meter : MetricTypes.Meter { }
+        public class Set : MetricTypes.Set { }
+        public class Timing : MetricTypes.Timing { }
+        #endregion
+
     }
 }
