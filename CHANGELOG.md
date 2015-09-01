@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-#  2.1.0 / Unreleased
+#  2.1.0 / 09-01-2015
 * [BUGFIX][IMPROVEMENT] Fix `DogStatsd` unsafe thread operations. See [#18][] (Thanks [@yori-s][])
 
 #  2.0.3 / 08-17-2015
