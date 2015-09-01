@@ -1,6 +1,9 @@
 CHANGELOG
 =========
 
+#  2.1.0 / Unreleased
+* [BUGFIX][IMPROVEMENT] Fix `DogStatsd` unsafe thread operations. See [#18][] (Thanks [@yori-s][])
+
 #  2.0.3 / 08-17-2015
 * [BUGFIX] Fix event's text escape when it contains windows carriage returns. See [#15][] (Thanks [@anthonychu][]
 
@@ -25,5 +28,7 @@ CHANGELOG
 [#8]: https://github.com/DataDog/dogstatsd-csharp-client/issues/8
 [#11]: https://github.com/DataDog/dogstatsd-csharp-client/issues/11
 [#15]: https://github.com/DataDog/dogstatsd-csharp-client/issues/15
+[#18]: https://github.com/DataDog/dogstatsd-csharp-client/issues/18
 [@anthonychu]: https://github.com/anthonychu
 [@michaellockwood]: https://github.com/michaellockwood
+[@yori-s]: https://github.com/yori-s
