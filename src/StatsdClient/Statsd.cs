@@ -150,21 +150,25 @@ namespace StatsdClient
 
         public void Send(string command)
         {
-            Commands = new List<string> { command };
-            Send();
-        }
-
-        public void Send()
-        {
             try
             {
-                Udp.Send(string.Join("\n", Commands.ToArray()));
-                Commands = new List<string>();
+                Udp.Send(command);
+                // clear buffer (keep existing behavior)
+                if (Commands.Count > 0)
+                    Commands = new List<string>();
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
             }
+        }
+
+        public void Send()
+        {
+            int count = Commands.Count;
+            if (count < 1) return;
+
+            Send(1 == count ? Commands[0] : string.Join("\n", Commands.ToArray()));
         }
 
         public void Add(Action actionToTime, string statName, double sampleRate = 1.0, string[] tags = null)

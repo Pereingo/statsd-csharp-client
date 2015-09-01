@@ -67,6 +67,7 @@
     <Compile Include="IPV4ParsingTests.cs" />
     <Compile Include="NamingIntegrationTests.cs" />
     <Compile Include="RandomGeneratorUnitTests.cs" />
+    <Compile Include="StatsdThreadingTests.cs" />
     <Compile Include="UDPSmokeTests.cs" />
     <Compile Include="StatsdUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
