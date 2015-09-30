@@ -55,5 +55,9 @@ namespace StatsdClient
         {
             actionToTime();
         }
-    }
+
+        public void Send<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
+        {
+        }
+  }
 }

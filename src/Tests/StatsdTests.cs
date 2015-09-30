@@ -241,6 +241,18 @@ namespace Tests
                 s.Send<Statsd.Gauge>("gauge", 5.0);
                 Assert.Pass();
             }
+
+            [Test]
+            [TestCase(true, 10d, "delta-gauge:+10.000000000000000|g")]
+            [TestCase(true, -10d, "delta-gauge:-10.000000000000000|g")]
+            [TestCase(true, 0d, "delta-gauge:+0.000000000000000|g")]
+            [TestCase(false, 10d, "delta-gauge:10.000000000000000|g")]
+            public void adds_gauge_with_deltaValue_formatsCorrectly(bool isDeltaValue, double value, string expectedFormattedStatsdMessage)
+            {
+                var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+                s.Send<Statsd.Gauge>("delta-gauge", value, isDeltaValue);
+                _udp.AssertWasCalled(x => x.Send(expectedFormattedStatsdMessage));
+            }
         }
 
         public class Meter : StatsdTests

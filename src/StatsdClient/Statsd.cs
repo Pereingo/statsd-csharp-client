@@ -6,6 +6,7 @@ using System.Globalization;
 namespace StatsdClient
 {
     public interface IAllowsSampleRate { }
+    public interface IAllowsDelta { }
 
     public interface IAllowsDouble { }
     public interface IAllowsInteger { }
@@ -25,7 +26,7 @@ namespace StatsdClient
 
         public class Counting : IAllowsSampleRate, IAllowsInteger { }
         public class Timing : IAllowsSampleRate, IAllowsInteger { }
-        public class Gauge : IAllowsDouble { }
+        public class Gauge : IAllowsDouble, IAllowsDelta { }
         public class Histogram : IAllowsInteger { }
         public class Meter : IAllowsInteger { }
         public class Set : IAllowsString { }
@@ -69,6 +70,24 @@ namespace StatsdClient
             Commands = new List<string> { GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1) };
             Send();
         }
+
+        public void Send<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
+        {
+          if (isDeltaValue)
+          {
+              Commands = new List<string> {
+                GetCommand(name, string.Format(CultureInfo.InvariantCulture, "{0}{1:F15}", 
+                  (value >= 0 ? "+" : ""), value), //explicit appending of the + sign for delta, negative sign is added automatically if value is negative
+                  _commandToUnit[typeof(TCommandType)], 1)
+              };
+              Send();
+          }
+          else
+          {
+              Send<TCommandType>(name, value);
+          }
+        }
+
         public void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString
         {
             Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
