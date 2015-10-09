@@ -75,9 +75,14 @@ namespace StatsdClient
         {
           if (isDeltaValue)
           {
+              // Sending delta values to StatsD requires a value modifier sign (+ or -) which we append 
+              // using this custom format with a different formatting rule for negative/positive and zero values
+              // https://msdn.microsoft.com/en-us/library/0c899ak8.aspx#SectionSeparator
+              const string deltaValueStringFormat = "{0:+#.###;-#.###;+0}";
               Commands = new List<string> {
-                GetCommand(name, string.Format(CultureInfo.InvariantCulture, "{0}{1:F15}", 
-                  (value >= 0 ? "+" : ""), value), //explicit appending of the + sign for delta, negative sign is added automatically if value is negative
+                GetCommand(name, string.Format(CultureInfo.InvariantCulture, 
+                deltaValueStringFormat, 
+                value), 
                   _commandToUnit[typeof(TCommandType)], 1)
               };
               Send();
