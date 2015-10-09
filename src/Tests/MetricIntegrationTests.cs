@@ -167,6 +167,22 @@ namespace Tests
             }
         }
 
+        public class DisposableTimer : MetricIntegrationTests
+        {
+            [Test]
+            public void disposable_timer()
+            {
+                Metrics.Configure(_defaultMetricsConfig);
+
+                using (Metrics.StartTimer("time"))
+                {
+                    Thread.Sleep(2);
+                }
+
+                Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTimeRegEx));
+            }
+        }
+
         public class Time : MetricIntegrationTests
         {
             [Test]
