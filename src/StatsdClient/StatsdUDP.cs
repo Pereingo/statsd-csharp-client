@@ -5,6 +5,11 @@ using System.Text;
 
 namespace StatsdClient
 {
+    public interface IStatsdUDP
+    {
+        void Send(string command);
+    }
+
     public class StatsdUDP : IDisposable, IStatsdUDP
     {
         private int MaxUDPPacketSize { get; set; } // In bytes; default is MetricsConfig.DefaultStatsdMaxUDPPacketSize.

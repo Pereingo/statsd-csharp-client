@@ -36,10 +36,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IRandomGenerator.cs" />
     <Compile Include="IStatsd.cs" />
-    <Compile Include="IStatsdUDP.cs" />
-    <Compile Include="IStopwatch.cs" />
     <Compile Include="IStopWatchFactory.cs" />
     <Compile Include="Metrics.cs" />
     <Compile Include="MetricsConfig.cs" />
