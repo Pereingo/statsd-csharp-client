@@ -1,13 +1,13 @@
-C# Statsd Client
+Statsd C# Client
 ================
 
-A C# client to interface with Esty's awesome [statsd](https://github.com/etsy/statsd).
+A C# client to interface with Etsy's awesome [statsd](https://github.com/etsy/statsd) server.
 
-Install it via NuGet with the [StatsdClient package](http://nuget.org/packages/StatsdClient).
+Install the client via NuGet with the [StatsdClient package](http://nuget.org/packages/StatsdClient).
 
 ##Usage
 
-At app startup, configure the `Metrics` class (other options are documented on the config object):
+At app startup, configure the `Metrics` class (other options are documented on `MetricsConfig`):
 
 ``` C#
 Metrics.Configure(new MetricsConfig
@@ -17,7 +17,7 @@ Metrics.Configure(new MetricsConfig
 });
 ```
 
-Then use it (liberally!) in your app:
+Then start measuring all the things!
 
 ``` C#
 Metrics.Counter("stat-name");
