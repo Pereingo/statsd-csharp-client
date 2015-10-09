@@ -271,11 +271,17 @@ namespace Tests
 
         public class GaugeDelta : MetricIntegrationTests
         {
+            [Test]
+            [TestCase(123d, "gauge:+123|g")]
+            [TestCase(-123d, "gauge:-123|g")]
+            [TestCase(0d, "gauge:+0|g")]
+            public void GaugeDelta_EmitsCorrect_Format(double gaugeDeltaValue, string expectedPacketMessageFormat)
+            {
+              Metrics.Configure(_defaultMetricsConfig);
 
-        }
-        public class GaugeAbsoluteValue : MetricIntegrationTests
-        {
-
+              Metrics.GaugeDelta("gauge", gaugeDeltaValue);
+              Assert.That(LastPacketMessageReceived(), Is.EqualTo(expectedPacketMessageFormat));
+            }
         }
 
         public class Gauge : MetricIntegrationTests
