@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Rhino.Mocks;
 using StatsdClient;
+using Rhino.Mocks.Exceptions;
 
 namespace Tests
 {
@@ -240,6 +241,18 @@ namespace Tests
                 var s = new Statsd(_udp);
                 s.Send<Statsd.Gauge>("gauge", 5.0);
                 Assert.Pass();
+            }
+
+            [Test]
+            [TestCase(true, 10d, "delta-gauge:+10|g")]
+            [TestCase(true, -10d, "delta-gauge:-10|g")]
+            [TestCase(true, 0d, "delta-gauge:+0|g")]
+            [TestCase(false, 10d, "delta-gauge:10.000000000000000|g")]//because it is looped through to original Gauge send function
+            public void adds_gauge_with_deltaValue_formatsCorrectly(bool isDeltaValue, double value, string expectedFormattedStatsdMessage)
+            {
+                var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+                s.Send<Statsd.Gauge>("delta-gauge", value, isDeltaValue);
+                _udp.AssertWasCalled(x => x.Send(expectedFormattedStatsdMessage));
             }
         }
 

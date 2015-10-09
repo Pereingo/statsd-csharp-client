@@ -6,6 +6,7 @@ using System.Globalization;
 namespace StatsdClient
 {
     public interface IAllowsSampleRate { }
+    public interface IAllowsDelta { }
 
     public interface IAllowsDouble { }
     public interface IAllowsInteger { }
@@ -25,7 +26,7 @@ namespace StatsdClient
 
         public class Counting : IAllowsSampleRate, IAllowsInteger { }
         public class Timing : IAllowsSampleRate, IAllowsInteger { }
-        public class Gauge : IAllowsDouble { }
+        public class Gauge : IAllowsDouble, IAllowsDelta { }
         public class Histogram : IAllowsInteger { }
         public class Meter : IAllowsInteger { }
         public class Set : IAllowsString { }
@@ -69,6 +70,29 @@ namespace StatsdClient
             Commands = new List<string> { GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1) };
             Send();
         }
+
+        public void Send<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
+        {
+          if (isDeltaValue)
+          {
+              // Sending delta values to StatsD requires a value modifier sign (+ or -) which we append 
+              // using this custom format with a different formatting rule for negative/positive and zero values
+              // https://msdn.microsoft.com/en-us/library/0c899ak8.aspx#SectionSeparator
+              const string deltaValueStringFormat = "{0:+#.###;-#.###;+0}";
+              Commands = new List<string> {
+                GetCommand(name, string.Format(CultureInfo.InvariantCulture, 
+                deltaValueStringFormat, 
+                value), 
+                  _commandToUnit[typeof(TCommandType)], 1)
+              };
+              Send();
+          }
+          else
+          {
+              Send<TCommandType>(name, value);
+          }
+        }
+
         public void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString
         {
             Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
