@@ -93,9 +93,10 @@ namespace StatsdClient
         /// </summary>
         /// <param name="name">Name of the metric.</param>
         /// <returns>A disposable object that will record & send the metric.</returns>
-        public static IDisposable StartTimer(string name)
+        /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
+        public static IDisposable StartTimer(string name, double sampleRate = 1)
         {
-            return new MetricsTimer(name);
+            return new MetricsTimer(name, sampleRate);
         }
 
         /// <summary>
