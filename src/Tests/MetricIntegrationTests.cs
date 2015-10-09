@@ -284,10 +284,10 @@ namespace Tests
             }
         }
 
-        public class Gauge : MetricIntegrationTests
+        public class GaugeObsolete : MetricIntegrationTests
         {
             [Test]
-            public void gauge_with_double_value()
+            public void obsolete_gauge_with_double_value()
             {
                 Metrics.Configure(_defaultMetricsConfig);
 
@@ -295,34 +295,47 @@ namespace Tests
                 Metrics.Gauge("gauge", value);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:12345678901234600000.000000000000000|g"));
             }
+        }
+
+        public class GaugeAbsolute : MetricIntegrationTests
+        {
+            [Test]
+            public void absolute_gauge_with_double_value()
+            {
+                Metrics.Configure(_defaultMetricsConfig);
+
+                const double value = 12345678901234567890;
+                Metrics.GaugeAbsoluteValue("gauge", value);
+                Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:12345678901234600000.000000000000000|g"));
+            }
 
             [Test]
-            public void gauge_with_double_value_with_floating_point()
+            public void absolute_gauge_with_double_value_with_floating_point()
             {
                 Metrics.Configure(_defaultMetricsConfig);
 
                 const double value = 1.234567890123456;
-                Metrics.Gauge("gauge", value);
+                Metrics.GaugeAbsoluteValue("gauge", value);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:1.234567890123460|g"));
             }
 
             [Test]
-            public void gauge_with_prefix()
+            public void absolute_gauge_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Gauge("gauge", 3);
+                Metrics.GaugeAbsoluteValue("gauge", 3);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.gauge:3.000000000000000|g"));
             }
 
             [Test]
-            public void gauge_with_prefix_having_a_trailing_dot()
+            public void absolute_gauge_with_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Gauge("gauge", 3);
+                Metrics.GaugeAbsoluteValue("gauge", 3);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.gauge:3.000000000000000|g"));
             }
 
@@ -331,7 +344,7 @@ namespace Tests
             {
                 Metrics.Configure(new MetricsConfig());
 
-                Metrics.Gauge("gauge", 3);
+                Metrics.GaugeAbsoluteValue("gauge", 3);
                 Assert.That(LastPacketMessageReceived(), Is.Null);
             }
         }
