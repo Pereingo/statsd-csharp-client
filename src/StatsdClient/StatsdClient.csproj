@@ -37,7 +37,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IStatsd.cs" />
-    <Compile Include="IStopWatchFactory.cs" />
     <Compile Include="Metrics.cs" />
     <Compile Include="MetricsConfig.cs" />
     <Compile Include="MetricsTimer.cs" />
