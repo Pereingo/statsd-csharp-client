@@ -42,20 +42,29 @@ namespace StatsdClient
         }
 
         /// <summary>
-        /// Emit gauge value to statsd
+        /// Modify the current value of the gauge with the given value 
+        /// </summary>
+        /// <param name="statName"></param>
+        /// <param name="deltaValue"></param>
+        public static void GaugeDelta(string statName, double deltaValue)
+        {
+            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), deltaValue, true);
+        }
+
+        /// <summary>
+        /// Set the gauge to the given absolute value
         /// </summary>
         /// <param name="statName"></param>
         /// <param name="value"></param>
-        /// <param name="isDeltaValue">
-        /// When set to true the given value will be submitted as a delta value 
-        /// so the value is modified in statsd instead of set to the given value
-        /// </param>
-        public static void Gauge(string statName, double value, bool isDeltaValue=false)
+        public static void GaugeAbsoluteValue(string statName, double absoluteValue)
         {
-            if(isDeltaValue)
-                _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value, true);
-            else
-                _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), value, false);
+            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), absoluteValue, false);
+        }
+
+        [Obsolete("Will be removed in future version. Use explicit GaugeDelta or GaugeAbsoluteValue instead.")]
+        public static void Gauge(string statName, double value)
+        {
+            GaugeAbsoluteValue(statName, value);
         }
 
         public static void Timer(string statName, int value, double sampleRate = 1)

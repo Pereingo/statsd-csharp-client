@@ -269,6 +269,15 @@ namespace Tests
             }
         }
 
+        public class GaugeDelta : MetricIntegrationTests
+        {
+
+        }
+        public class GaugeAbsoluteValue : MetricIntegrationTests
+        {
+
+        }
+
         public class Gauge : MetricIntegrationTests
         {
             [Test]
