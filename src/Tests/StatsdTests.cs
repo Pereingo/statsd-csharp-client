@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Rhino.Mocks;
 using StatsdClient;
-using Rhino.Mocks.Exceptions;
 
 namespace Tests
 {
