@@ -10,6 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Statsd client for C#, providing a full set of counter/timer/gauge/set functionality in an easy to use static. Helpers are provided for easily timing chunks of code too.</description>
     <copyright>Copyright 2012</copyright>
+    <releaseNotes>See CHANGELOG.md in the project's GitHub repository.</releaseNotes>
     <tags>stats statsd metrics</tags>
   </metadata>
   <files>
