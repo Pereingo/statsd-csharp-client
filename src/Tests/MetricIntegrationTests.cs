@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using NUnit.Framework;
 using StatsdClient;
@@ -52,19 +53,22 @@ namespace Tests
             {
                 return lastMessages[0];
             }
-            catch (System.ArgumentOutOfRangeException)
+            catch (ArgumentOutOfRangeException)
             {
                 return null;
             }
         }
 
-        [Test]
-        public void udp_listener_sanity_test()
+        public class SanityCheck : MetricIntegrationTests
         {
-            var client = new StatsdUDP(_localhostAddress, _randomUnusedLocalPort);
-            client.Send("iamnotinsane!");
+            [Test]
+            public void udp_listener_works()
+            {
+                var client = new StatsdUDP(_localhostAddress, _randomUnusedLocalPort);
+                client.Send("iamnotinsane!");
 
-            Assert.That(LastPacketMessageReceived(), Is.EqualTo("iamnotinsane!"));
+                Assert.That(LastPacketMessageReceived(), Is.EqualTo("iamnotinsane!"));
+            }
         }
 
         public class Counter : MetricIntegrationTests
