@@ -11,7 +11,8 @@ namespace Tests
         [Test]
         public void defaults_to_null_statsd_to_not_blow_up_when_configure_is_not_called()
         {
-            Metrics.Counter("stat");
+            Assert.Fail("build server test");
+            Assert.DoesNotThrow(() => Metrics.Counter("stat"));
         }
     }
 }
