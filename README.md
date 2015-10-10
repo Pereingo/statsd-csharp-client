@@ -1,7 +1,9 @@
-Statsd C# Client
-================
+Statsd Client
+=============
 
-A C# client to interface with Etsy's awesome [statsd](https://github.com/etsy/statsd) server.
+[![Build status](https://ci.appveyor.com/api/projects/status/fklgn25u3k66qu3v?svg=true)](https://ci.appveyor.com/project/DarrellMozingo/statsd-csharp-client)
+
+A C# client to interface with Etsy's excellent [statsd](https://github.com/etsy/statsd) server.
 
 Install the client via NuGet with the [StatsdClient package](http://nuget.org/packages/StatsdClient).
 
