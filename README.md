@@ -43,3 +43,8 @@ Including functions that return a value:
 ``` C#
 var result = Metrics.Time(() => GetResult(), "stat-name");
 ```
+
+##Development
+* Please have a chat about any big features before submitting PR's
+* NuGet is packaged as an artefact on AppVeyor above. Grab that `*.nupkg` and upload it to NuGet.org
+* Change major/minor versions in `appveyor.yml`
