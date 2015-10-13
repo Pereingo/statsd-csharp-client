@@ -21,5 +21,6 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("ecebfa48-5557-4fe6-84a6-c0b1e3ece14c")]
 
-[assembly: AssemblyVersion("1.1.0")]
+// Set in appveyor.yml (combo of that & the current build number on there).
+[assembly: AssemblyVersion("0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
