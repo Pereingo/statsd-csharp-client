@@ -52,8 +52,9 @@ namespace StatsdClient
 
         public class Event : ICommandType
         {
+            private const int MaxSize = 8 * 1024;
 
-            public static string GetCommand(string title, string text, string alertType, string aggregationKey, string sourceType, int? dateHappened, string priority, string hostname, string[] tags)
+            public static string GetCommand(string title, string text, string alertType, string aggregationKey, string sourceType, int? dateHappened, string priority, string hostname, string[] tags, bool truncateIfTooLong = false)
             {
                 string processedTitle = EscapeContent(title);
                 string processedText = EscapeContent(text);
@@ -86,9 +87,19 @@ namespace StatsdClient
                 {
                     result += string.Format(CultureInfo.InvariantCulture, "|#{0}", string.Join(",", tags));
                 }
-                if (result.Length > 8 * 1024)
+                if (result.Length > MaxSize)
                 {
-                    throw new Exception(string.Format("Event {0} payload is too big (more than 8kB)", title));
+                    if (truncateIfTooLong)
+                    {
+                        var overage = result.Length - MaxSize;
+                        if (title.Length > text.Length)
+                            title = TruncateOverage(title, overage);
+                        else
+                            text = TruncateOverage(text, overage);
+                        return GetCommand(title, text, alertType, aggregationKey, sourceType, dateHappened, priority, hostname, tags, true);
+                    }
+                    else
+                        throw new Exception(string.Format("Event {0} payload is too big (more than 8kB)", title));
                 }
                 return result;
             }
@@ -98,6 +109,11 @@ namespace StatsdClient
                 return content
                     .Replace("\r", "")
                     .Replace("\n", "\\n");
+            }
+
+            private static string TruncateOverage(string str, int overage)
+            {
+                return str.Substring(0, str.Length - overage);
             }
         }
 
@@ -135,9 +151,9 @@ namespace StatsdClient
         {
             _commands.Add(Event.GetCommand(title, text, alertType, aggregationKey, sourceType, dateHappened, priority, hostname, tags));
         }
-        public void Send(string title, string text, string alertType = null, string aggregationKey = null, string sourceType = null, int? dateHappened = null, string priority = null, string hostname = null, string[] tags = null)
+        public void Send(string title, string text, string alertType = null, string aggregationKey = null, string sourceType = null, int? dateHappened = null, string priority = null, string hostname = null, string[] tags = null, bool truncateIfTooLong = false)
         {
-            Send(Event.GetCommand(title, text, alertType, aggregationKey, sourceType, dateHappened, priority, hostname, tags));
+            Send(Event.GetCommand(title, text, alertType, aggregationKey, sourceType, dateHappened, priority, hostname, tags, truncateIfTooLong));
         }
         public void Send<TCommandType, T>(string name, T value, double sampleRate = 1.0, string[] tags = null) where TCommandType : Metric
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -587,7 +588,57 @@ namespace Tests
             s.Send("title", "text", tags: new[] { "tag1", "tag2" });
             udp.AssertWasCalled(x => x.Send("_e{5,4}:title|text|#tag1,tag2"));
         }
-		// =-=-=-=- PREFIX -=-=-=-=
+
+        [Test]
+        public void send_event_with_message_that_is_too_long()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 16; //16 is the number of characters in the final message that is not the title
+            var builder = BuildLongString(length);
+            var title = builder;
+
+            var exception = Assert.Throws<Exception>(() => s.Send(title + "x", "text"));
+            Assert.That(exception.Message, Contains.Substring("payload is too big"));
+        }
+
+        [Test]
+        public void send_event_with_truncation_for_title_that_is_too_long()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 16; //16 is the number of characters in the final message that is not the title
+            var builder = BuildLongString(length);
+            var title = builder;
+
+            s.Send(title + "x", "text", truncateIfTooLong: true);
+            var expected = string.Format("_e{{{0},4}}:{1}|text", length, title);
+            udp.AssertWasCalled(x => x.Send(expected));
+        }
+
+        [Test]
+        public void send_event_with_truncation_for_text_that_is_too_long()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 17; //17 is the number of characters in the final message that is not the text
+            var builder = BuildLongString(length);
+            var text = builder;
+
+            s.Send("title", text + "x", truncateIfTooLong: true);
+            var expected = string.Format("_e{{5,{0}}}:title|{1}", length, text);
+            udp.AssertWasCalled(x => x.Send(expected));
+        }
+
+        private static string BuildLongString(int length)
+        {
+            var builder = new StringBuilder();
+            for (int i = 0; i < length; i++)
+                builder.Append(i % 10);
+            return builder.ToString();
+        }
+
+        // =-=-=-=- PREFIX -=-=-=-=
 
         [Test]
         public void set_prefix_on_stats_name_when_calling_send()
