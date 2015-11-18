@@ -1,5 +1,7 @@
 CHANGELOG
 =========
+#  2.1.1 / 11-18-2015
+* [BUGFIX] Optional automatic truncation of events that exceed the message length limit. See [#22][] (Thanks [@daniel-chambers][])
 
 #  2.1.0 / 09-01-2015
 * [BUGFIX][IMPROVEMENT] Fix `DogStatsd` unsafe thread operations. See [#18][] (Thanks [@yori-s][])
