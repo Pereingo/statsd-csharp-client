@@ -2,6 +2,7 @@ Statsd Client
 =============
 
 [![Build status](https://ci.appveyor.com/api/projects/status/fklgn25u3k66qu3v?svg=true)](https://ci.appveyor.com/project/DarrellMozingo/statsd-csharp-client)
+[![NuGet Version](http://img.shields.io/nuget/v/StatsdClient.svg?style=flat)](https://www.nuget.org/packages/StatsdClient/) [![NuGet Downloads](http://img.shields.io/nuget/dt/StatsdClient.svg?style=flat)](https://www.nuget.org/packages/StatsdClient/)
 
 A C# client to interface with Etsy's excellent [statsd](https://github.com/etsy/statsd) server.
 
