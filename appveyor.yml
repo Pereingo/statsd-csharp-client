@@ -9,7 +9,8 @@ assembly_info:
 nuget:
   project_feed: true
 before_build:
-- cmd: nuget restore -verbosity detailed
+  - appveyor DownloadFile https://raw.githubusercontent.com/appveyor/ci/master/scripts/nuget-restore.cmd
+  - nuget-restore
 build:
   publish_nuget: true
   verbosity: minimal
