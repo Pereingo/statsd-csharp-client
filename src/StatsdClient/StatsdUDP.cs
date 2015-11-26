@@ -40,15 +40,19 @@ namespace StatsdClient
 
             if (!isValidIpAddress)
             {
-                var addressList = Dns.GetHostEntry(Name).AddressList;
-
-                var positionForIpv4 = addressList.Length - 1;
-
-                ipAddress = addressList[positionForIpv4];
+                ipAddress = GetIpFromHostname();
             }
+
             return ipAddress;
         }
 
+        private IPAddress GetIpFromHostname()
+        {
+            var addressList = Dns.GetHostEntry(Name).AddressList;
+            var ipv4Addresses = addressList.Where(x => x.AddressFamily != AddressFamily.InterNetworkV6);
+
+            return ipv4Addresses.First();
+        }
         public void Send(string command)
         {
             Send(Encoding.ASCII.GetBytes(command));
