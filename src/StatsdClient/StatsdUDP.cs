@@ -19,6 +19,13 @@ namespace StatsdClient
         private readonly Socket _udpSocket;
         private readonly string _name;
         private readonly int _port;
+
+        /// <summary>
+        /// Creates a new StatsdUDP class for lower level access to statsd.
+        /// </summary>
+        /// <param name="name">Hostname or IP (v4) address of the statsd server.</param>
+        /// <param name="port">Port of the statsd server. Default is 8125.</param>
+        /// <param name="maxUdpPacketSizeBytes">Max packet size, in bytes. This is useful to tweak if your MTU size is different than normal. Set to 0 for no limit. Default is MetricsConfig.DefaultStatsdMaxUDPPacketSize.</param>
         public StatsdUDP(string name, int port = 8125, int maxUdpPacketSizeBytes = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
         {
             _name = name;
