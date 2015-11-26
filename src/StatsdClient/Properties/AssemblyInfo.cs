@@ -23,4 +23,8 @@ using System.Runtime.InteropServices;
 
 // Set in appveyor.yml (combo of that & the current build number on there).
 [assembly: AssemblyVersion("0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+
+// Used to get $version$ for nuget (otherwise you end up with 4 parts to the version): http://stackoverflow.com/questions/28194498/nuget-pack-does-not-honor-number-of-digits-on-assembly-version
+[assembly: AssemblyInformationalVersionAttribute("0.0.0")]
+
+[assembly: AssemblyFileVersion("1.0.0")]
