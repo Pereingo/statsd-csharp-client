@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -12,25 +13,22 @@ namespace StatsdClient
 
     public class StatsdUDP : IDisposable, IStatsdUDP
     {
-        private int MaxUDPPacketSize { get; set; } // In bytes; default is MetricsConfig.DefaultStatsdMaxUDPPacketSize.
-                                                   // Set to zero for no limit.
         public IPEndPoint IPEndpoint { get; private set; }
-        private Socket UDPSocket { get; set; }
-        private string Name { get; set; }
-        private int Port { get; set; }
-        private bool _disposed;
 
-        public StatsdUDP(string name, int port, int maxUdpPacketSize = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
+        private readonly int _maxUdpPacketSizeBytes;
+        private readonly Socket _udpSocket;
+        private readonly string _name;
+        private readonly int _port;
+        public StatsdUDP(string name, int port = 8125, int maxUdpPacketSizeBytes = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
         {
-            Name = name;
-            Port = port;
-            MaxUDPPacketSize = maxUdpPacketSize;
+            _name = name;
+            _port = port;
+            _maxUdpPacketSizeBytes = maxUdpPacketSizeBytes;
 
-            UDPSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            _udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
             var ipAddress = GetIpv4Address(name);
-
-            IPEndpoint = new IPEndPoint(ipAddress, Port);
+            IPEndpoint = new IPEndPoint(ipAddress, _port);
         }
 
         private IPAddress GetIpv4Address(string name)
@@ -48,11 +46,12 @@ namespace StatsdClient
 
         private IPAddress GetIpFromHostname()
         {
-            var addressList = Dns.GetHostEntry(Name).AddressList;
+            var addressList = Dns.GetHostEntry(_name).AddressList;
             var ipv4Addresses = addressList.Where(x => x.AddressFamily != AddressFamily.InterNetworkV6);
 
             return ipv4Addresses.First();
         }
+
         public void Send(string command)
         {
             Send(Encoding.ASCII.GetBytes(command));
@@ -60,13 +59,13 @@ namespace StatsdClient
 
         private void Send(byte[] encodedCommand)
         {
-            if (MaxUDPPacketSize > 0 && encodedCommand.Length > MaxUDPPacketSize)
+            if (_maxUdpPacketSizeBytes > 0 && encodedCommand.Length > _maxUdpPacketSizeBytes)
             {
                 // If the command is too big to send, linear search backwards from the maximum
                 // packet size to see if we can find a newline delimiting two stats. If we can,
                 // split the message across the newline and try sending both componenets individually
                 var newline = Encoding.ASCII.GetBytes("\n")[0];
-                for (var i = MaxUDPPacketSize; i > 0; i--)
+                for (var i = _maxUdpPacketSizeBytes; i > 0; i--)
                 {
                     if (encodedCommand[i] != newline)
                     {
@@ -94,10 +93,11 @@ namespace StatsdClient
                     // be sent without issue.
                 }
             }
-            UDPSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
+            _udpSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
         }
 
         //reference : https://lostechies.com/chrispatterson/2012/11/29/idisposable-done-right/
+        private bool _disposed;
         public void Dispose()
         {
             Dispose(true);
@@ -115,11 +115,11 @@ namespace StatsdClient
 
             if (disposing)
             {
-                if (UDPSocket != null)
+                if (_udpSocket != null)
                 {
                     try
                     {
-                        UDPSocket.Close();
+                        _udpSocket.Close();
                     }
                     catch (Exception)
                     {
