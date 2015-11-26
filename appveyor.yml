@@ -16,3 +16,5 @@ build:
 artifacts:
 - path: StatsdClient.*.nupkg
   name: NuGet Package
+cache:
+- packages -> **\packages.config
