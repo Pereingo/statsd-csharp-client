@@ -1,6 +1,6 @@
 CHANGELOG
 =========
-#  2.1.1 / 11-18-2015
+#  2.1.1 / 12-04-2015
 * [BUGFIX] Optional automatic truncation of events that exceed the message length limit. See [#22][] (Thanks [@daniel-chambers][])
 
 #  2.1.0 / 09-01-2015
@@ -31,6 +31,8 @@ CHANGELOG
 [#11]: https://github.com/DataDog/dogstatsd-csharp-client/issues/11
 [#15]: https://github.com/DataDog/dogstatsd-csharp-client/issues/15
 [#18]: https://github.com/DataDog/dogstatsd-csharp-client/issues/18
+[#22]: https://github.com/DataDog/dogstatsd-csharp-client/issues/22
 [@anthonychu]: https://github.com/anthonychu
+[@daniel-chambers]: https://github.com/daniel-chambers
 [@michaellockwood]: https://github.com/michaellockwood
 [@yori-s]: https://github.com/yori-s
