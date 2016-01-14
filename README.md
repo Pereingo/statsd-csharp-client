@@ -24,7 +24,7 @@ Then start measuring all the things!
 
 ``` C#
 Metrics.Counter("stat-name");
-Metrics.Time(() => myMethod(), "stat-name"));
+Metrics.Time(() => myMethod(), "stat-name");
 Metrics.GaugeAbsolute("gauge-name", 35);
 Metrics.GaugeDelta("gauge-name", -5);
 Metrics.Set("something-special", "3");
