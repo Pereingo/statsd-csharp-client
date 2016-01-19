@@ -6,9 +6,9 @@ namespace StatsdClient
     {
         void Start();
         void Stop();
-        TimeSpan ElapsedTime { get; }
+        TimeSpan Elapsed { get; }
 
-        [Obsolete("use ElapsedTime property")]
+        [Obsolete("use Elapsed property")]
         int ElapsedMilliseconds();
     }
 
@@ -26,21 +26,20 @@ namespace StatsdClient
             _stopwatch.Stop();
         }
 
-        public TimeSpan ElapsedTime
+        public TimeSpan Elapsed
         {
             get {
-                var milliseconds = (double)unchecked(_stopwatch.ElapsedMilliseconds);
-                return TimeSpan.FromMilliseconds(milliseconds);
+                return _stopwatch.Elapsed;
             }
         }
 
-        [Obsolete("use ElapsedTime property")]
+        [Obsolete("use Elapsed property")]
         public int ElapsedMilliseconds()
         {
-            double milliseconds = ElapsedTime.TotalMilliseconds;
+            double milliseconds = Elapsed.TotalMilliseconds;
             if (milliseconds > int.MaxValue)
             {
-                throw new InvalidOperationException("Please use new API 'ElapsedTime' instead of 'ElapsedMilliseconds()', as your value just overflowed for this old API");
+                throw new InvalidOperationException("Please use new API 'Elapsed' instead of 'ElapsedMilliseconds()', as your value just overflowed for this old API");
             }
             return (int)milliseconds;
         }
