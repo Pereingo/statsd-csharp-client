@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace StatsdClient
 {
@@ -60,18 +61,18 @@ namespace StatsdClient
             : this(udp, "") { }
 
 
-        public void Send<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
+        public async Task SendAsync<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
         {
             Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
-            Send();
+            await SendAsync();
         }
-        public void Send<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
+        public async Task SendAsync<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
         {
             Commands = new List<string> { GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1) };
-            Send();
+            await SendAsync();
         }
 
-        public void Send<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
+        public async Task SendAsync<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
         {
           if (isDeltaValue)
           {
@@ -85,18 +86,18 @@ namespace StatsdClient
                 value), 
                   _commandToUnit[typeof(TCommandType)], 1)
               };
-              Send();
+              await SendAsync();
           }
           else
           {
-              Send<TCommandType>(name, value);
+              await SendAsync<TCommandType>(name, value);
           }
         }
 
-        public void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString
+        public async Task SendAsync<TCommandType>(string name, string value) where TCommandType : IAllowsString
         {
-            Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
-            Send();
+            Commands = new List<string> { GetCommand(name, value, _commandToUnit[typeof(TCommandType)], 1) };
+            await SendAsync();
         }
 
         public void Add<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
@@ -109,12 +110,12 @@ namespace StatsdClient
             ThreadSafeAddCommand(GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1));
         }
 
-        public void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
+        public async Task SendAsync<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
                 Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], sampleRate) };
-                Send();
+                await SendAsync();
             }
         }
 
@@ -134,11 +135,11 @@ namespace StatsdClient
             }
         }
 
-        public void Send()
+        public async Task SendAsync()
         {
             try
             {
-                Udp.Send(string.Join("\n", Commands.ToArray()));
+                await Udp.SendAsync(string.Join("\n", Commands.ToArray()));
                 Commands = new List<string>();
             }
             catch(Exception e)
@@ -172,7 +173,7 @@ namespace StatsdClient
             }
         }
 
-        public void Send(Action actionToTime, string statName, double sampleRate=1)
+        public async Task SendAsync(Action actionToTime, string statName, double sampleRate=1)
         {
             var stopwatch = StopwatchFactory.Get();
 
@@ -186,7 +187,7 @@ namespace StatsdClient
                 stopwatch.Stop();
                 if (RandomGenerator.ShouldSend(sampleRate))
                 {
-                    Send<Timing>(statName, stopwatch.ElapsedMilliseconds());
+                    await SendAsync<Timing>(statName, stopwatch.ElapsedMilliseconds());
                 }
             }
         }

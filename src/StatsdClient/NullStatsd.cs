@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace StatsdClient
 {
@@ -12,7 +13,7 @@ namespace StatsdClient
 
         public List<string> Commands { get; private set; }
 
-        public void Send<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
+        public async Task SendAsync<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
         {
         }
 
@@ -20,7 +21,7 @@ namespace StatsdClient
         {
         }
 
-        public void Send<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
+        public async Task SendAsync<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
         {
         }
 
@@ -28,7 +29,7 @@ namespace StatsdClient
         {
         }
 
-        public void Send<TCommandType>(string name, int value, double sampleRate)
+        public async Task SendAsync<TCommandType>(string name, int value, double sampleRate)
             where TCommandType : IAllowsInteger, IAllowsSampleRate
         {
         }
@@ -38,11 +39,11 @@ namespace StatsdClient
         {
         }
 
-        public void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString
+        public async Task SendAsync<TCommandType>(string name, string value) where TCommandType : IAllowsString
         {
         }
 
-        public void Send()
+        public async Task SendAsync()
         {
         }
 
@@ -51,12 +52,12 @@ namespace StatsdClient
             actionToTime();
         }
 
-        public void Send(Action actionToTime, string statName, double sampleRate = 1)
+        public async Task SendAsync(Action actionToTime, string statName, double sampleRate = 1)
         {
             actionToTime();
         }
 
-        public void Send<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
+        public async Task SendAsync<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
         {
         }
   }

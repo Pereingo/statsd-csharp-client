@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace StatsdClient
 {
@@ -12,7 +13,7 @@ namespace StatsdClient
         /// Configures the Metric class with a configuration. Call this once at application startup (Main(), Global.asax, etc).
         /// </summary>
         /// <param name="config">Configuration settings.</param>
-        public static void Configure(MetricsConfig config)
+        public static async Task ConfigureAsync(MetricsConfig config)
         {
             if (config == null)
             {
@@ -21,21 +22,19 @@ namespace StatsdClient
 
             _prefix = config.Prefix ?? "";
             _prefix = _prefix.TrimEnd('.');
-            CreateStatsD(config);
+            await CreateStatsDAsync(config);
         }
 
-        private static void CreateStatsD(MetricsConfig config)
+        private static async Task CreateStatsDAsync(MetricsConfig config)
         {
-            if (_statsdUdp != null)
-            {
-                _statsdUdp.Dispose();
-            }
+            _statsdUdp?.Dispose();
 
             _statsdUdp = null;
 
             if (!string.IsNullOrEmpty(config.StatsdServerName))
             {
                 _statsdUdp = new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize);
+                await _statsdUdp.InitializeAsync();
                 _statsD = new Statsd(_statsdUdp);
             }
         }
@@ -46,9 +45,9 @@ namespace StatsdClient
         /// <param name="statName">Name of the metric.</param>
         /// <param name="value">Value of the counter. Defaults to 1.</param>
         /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
-        public static void Counter(string statName, int value = 1, double sampleRate = 1)
+        public static async Task CounterAsync(string statName, int value = 1, double sampleRate = 1)
         {
-            _statsD.Send<Statsd.Counting>(BuildNamespacedStatName(statName), value, sampleRate);
+            await _statsD.SendAsync<Statsd.Counting>(BuildNamespacedStatName(statName), value, sampleRate);
         }
 
         /// <summary>
@@ -56,9 +55,9 @@ namespace StatsdClient
         /// </summary>
         /// <param name="statName">Name of the metric.</param>
         /// <param name="deltaValue"></param>
-        public static void GaugeDelta(string statName, double deltaValue)
+        public static async Task GaugeDeltaAsync(string statName, double deltaValue)
         {
-            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), deltaValue, true);
+            await _statsD.SendAsync<Statsd.Gauge>(BuildNamespacedStatName(statName), deltaValue, true);
         }
 
         /// <summary>
@@ -66,15 +65,15 @@ namespace StatsdClient
         /// </summary>
         /// <param name="statName">Name of the metric.</param>
         /// <param name="absoluteValue">Absolute value of the gauge to set.</param>
-        public static void GaugeAbsoluteValue(string statName, double absoluteValue)
+        public static async Task GaugeAbsoluteValueAsync(string statName, double absoluteValue)
         {
-            _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), absoluteValue, false);
+            await _statsD.SendAsync<Statsd.Gauge>(BuildNamespacedStatName(statName), absoluteValue, false);
         }
 
         [Obsolete("Will be removed in future version. Use explicit GaugeDelta or GaugeAbsoluteValue instead.")]
-        public static void Gauge(string statName, double value)
+        public static async Task GaugeAsync(string statName, double value)
         {
-            GaugeAbsoluteValue(statName, value);
+            await GaugeAbsoluteValueAsync(statName, value);
         }
 
         /// <summary>
@@ -83,9 +82,9 @@ namespace StatsdClient
         /// <param name="statName">Name of the metric.</param>
         /// <param name="value">Elapsed miliseconds of the event.</param>
         /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
-        public static void Timer(string statName, int value, double sampleRate = 1)
+        public static async Task TimerAsync(string statName, int value, double sampleRate = 1)
         {
-            _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate);
+            await _statsD.SendAsync<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate);
         }
 
         /// <summary>
@@ -105,9 +104,9 @@ namespace StatsdClient
         /// <param name="action">The code to time.</param>
         /// <param name="statName">Name of the metric.</param>
         /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
-        public static void Time(Action action, string statName, double sampleRate = 1)
+        public static async Task TimeAsync(Action action, string statName, double sampleRate = 1)
         {
-            _statsD.Send(action, BuildNamespacedStatName(statName), sampleRate);
+            await _statsD.SendAsync(action, BuildNamespacedStatName(statName), sampleRate);
         }
 
         /// <summary>
@@ -129,9 +128,9 @@ namespace StatsdClient
         /// </summary>
         /// <param name="statName">Name of the metric.</param>
         /// <param name="value">Value to set.</param>
-        public static void Set(string statName, string value)
+        public static async Task SetAsync(string statName, string value)
         {
-            _statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value);
+            await _statsD.SendAsync<Statsd.Set>(BuildNamespacedStatName(statName), value);
         }
 
         private static string BuildNamespacedStatName(string statName)

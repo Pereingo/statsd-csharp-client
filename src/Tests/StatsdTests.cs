@@ -17,6 +17,8 @@ namespace Tests
         public void Setup()
         {
             _udp = MockRepository.GenerateMock<IStatsdUDP>();
+            _udp.Stub(x => x.SendAsync(Arg<string>.Is.Anything)).Return(Task.FromResult(0));
+
             _randomGenerator = MockRepository.GenerateMock<IRandomGenerator>();
             _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(true);
             _stopwatch = MockRepository.GenerateMock<IStopWatchFactory>();
@@ -25,27 +27,27 @@ namespace Tests
         public class Counter : StatsdTests
         {
             [Test]
-            public void increases_counter_with_value_of_X()
+            public async Task increases_counter_with_value_of_X()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send<Statsd.Counting>("counter", 5);
-                _udp.AssertWasCalled(x => x.Send("counter:5|c"));
+                await s.SendAsync<Statsd.Counting>("counter", 5);
+                _udp.AssertWasCalled(x => x.SendAsync("counter:5|c"));
             }
 
             [Test]
-            public void increases_counter_with_value_of_X_and_sample_rate()
+            public async Task increases_counter_with_value_of_X_and_sample_rate()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send<Statsd.Counting>("counter", 5, 0.1);
-                _udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1"));
+                await s.SendAsync<Statsd.Counting>("counter", 5, 0.1);
+                _udp.AssertWasCalled(x => x.SendAsync("counter:5|c|@0.1"));
             }
 
             [Test]
-            public void counting_exception_fails_silently()
+            public async Task counting_exception_fails_silently()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                _udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
-                s.Send<Statsd.Counting>("counter", 5);
+                _udp.Stub(x => x.SendAsync(Arg<string>.Is.Anything)).Throw(new Exception());
+                await s.SendAsync<Statsd.Counting>("counter", 5);
                 Assert.Pass();
             }
         }
@@ -53,27 +55,27 @@ namespace Tests
         public class Timer : StatsdTests
         {
             [Test]
-            public void adds_timing()
+            public async Task adds_timing()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send<Statsd.Timing>("timer", 5);
-                _udp.AssertWasCalled(x => x.Send("timer:5|ms"));
+                await s.SendAsync<Statsd.Timing>("timer", 5);
+                _udp.AssertWasCalled(x => x.SendAsync("timer:5|ms"));
             }
 
             [Test]
-            public void timing_with_value_of_X_and_sample_rate()
+            public async Task timing_with_value_of_X_and_sample_rate()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send<Statsd.Timing>("timer", 5, 0.1);
-                _udp.AssertWasCalled(x => x.Send("timer:5|ms|@0.1"));
+                await s.SendAsync<Statsd.Timing>("timer", 5, 0.1);
+                _udp.AssertWasCalled(x => x.SendAsync("timer:5|ms|@0.1"));
             }
 
             [Test]
-            public void timing_exception_fails_silently()
+            public async Task timing_exception_fails_silently()
             {
-                _udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+                _udp.Stub(x => x.SendAsync(Arg<string>.Is.Anything)).Throw(new Exception());
                 var s = new Statsd(_udp);
-                s.Send<Statsd.Timing>("timer", 5);
+                await s.SendAsync<Statsd.Timing>("timer", 5);
                 Assert.Pass();
             }
 
@@ -146,7 +148,7 @@ namespace Tests
             }
 
             [Test]
-            public void send_timer_with_lambda()
+            public async Task send_timer_with_lambda()
             {
                 const string statName = "name";
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
@@ -154,13 +156,13 @@ namespace Tests
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send(() => TestMethod(), statName);
+                await s.SendAsync(() => TestMethod(), statName);
 
-                _udp.AssertWasCalled(x => x.Send("name:500|ms"));
+                _udp.AssertWasCalled(x => x.SendAsync("name:500|ms"));
             }
 
             [Test]
-            public void send_timer_with_lambda_and_sampleRate_passes()
+            public async Task send_timer_with_lambda_and_sampleRate_passes()
             {
                 const string statName = "name";
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
@@ -170,14 +172,14 @@ namespace Tests
                 _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(true);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send(() => TestMethod(), statName);
+                await s.SendAsync(() => TestMethod(), statName);
 
-                _udp.AssertWasCalled(x => x.Send("name:500|ms"));
+                _udp.AssertWasCalled(x => x.SendAsync("name:500|ms"));
             }
 
 
             [Test]
-            public void send_timer_with_lambda_and_sampleRate_fails()
+            public async Task send_timer_with_lambda_and_sampleRate_fails()
             {
                 const string statName = "name";
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
@@ -187,9 +189,9 @@ namespace Tests
                 _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(false);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send(() => TestMethod(), statName);
+                await s.SendAsync(() => TestMethod(), statName);
 
-                _udp.AssertWasNotCalled(x => x.Send("name:500|ms"));
+                _udp.AssertWasNotCalled(x => x.SendAsync("name:500|ms"));
             }
 
             [Test]
@@ -201,13 +203,13 @@ namespace Tests
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                Assert.Throws<InvalidOperationException>(() => s.Send(() => { throw new InvalidOperationException(); }, statName));
+                Assert.Throws<InvalidOperationException>(async () => await s.SendAsync(() => { throw new InvalidOperationException(); }, statName));
 
-                _udp.AssertWasCalled(x => x.Send("name:500|ms"));
+                _udp.AssertWasCalled(x => x.SendAsync("name:500|ms"));
             }
 
             [Test]
-            public void set_return_value_with_send_timer_with_lambda()
+            public async Task set_return_value_with_send_timer_with_lambda()
             {
                 const string statName = "name";
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
@@ -216,9 +218,9 @@ namespace Tests
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 var returnValue = 0;
-                s.Send(() => returnValue = TestMethod(), statName);
+                await s.SendAsync(() => returnValue = TestMethod(), statName);
 
-                _udp.AssertWasCalled(x => x.Send("name:500|ms"));
+                _udp.AssertWasCalled(x => x.SendAsync("name:500|ms"));
                 Assert.That(returnValue, Is.EqualTo(5));
             }
         }
@@ -226,19 +228,19 @@ namespace Tests
         public class Guage : StatsdTests
         {
             [Test]
-            public void adds_gauge_with_large_double_values()
+            public async Task adds_gauge_with_large_double_values()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send<Statsd.Gauge>("gauge", 34563478564785);
-                _udp.AssertWasCalled(x => x.Send("gauge:34563478564785.000000000000000|g"));
+                await s.SendAsync<Statsd.Gauge>("gauge", 34563478564785);
+                _udp.AssertWasCalled(x => x.SendAsync("gauge:34563478564785.000000000000000|g"));
             }
 
             [Test]
-            public void gauge_exception_fails_silently()
+            public async Task gauge_exception_fails_silently()
             {
-                _udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+                _udp.Stub(x => x.SendAsync(Arg<string>.Is.Anything)).Throw(new Exception());
                 var s = new Statsd(_udp);
-                s.Send<Statsd.Gauge>("gauge", 5.0);
+                await s.SendAsync<Statsd.Gauge>("gauge", 5.0);
                 Assert.Pass();
             }
 
@@ -247,30 +249,30 @@ namespace Tests
             [TestCase(true, -10d, "delta-gauge:-10|g")]
             [TestCase(true, 0d, "delta-gauge:+0|g")]
             [TestCase(false, 10d, "delta-gauge:10.000000000000000|g")]//because it is looped through to original Gauge send function
-            public void adds_gauge_with_deltaValue_formatsCorrectly(bool isDeltaValue, double value, string expectedFormattedStatsdMessage)
+            public async Task adds_gauge_with_deltaValue_formatsCorrectly(bool isDeltaValue, double value, string expectedFormattedStatsdMessage)
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send<Statsd.Gauge>("delta-gauge", value, isDeltaValue);
-                _udp.AssertWasCalled(x => x.Send(expectedFormattedStatsdMessage));
+                await s.SendAsync<Statsd.Gauge>("delta-gauge", value, isDeltaValue);
+                _udp.AssertWasCalled(x => x.SendAsync(expectedFormattedStatsdMessage));
             }
         }
 
         public class Meter : StatsdTests
         {
             [Test]
-            public void adds_meter()
+            public async Task adds_meter()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send<Statsd.Meter>("meter", 5);
-                _udp.AssertWasCalled(x => x.Send("meter:5|m"));
+                await s.SendAsync<Statsd.Meter>("meter", 5);
+                _udp.AssertWasCalled(x => x.SendAsync("meter:5|m"));
             }
 
             [Test]
-            public void meter_exception_fails_silently()
+            public async Task meter_exception_fails_silently()
             {
-                _udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+                _udp.Stub(x => x.SendAsync(Arg<string>.Is.Anything)).Throw(new Exception());
                 var s = new Statsd(_udp);
-                s.Send<Statsd.Meter>("meter", 5);
+                await s.SendAsync<Statsd.Meter>("meter", 5);
                 Assert.Pass();
             }
         }
@@ -278,19 +280,19 @@ namespace Tests
         public class Historgram : StatsdTests
         {
             [Test]
-            public void adds_histogram()
+            public async Task adds_histogram()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send<Statsd.Histogram>("histogram", 5);
-                _udp.AssertWasCalled(x => x.Send("histogram:5|h"));
+                await s.SendAsync<Statsd.Histogram>("histogram", 5);
+                _udp.AssertWasCalled(x => x.SendAsync("histogram:5|h"));
             }
 
             [Test]
-            public void histrogram_exception_fails_silently()
+            public async Task histrogram_exception_fails_silently()
             {
-                _udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+                _udp.Stub(x => x.SendAsync(Arg<string>.Is.Anything)).Throw(new Exception());
                 var s = new Statsd(_udp);
-                s.Send<Statsd.Histogram>("histogram", 5);
+                await s.SendAsync<Statsd.Histogram>("histogram", 5);
                 Assert.Pass();
             }
         }
@@ -298,19 +300,19 @@ namespace Tests
         public class Set : StatsdTests
         {
             [Test]
-            public void adds_set_with_string_value()
+            public async Task adds_set_with_string_value()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                s.Send<Statsd.Set>("set", "34563478564785xyz");
-                _udp.AssertWasCalled(x => x.Send("set:34563478564785xyz|s"));
+                await s.SendAsync<Statsd.Set>("set", "34563478564785xyz");
+                _udp.AssertWasCalled(x => x.SendAsync("set:34563478564785xyz|s"));
             }
 
             [Test]
-            public void set_exception_fails_silently()
+            public async Task set_exception_fails_silently()
             {
-                _udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+                _udp.Stub(x => x.SendAsync(Arg<string>.Is.Anything)).Throw(new Exception());
                 var s = new Statsd(_udp);
-                s.Send<Statsd.Set>("set", "silent-exception-test");
+                await s.SendAsync<Statsd.Set>("set", "silent-exception-test");
                 Assert.Pass();
             }
         }
@@ -342,60 +344,60 @@ namespace Tests
             }
 
             [Test]
-            public void add_one_counter_and_one_timer_sends_in_one_go()
+            public async Task add_one_counter_and_one_timer_sends_in_one_go()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Add<Statsd.Counting>("counter", 1, 0.1);
                 s.Add<Statsd.Timing>("timer", 1);
-                s.Send();
+                await s.SendAsync();
 
-                _udp.AssertWasCalled(x => x.Send("counter:1|c|@0.1\ntimer:1|ms"));
+                _udp.AssertWasCalled(x => x.SendAsync("counter:1|c|@0.1\ntimer:1|ms"));
             }
 
             [Test]
-            public void add_one_counter_and_one_timer_sends_and_removes_commands()
+            public async Task add_one_counter_and_one_timer_sends_and_removes_commands()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Add<Statsd.Counting>("counter", 1, 0.1);
                 s.Add<Statsd.Timing>("timer", 1);
-                s.Send();
+                await s.SendAsync();
 
                 Assert.That(s.Commands.Count, Is.EqualTo(0));
             }
 
             [Test]
-            public void add_one_counter_and_send_one_timer_sends_only_sends_the_last()
+            public async Task add_one_counter_and_send_one_timer_sends_only_sends_the_last()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Add<Statsd.Counting>("counter", 1);
-                s.Send<Statsd.Timing>("timer", 1);
+                await s.SendAsync<Statsd.Timing>("timer", 1);
 
-                _udp.AssertWasCalled(x => x.Send("timer:1|ms"));
+                _udp.AssertWasCalled(x => x.SendAsync("timer:1|ms"));
             }
         }
 
         public class NamePrefixing : StatsdTests
         {
             [Test]
-            public void set_prefix_on_stats_name_when_calling_send()
+            public async Task set_prefix_on_stats_name_when_calling_send()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch, "a.prefix.");
-                s.Send<Statsd.Counting>("counter", 5);
-                s.Send<Statsd.Counting>("counter", 5);
+                await s.SendAsync<Statsd.Counting>("counter", 5);
+                await s.SendAsync<Statsd.Counting>("counter", 5);
 
-                _udp.AssertWasCalled(x => x.Send("a.prefix.counter:5|c"), x => x.Repeat.Twice());
+                _udp.AssertWasCalled(x => x.SendAsync("a.prefix.counter:5|c"), x => x.Repeat.Twice());
             }
 
             [Test]
-            public void add_counter_sets_prefix_on_name()
+            public async Task add_counter_sets_prefix_on_name()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch, "another.prefix.");
 
                 s.Add<Statsd.Counting>("counter", 1, 0.1);
                 s.Add<Statsd.Timing>("timer", 1);
-                s.Send();
+                await s.SendAsync();
 
-                _udp.AssertWasCalled(x => x.Send("another.prefix.counter:1|c|@0.1\nanother.prefix.timer:1|ms"));
+                _udp.AssertWasCalled(x => x.SendAsync("another.prefix.counter:1|c|@0.1\nanother.prefix.timer:1|ms"));
             }
         }
 

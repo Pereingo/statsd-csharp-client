@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using StatsdClient;
 
@@ -9,7 +10,7 @@ namespace Tests
         [Test]
         public void throws_when_configured_with_a_null_configuration()
         {
-            Assert.Throws<ArgumentNullException>(() => Metrics.Configure(null));
+            Assert.Throws<ArgumentNullException>(async() => await Metrics.ConfigureAsync(null));
         }
     }
 }

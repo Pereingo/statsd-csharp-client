@@ -3,17 +3,26 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace StatsdClient
 {
     public interface IStatsdUDP
     {
-        void Send(string command);
+        Task SendAsync(string command);
     }
 
     public class StatsdUDP : IDisposable, IStatsdUDP
     {
-        public IPEndPoint IPEndpoint { get; private set; }
+        public IPEndPoint IPEndpoint
+        {
+            get
+            {
+                if(_ipEndpoint == null) throw new Exception("Plaese call InitializeAsync() before using StatsdUDP");
+                return _ipEndpoint;
+            }
+            private set { _ipEndpoint = value; }
+        }
 
         private readonly int _maxUdpPacketSizeBytes;
         private readonly Socket _udpSocket;
@@ -26,45 +35,52 @@ namespace StatsdClient
         /// <param name="name">Hostname or IP (v4) address of the statsd server.</param>
         /// <param name="port">Port of the statsd server. Default is 8125.</param>
         /// <param name="maxUdpPacketSizeBytes">Max packet size, in bytes. This is useful to tweak if your MTU size is different than normal. Set to 0 for no limit. Default is MetricsConfig.DefaultStatsdMaxUDPPacketSize.</param>
-        public StatsdUDP(string name, int port = 8125, int maxUdpPacketSizeBytes = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
+        public StatsdUDP(
+            string name, 
+            int port = 8125, 
+            int maxUdpPacketSizeBytes = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
         {
             _name = name;
             _port = port;
             _maxUdpPacketSizeBytes = maxUdpPacketSizeBytes;
 
             _udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        }
 
-            var ipAddress = GetIpv4Address(name);
+        public async Task InitializeAsync()
+        {
+            IPAddress ipAddress = await GetIpv4AddressAsync(_name);
             IPEndpoint = new IPEndPoint(ipAddress, _port);
         }
 
-        private IPAddress GetIpv4Address(string name)
+        private async Task<IPAddress> GetIpv4AddressAsync(string name)
         {
             IPAddress ipAddress;
             var isValidIpAddress = IPAddress.TryParse(name, out ipAddress);
 
             if (!isValidIpAddress)
             {
-                ipAddress = GetIpFromHostname();
+                ipAddress = await GetIpFromHostnameAsync();
             }
 
             return ipAddress;
         }
 
-        private IPAddress GetIpFromHostname()
+        private async Task<IPAddress> GetIpFromHostnameAsync()
         {
-            var addressList = Dns.GetHostEntry(_name).AddressList;
+            var hostEntry = await Dns.GetHostEntryAsync(_name);
+            var addressList = hostEntry.AddressList;
             var ipv4Addresses = addressList.Where(x => x.AddressFamily != AddressFamily.InterNetworkV6);
 
             return ipv4Addresses.First();
         }
 
-        public void Send(string command)
+        public async Task SendAsync(string command)
         {
-            Send(Encoding.ASCII.GetBytes(command));
+            await SendAsync(Encoding.ASCII.GetBytes(command));
         }
 
-        private void Send(byte[] encodedCommand)
+        private async Task SendAsync(byte[] encodedCommand)
         {
             if (_maxUdpPacketSizeBytes > 0 && encodedCommand.Length > _maxUdpPacketSizeBytes)
             {
@@ -81,14 +97,14 @@ namespace StatsdClient
 
                     var encodedCommandFirst = new byte[i];
                     Array.Copy(encodedCommand, encodedCommandFirst, encodedCommandFirst.Length); // encodedCommand[0..i-1]
-                    Send(encodedCommandFirst);
+                    await SendAsync(encodedCommandFirst);
 
                     var remainingCharacters = encodedCommand.Length - i - 1;
                     if (remainingCharacters > 0) 
                     {
                         var encodedCommandSecond = new byte[remainingCharacters];
                         Array.Copy(encodedCommand, i + 1, encodedCommandSecond, 0, encodedCommandSecond.Length); // encodedCommand[i+1..end]
-                        Send(encodedCommandSecond);
+                        await SendAsync(encodedCommandSecond);
                     }
 
                     return; // We're done here if we were able to split the message.
@@ -100,11 +116,19 @@ namespace StatsdClient
                     // be sent without issue.
                 }
             }
-            _udpSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
+
+            ArraySegment<byte> encodedCommandSegment = new ArraySegment<byte>(encodedCommand);
+#if NET451 || NET451
+            _udpSocket.SendTo(encodedCommand, SocketFlags.None, IPEndpoint);
+#else
+            await _udpSocket.SendToAsync(encodedCommandSegment, SocketFlags.None, IPEndpoint);
+#endif
         }
 
         //reference : https://lostechies.com/chrispatterson/2012/11/29/idisposable-done-right/
         private bool _disposed;
+        private IPEndPoint _ipEndpoint;
+
         public void Dispose()
         {
             Dispose(true);
@@ -126,7 +150,7 @@ namespace StatsdClient
                 {
                     try
                     {
-                        _udpSocket.Close();
+                        _udpSocket.Dispose();
                     }
                     catch (Exception)
                     {

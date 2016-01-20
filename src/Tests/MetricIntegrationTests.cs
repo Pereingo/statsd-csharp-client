@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
@@ -62,10 +63,11 @@ namespace Tests
         public class SanityCheck : MetricIntegrationTests
         {
             [Test]
-            public void udp_listener_works()
+            public async Task udp_listener_works()
             {
                 var client = new StatsdUDP(_localhostAddress, _randomUnusedLocalPort);
-                client.Send("iamnotinsane!");
+                await client.InitializeAsync();
+                await client.SendAsync("iamnotinsane!");
 
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("iamnotinsane!"));
             }
@@ -74,58 +76,58 @@ namespace Tests
         public class Counter : MetricIntegrationTests
         {
             [Test]
-            public void counter()
+            public async Task counter()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Counter("counter");
+                await Metrics.CounterAsync("counter");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:1|c"));
             }
 
             [Test]
-            public void counter_with_value()
+            public async Task counter_with_value()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Counter("counter", 10);
+                await Metrics.CounterAsync("counter", 10);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:10|c"));
             }
 
             [Test]
-            public void counter_with_prefix()
+            public async Task counter_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Counter("counter");
+                await Metrics.CounterAsync("counter");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.counter:1|c"));
             }
 
             [Test]
-            public void counter_with_prefix_having_a_trailing_dot()
+            public async Task counter_with_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Counter("counter");
+                await Metrics.CounterAsync("counter");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.counter:1|c"));
             }
 
             [Test]
-            public void counter_with_value_and_sampleRate()
+            public async Task counter_with_value_and_sampleRate()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Counter("counter", 10, 0.9999);
+                await Metrics.CounterAsync("counter", 10, 0.9999);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:10|c|@0.9999"));
             }
 
             [Test]
-            public void counter_with_no_config_setup_should_not_send_metric()
+            public async Task counter_with_no_config_setup_should_not_send_metric()
             {
-                Metrics.Configure(new MetricsConfig());
+                await Metrics.ConfigureAsync(new MetricsConfig());
 
-                Metrics.Counter("counter");
+                await Metrics.CounterAsync("counter");
                 Assert.That(LastPacketMessageReceived(), Is.Null);
             }
         }
@@ -133,40 +135,40 @@ namespace Tests
         public class Timer : MetricIntegrationTests
         {
             [Test]
-            public void timer()
+            public async Task timer()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Timer("timer", 6);
+                await Metrics.TimerAsync("timer", 6);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("timer:6|ms"));
             }
 
             [Test]
-            public void timer_with_prefix()
+            public async Task timer_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Timer("timer", 6);
+                await Metrics.TimerAsync("timer", 6);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:6|ms"));
             }
 
             [Test]
-            public void timer_with_prefix_having_a_trailing_dot()
+            public async Task timer_with_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Timer("timer", 6);
+                await Metrics.TimerAsync("timer", 6);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:6|ms"));
             }
 
             [Test]
-            public void timer_with_no_config_setup_should_not_send_metric()
+            public async Task timer_with_no_config_setup_should_not_send_metric()
             {
-                Metrics.Configure(new MetricsConfig());
+                await Metrics.ConfigureAsync(new MetricsConfig());
 
-                Metrics.Timer("timer", 6);
+                await Metrics.TimerAsync("timer", 6);
                 Assert.That(LastPacketMessageReceived(), Is.Null);
             }
         }
@@ -174,9 +176,9 @@ namespace Tests
         public class DisposableTimer : MetricIntegrationTests
         {
             [Test]
-            public void disposable_timer()
+            public async Task disposable_timer()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
                 using (Metrics.StartTimer("time"))
                 {
@@ -190,50 +192,50 @@ namespace Tests
         public class Time : MetricIntegrationTests
         {
             [Test]
-            public void time()
+            public async Task time()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Time(() => Thread.Sleep(2), "time");
+                await Metrics.TimeAsync(() => Thread.Sleep(2), "time");
                 Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTimeRegEx));
             }
 
             [Test]
-            public void time_with_prefix()
+            public async Task time_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Time(() => Thread.Sleep(2), "time");
+                await Metrics.TimeAsync(() => Thread.Sleep(2), "time");
                 Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
             }
 
             [Test]
-            public void time_with_prefix_having_trailing_dot()
+            public async Task time_with_prefix_having_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Time(() => Thread.Sleep(2), "time");
+                await Metrics.TimeAsync(() => Thread.Sleep(2), "time");
                 Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
             }
 
             [Test]
-            public void time_with_no_config_setup_should_not_send_metric_but_still_run_action()
+            public async Task time_with_no_config_setup_should_not_send_metric_but_still_run_action()
             {
-                Metrics.Configure(new MetricsConfig());
+                await Metrics.ConfigureAsync(new MetricsConfig());
 
                 var someValue = 5;
-                Metrics.Time(() => { someValue = 10; }, "timer");
+                await Metrics.TimeAsync(() => { someValue = 10; }, "timer");
 
                 Assert.That(someValue, Is.EqualTo(10));
                 Assert.That(LastPacketMessageReceived(), Is.Null);
             }
 
             [Test]
-            public void time_with_return_value()
+            public async Task time_with_return_value()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
                 var returnValue = Metrics.Time(() =>
                 {
@@ -246,10 +248,10 @@ namespace Tests
             }
 
             [Test]
-            public void time_with_return_value_and_prefix()
+            public async Task time_with_return_value_and_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
                 var returnValue = Metrics.Time(() =>
                 {
@@ -262,10 +264,10 @@ namespace Tests
             }
 
             [Test]
-            public void time_with_return_value_and_prefix_having_a_trailing_dot()
+            public async Task time_with_return_value_and_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
                 var returnValue = Metrics.Time(() =>
                 {
@@ -278,9 +280,9 @@ namespace Tests
             }
 
             [Test]
-            public void time_with_return_value_and_no_config_setup_should_not_send_metric_but_still_return_value()
+            public async Task time_with_return_value_and_no_config_setup_should_not_send_metric_but_still_return_value()
             {
-                Metrics.Configure(new MetricsConfig());
+                await Metrics.ConfigureAsync(new MetricsConfig());
 
                 var returnValue = Metrics.Time(() => 5, "time");
 
@@ -295,11 +297,11 @@ namespace Tests
             [TestCase(123d, "gauge:+123|g")]
             [TestCase(-123d, "gauge:-123|g")]
             [TestCase(0d, "gauge:+0|g")]
-            public void GaugeDelta_EmitsCorrect_Format(double gaugeDeltaValue, string expectedPacketMessageFormat)
+            public async Task GaugeDelta_EmitsCorrect_Format(double gaugeDeltaValue, string expectedPacketMessageFormat)
             {
-              Metrics.Configure(_defaultMetricsConfig);
+              await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-              Metrics.GaugeDelta("gauge", gaugeDeltaValue);
+              await Metrics.GaugeDeltaAsync("gauge", gaugeDeltaValue);
               Assert.That(LastPacketMessageReceived(), Is.EqualTo(expectedPacketMessageFormat));
             }
         }
@@ -307,12 +309,12 @@ namespace Tests
         public class GaugeObsolete : MetricIntegrationTests
         {
             [Test]
-            public void obsolete_gauge_with_double_value()
+            public async Task obsolete_gauge_with_double_value()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
                 const double value = 12345678901234567890;
-                Metrics.Gauge("gauge", value);
+                await Metrics.GaugeAsync("gauge", value);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:12345678901234600000.000000000000000|g"));
             }
         }
@@ -320,51 +322,51 @@ namespace Tests
         public class GaugeAbsolute : MetricIntegrationTests
         {
             [Test]
-            public void absolute_gauge_with_double_value()
+            public async Task absolute_gauge_with_double_value()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
                 const double value = 12345678901234567890;
-                Metrics.GaugeAbsoluteValue("gauge", value);
+                await Metrics.GaugeAbsoluteValueAsync("gauge", value);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:12345678901234600000.000000000000000|g"));
             }
 
             [Test]
-            public void absolute_gauge_with_double_value_with_floating_point()
+            public async Task absolute_gauge_with_double_value_with_floating_point()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
                 const double value = 1.234567890123456;
-                Metrics.GaugeAbsoluteValue("gauge", value);
+                await Metrics.GaugeAbsoluteValueAsync("gauge", value);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:1.234567890123460|g"));
             }
 
             [Test]
-            public void absolute_gauge_with_prefix()
+            public async Task absolute_gauge_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.GaugeAbsoluteValue("gauge", 3);
+                await Metrics.GaugeAbsoluteValueAsync("gauge", 3);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.gauge:3.000000000000000|g"));
             }
 
             [Test]
-            public void absolute_gauge_with_prefix_having_a_trailing_dot()
+            public async Task absolute_gauge_with_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.GaugeAbsoluteValue("gauge", 3);
+                await Metrics.GaugeAbsoluteValueAsync("gauge", 3);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.gauge:3.000000000000000|g"));
             }
 
             [Test]
-            public void gauge_with_no_config_setup_should_not_send_metric()
+            public async Task gauge_with_no_config_setup_should_not_send_metric()
             {
-                Metrics.Configure(new MetricsConfig());
+                await Metrics.ConfigureAsync(new MetricsConfig());
 
-                Metrics.GaugeAbsoluteValue("gauge", 3);
+                await Metrics.GaugeAbsoluteValueAsync("gauge", 3);
                 Assert.That(LastPacketMessageReceived(), Is.Null);
             }
         }
@@ -372,40 +374,40 @@ namespace Tests
         public class Set : MetricIntegrationTests
         {
             [Test]
-            public void set()
+            public async Task set()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Set("timer", "value");
+                await Metrics.SetAsync("timer", "value");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("timer:value|s"));
             }
 
             [Test]
-            public void set_with_prefix()
+            public async Task set_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Set("timer", "value");
+                await Metrics.SetAsync("timer", "value");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:value|s"));
             }
 
             [Test]
-            public void set_with_prefix_having_a_trailing_dot()
+            public async Task set_with_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                await Metrics.ConfigureAsync(_defaultMetricsConfig);
 
-                Metrics.Set("timer", "value");
+                await Metrics.SetAsync("timer", "value");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:value|s"));
             }
 
             [Test]
-            public void set_with_no_config_setup_should_not_send_metric()
+            public async Task set_with_no_config_setup_should_not_send_metric()
             {
-                Metrics.Configure(new MetricsConfig());
+                await Metrics.ConfigureAsync(new MetricsConfig());
 
-                Metrics.Set("timer", "value");
+                await Metrics.SetAsync("timer", "value");
                 Assert.That(LastPacketMessageReceived(), Is.Null);
             }
         }
