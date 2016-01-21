@@ -231,7 +231,7 @@ namespace Tests
             public async Task adds_gauge_with_large_double_values()
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
-                await s.SendAsync<Statsd.Gauge>("gauge", 34563478564785);
+                await s.SendAsync<Statsd.Gauge>("gauge", 34563478564785D);
                 _udp.AssertWasCalled(x => x.SendAsync("gauge:34563478564785.000000000000000|g"));
             }
 

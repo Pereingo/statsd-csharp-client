@@ -61,7 +61,7 @@ namespace StatsdClient
             : this(udp, "") { }
 
 
-        public async Task SendAsync<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
+        public async Task SendAsync<TCommandType>(string name, long value) where TCommandType : IAllowsInteger
         {
             Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
             await SendAsync();
@@ -100,7 +100,7 @@ namespace StatsdClient
             await SendAsync();
         }
 
-        public void Add<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
+        public void Add<TCommandType>(string name, long value) where TCommandType : IAllowsInteger
         {
             ThreadSafeAddCommand(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof (TCommandType)], 1));
         }
@@ -110,7 +110,7 @@ namespace StatsdClient
             ThreadSafeAddCommand(GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1));
         }
 
-        public async Task SendAsync<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
+        public async Task SendAsync<TCommandType>(string name, long value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
@@ -119,7 +119,7 @@ namespace StatsdClient
             }
         }
 
-        public void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
+        public void Add<TCommandType>(string name, long value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {

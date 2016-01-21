@@ -9,7 +9,7 @@ namespace StatsdClient
         TimeSpan Elapsed { get; }
 
         [Obsolete("use Elapsed property")]
-        int ElapsedMilliseconds();
+        long ElapsedMilliseconds();
     }
 
     public class Stopwatch : IStopwatch
@@ -34,14 +34,14 @@ namespace StatsdClient
         }
 
         [Obsolete("use Elapsed property")]
-        public int ElapsedMilliseconds()
+        public long ElapsedMilliseconds()
         {
             double milliseconds = Elapsed.TotalMilliseconds;
             if (milliseconds > int.MaxValue)
             {
                 throw new InvalidOperationException("Please use new API 'Elapsed' instead of 'ElapsedMilliseconds()', as your value just overflowed for this old API");
             }
-            return (int)milliseconds;
+            return (long)milliseconds;
         }
     }
 }

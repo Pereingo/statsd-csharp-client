@@ -45,7 +45,7 @@ namespace StatsdClient
         /// <param name="statName">Name of the metric.</param>
         /// <param name="value">Value of the counter. Defaults to 1.</param>
         /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
-        public static async Task CounterAsync(string statName, int value = 1, double sampleRate = 1)
+        public static async Task CounterAsync(string statName, long value = 1, double sampleRate = 1)
         {
             await _statsD.SendAsync<Statsd.Counting>(BuildNamespacedStatName(statName), value, sampleRate);
         }
@@ -82,7 +82,7 @@ namespace StatsdClient
         /// <param name="statName">Name of the metric.</param>
         /// <param name="value">Elapsed miliseconds of the event.</param>
         /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
-        public static async Task TimerAsync(string statName, int value, double sampleRate = 1)
+        public static async Task TimerAsync(string statName, long value, double sampleRate = 1)
         {
             await _statsD.SendAsync<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate);
         }

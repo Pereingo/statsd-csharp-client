@@ -13,11 +13,11 @@ namespace StatsdClient
 
         public List<string> Commands { get; private set; }
 
-        public async Task SendAsync<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
+        public async Task SendAsync<TCommandType>(string name, long value) where TCommandType : IAllowsInteger
         {
         }
 
-        public void Add<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
+        public void Add<TCommandType>(string name, long value) where TCommandType : IAllowsInteger
         {
         }
 
@@ -29,12 +29,12 @@ namespace StatsdClient
         {
         }
 
-        public async Task SendAsync<TCommandType>(string name, int value, double sampleRate)
+        public async Task SendAsync<TCommandType>(string name, long value, double sampleRate)
             where TCommandType : IAllowsInteger, IAllowsSampleRate
         {
         }
 
-        public void Add<TCommandType>(string name, int value, double sampleRate)
+        public void Add<TCommandType>(string name, long value, double sampleRate)
             where TCommandType : IAllowsInteger, IAllowsSampleRate
         {
         }
