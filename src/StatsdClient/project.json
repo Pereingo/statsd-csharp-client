@@ -1,13 +1,14 @@
 ﻿{
-  "version": "1.0.2-*",
-  "description": "StatsdClient Class Library",
-  "authors": [ "bfazlani" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
+  "title": "Statsd C# Client ",
+  "version": "1.0.0-*",
+  "description": "Statsd client for C#, providing a full set of counter/timer/gauge/set functionality in an easy to use static. Helpers are provided for easily timing chunks of code too.",
+  "authors": [ "darrellmozingo", "goncalo" ],
+  "tags": [ "stats", "statsd", "metrics" ],
+  "projectUrl": "https://github.com/Pereingo/statsd-csharp-client",
+  "licenseUrl": "https://github.com/Pereingo/statsd-csharp-client/blob/master/MIT-LICENCE.md",
 
   "frameworks": {
-    "net451": {},
+    "net451": { },
     "dotnet5.4": {
       "dependencies": {
         "Microsoft.CSharp": "4.0.1-beta-23516",
