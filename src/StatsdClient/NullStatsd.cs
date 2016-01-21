@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 
 namespace StatsdClient
 {
+    //this will disable the warnings that say await is missing. It is intentionally done because it is nullstatsd.
+#pragma warning disable 1998
     public class NullStatsd : IStatsd
     {
         public NullStatsd()
@@ -60,5 +62,6 @@ namespace StatsdClient
         public async Task SendAsync<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
         {
         }
-  }
+    }
+#pragma warning restore 1998
 }
