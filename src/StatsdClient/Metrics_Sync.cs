@@ -88,11 +88,31 @@ namespace StatsdClient
             _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate);
         }
 
+        /// <summary>
+        /// Time a given piece of code (with a lambda) and send the elapsed miliseconds.
+        /// </summary>
+        /// <param name="func">The code to time.</param>
+        /// <param name="statName">Name of the metric.</param>
+        /// <returns>Return value of the function.</returns>
         public static T Time<T>(Func<T> func, string statName)
         {
             using (StartTimer(statName))
             {
                 return func();
+            }
+        }
+
+        /// <summary>
+        /// Time a given piece of code (with a lambda) and send the elapsed miliseconds.
+        /// </summary>
+        /// <param name="action">The code to time.</param>
+        /// <param name="statName">Name of the metric.</param>
+        /// <returns>Return value of the function.</returns>
+        public static void Time(Action action, string statName)
+        {
+            using (StartTimer(statName))
+            {
+                action();
             }
         }
 
@@ -115,6 +135,16 @@ namespace StatsdClient
         public static IDisposable StartTimer(string name, double sampleRate = 1)
         {
             return new MetricsTimer(name, sampleRate);
+        }
+
+        /// <summary>
+        /// Store a unique occurence of an event between flushes.
+        /// </summary>
+        /// <param name="statName">Name of the metric.</param>
+        /// <param name="value">Value to set.</param>
+        public static void Set(string statName, string value)
+        {
+            _statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value);
         }
     }
 }

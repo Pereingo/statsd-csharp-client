@@ -101,13 +101,6 @@ namespace StatsdClient
         }
 
         /// <summary>
-        /// Time a given piece of code (with a lambda) and send the elapsed miliseconds.
-        /// </summary>
-        /// <param name="func">The code to time.</param>
-        /// <param name="statName">Name of the metric.</param>
-        /// <returns>Return value of the function.</returns>
-        
-        /// <summary>
         /// Store a unique occurence of an event between flushes.
         /// </summary>
         /// <param name="statName">Name of the metric.</param>

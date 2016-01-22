@@ -14,13 +14,12 @@ namespace Tests
         private static readonly string _serverName = ConfigurationManager.AppSettings["StatsdServerName"];
 
         [Test]
-        public async Task Sends_a_counter()
+        public void Sends_a_counter()
         {
             try
             {
                 var client = new StatsdUDP(_serverName, _serverPort);
-                await client.InitializeAsync();
-                await client.SendAsync("socket2:1|c");
+                 client.Send("socket2:1|c");
             }
             catch(SocketException ex)
             {

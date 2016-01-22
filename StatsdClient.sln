@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatsdClient.Tests", "src\T
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "StatsdClient", "src\StatsdClient\StatsdClient.xproj", "{9850B8A7-0C25-4022-92A3-92664A826F58}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "StatsdClient.Core.Tests", "src\StatsdClient.Core.Tests\StatsdClient.Core.Tests.xproj", "{E9C4DFCE-2011-44BB-9394-AA867D173229}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{9850B8A7-0C25-4022-92A3-92664A826F58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9850B8A7-0C25-4022-92A3-92664A826F58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9850B8A7-0C25-4022-92A3-92664A826F58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9C4DFCE-2011-44BB-9394-AA867D173229}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9C4DFCE-2011-44BB-9394-AA867D173229}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9C4DFCE-2011-44BB-9394-AA867D173229}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9C4DFCE-2011-44BB-9394-AA867D173229}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -33,5 +39,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{C4355D8F-BAB4-4C53-8E10-3ABB571A6F05} = {69294396-1919-4CF0-88AA-50953E94109D}
 		{9850B8A7-0C25-4022-92A3-92664A826F58} = {69294396-1919-4CF0-88AA-50953E94109D}
+		{E9C4DFCE-2011-44BB-9394-AA867D173229} = {69294396-1919-4CF0-88AA-50953E94109D}
 	EndGlobalSection
 EndGlobal

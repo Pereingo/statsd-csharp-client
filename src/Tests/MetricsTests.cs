@@ -10,7 +10,7 @@ namespace Tests
         [Test]
         public void throws_when_configured_with_a_null_configuration()
         {
-            Assert.Throws<ArgumentNullException>(async() => await Metrics.ConfigureAsync(null));
+            Assert.Throws<ArgumentNullException>(() => Metrics.Configure(null));
         }
     }
 }
