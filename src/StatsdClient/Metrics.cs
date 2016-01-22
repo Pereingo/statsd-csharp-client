@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace StatsdClient
 {
-    public static class Metrics
+    public static partial class Metrics
     {
         private static IStatsd _statsD = new NullStatsd();
         private static StatsdUDP _statsdUdp;

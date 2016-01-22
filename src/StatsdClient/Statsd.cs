@@ -13,7 +13,7 @@ namespace StatsdClient
     public interface IAllowsInteger { }
     public interface IAllowsString { }
 
-    public class Statsd : IStatsd
+    public partial class Statsd : IStatsd
     {
         private readonly object _commandCollectionLock = new object();
 
@@ -60,12 +60,12 @@ namespace StatsdClient
         public Statsd(IStatsdUDP udp)
             : this(udp, "") { }
 
-
         public async Task SendAsync<TCommandType>(string name, long value) where TCommandType : IAllowsInteger
         {
             Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
             await SendAsync();
         }
+
         public async Task SendAsync<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
         {
             Commands = new List<string> { GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1) };
@@ -100,38 +100,12 @@ namespace StatsdClient
             await SendAsync();
         }
 
-        public void Add<TCommandType>(string name, long value) where TCommandType : IAllowsInteger
-        {
-            ThreadSafeAddCommand(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof (TCommandType)], 1));
-        }
-
-        public void Add<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
-        {
-            ThreadSafeAddCommand(GetCommand(name, String.Format(CultureInfo.InvariantCulture,"{0:F15}", value), _commandToUnit[typeof(TCommandType)], 1));
-        }
-
         public async Task SendAsync<TCommandType>(string name, long value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
         {
             if (RandomGenerator.ShouldSend(sampleRate))
             {
                 Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], sampleRate) };
                 await SendAsync();
-            }
-        }
-
-        public void Add<TCommandType>(string name, long value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
-        {
-            if (RandomGenerator.ShouldSend(sampleRate))
-            {
-                Commands.Add(GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], sampleRate));
-            }
-        }
-
-        private void ThreadSafeAddCommand(string command)
-        {
-            lock (_commandCollectionLock)
-            {
-                Commands.Add(command);
             }
         }
 
@@ -145,31 +119,6 @@ namespace StatsdClient
             catch(Exception e)
             {
                 Debug.WriteLine(e.Message);
-            }
-        }
-
-        private string GetCommand(string name, string value, string unit, double sampleRate)
-        {
-            var format = sampleRate == 1 ? "{0}:{1}|{2}" : "{0}:{1}|{2}|@{3}";
-            return string.Format(CultureInfo.InvariantCulture, format, _prefix + name, value, unit, sampleRate);
-        }
-
-        public void Add(Action actionToTime, string statName, double sampleRate=1)
-        {
-            var stopwatch = StopwatchFactory.Get();
-
-            try
-            {
-                stopwatch.Start();
-                actionToTime();
-            }
-            finally
-            {
-                stopwatch.Stop();
-                if (RandomGenerator.ShouldSend(sampleRate))
-                {
-                    Add<Timing>(statName, (long)stopwatch.Elapsed.TotalMilliseconds);
-                }
             }
         }
 

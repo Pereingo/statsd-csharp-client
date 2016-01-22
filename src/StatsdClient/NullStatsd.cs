@@ -19,7 +19,15 @@ namespace StatsdClient
         {
         }
 
+        public void Send<TCommandType>(string name, long value) where TCommandType : IAllowsInteger
+        {
+        }
+
         public void Add<TCommandType>(string name, long value) where TCommandType : IAllowsInteger
+        {
+        }
+
+        public void Send<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
         {
         }
 
@@ -28,6 +36,14 @@ namespace StatsdClient
         }
 
         public void Add<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
+        {
+        }
+
+        public void Send<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
+        {
+        }
+
+        public void Send<TCommandType>(string name, long value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
         {
         }
 
@@ -41,6 +57,14 @@ namespace StatsdClient
         {
         }
 
+        public void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString
+        {
+        }
+
+        public void Send()
+        {
+        }
+
         public async Task SendAsync<TCommandType>(string name, string value) where TCommandType : IAllowsString
         {
         }
@@ -50,6 +74,11 @@ namespace StatsdClient
         }
 
         public void Add(Action actionToTime, string statName, double sampleRate = 1)
+        {
+            actionToTime();
+        }
+
+        public void Send(Action actionToTime, string statName, double sampleRate = 1)
         {
             actionToTime();
         }
