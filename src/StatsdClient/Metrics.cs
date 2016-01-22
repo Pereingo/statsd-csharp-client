@@ -9,6 +9,8 @@ namespace StatsdClient
         private static StatsdUDP _statsdUdp;
         private static string _prefix;
 
+#if !NET451
+
         /// <summary>
         /// Configures the Metric class with a configuration. Call this once at application startup (Main(), Global.asax, etc).
         /// </summary>
@@ -88,23 +90,12 @@ namespace StatsdClient
         }
 
         /// <summary>
-        /// Time a given piece of code (with a using block) and send the elapsed miliseconds
-        /// </summary>
-        /// <param name="name">Name of the metric.</param>
-        /// <returns>A disposable object that will record & send the metric.</returns>
-        /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
-        public static IDisposable StartTimer(string name, double sampleRate = 1)
-        {
-            return new MetricsTimer(name, sampleRate);
-        }
-
-        /// <summary>
         /// Time a given piece of code (with a lambda) and send the elapsed miliseconds.
         /// </summary>
         /// <param name="action">The code to time.</param>
         /// <param name="statName">Name of the metric.</param>
         /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
-        public static async Task TimeAsync(Action action, string statName, double sampleRate = 1)
+        public static async Task TimeAsync(Func<Task> action, string statName, double sampleRate = 1)
         {
             await _statsD.SendAsync(action, BuildNamespacedStatName(statName), sampleRate);
         }
@@ -115,14 +106,7 @@ namespace StatsdClient
         /// <param name="func">The code to time.</param>
         /// <param name="statName">Name of the metric.</param>
         /// <returns>Return value of the function.</returns>
-        public static T Time<T>(Func<T> func, string statName)
-        {
-            using (StartTimer(statName))
-            {
-                return func();
-            }
-        }
-
+        
         /// <summary>
         /// Store a unique occurence of an event between flushes.
         /// </summary>
@@ -132,15 +116,6 @@ namespace StatsdClient
         {
             await _statsD.SendAsync<Statsd.Set>(BuildNamespacedStatName(statName), value);
         }
-
-        private static string BuildNamespacedStatName(string statName)
-        {
-            if (string.IsNullOrEmpty(_prefix))
-            {
-                return statName;
-            }
-
-            return _prefix + "." + statName;
-        }
+#endif
     }
 }

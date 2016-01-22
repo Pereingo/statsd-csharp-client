@@ -9,9 +9,10 @@ namespace StatsdClient
 {
     public interface IStatsdUDP
     {
-        Task SendAsync(string command);
-
         void Send(string command);
+#if !NET451
+        Task SendAsync(string command);
+#endif
     }
 
     public class StatsdUDP : IDisposable, IStatsdUDP
@@ -108,14 +109,10 @@ namespace StatsdClient
             return ipv4Addresses.First();
         }
 
+#if !NET451
         public async Task SendAsync(string command)
         {
             await SendAsync(Encoding.ASCII.GetBytes(command));
-        }
-
-        public void Send(string command)
-        {
-            Send(Encoding.ASCII.GetBytes(command));
         }
 
         private async Task SendAsync(byte[] encodedCommand)
@@ -156,11 +153,13 @@ namespace StatsdClient
             }
 
             ArraySegment<byte> encodedCommandSegment = new ArraySegment<byte>(encodedCommand);
-#if NET451 || NET451
-            _udpSocket.SendTo(encodedCommand, SocketFlags.None, IPEndpoint);
-#else
+
             await _udpSocket.SendToAsync(encodedCommandSegment, SocketFlags.None, IPEndpoint);
+        }
 #endif
+        public void Send(string command)
+        {
+            Send(Encoding.ASCII.GetBytes(command));
         }
 
         private void Send(byte[] encodedCommand)

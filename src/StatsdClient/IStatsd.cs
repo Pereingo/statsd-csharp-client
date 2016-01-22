@@ -6,6 +6,8 @@ namespace StatsdClient
 {
     public partial interface IStatsd
     {
+#if !NET451
+
         Task SendAsync<TCommandType>(string name, long value) where TCommandType : IAllowsInteger;
 
         Task SendAsync<TCommandType>(string name, double value) where TCommandType : IAllowsDouble;
@@ -18,6 +20,7 @@ namespace StatsdClient
 
         Task SendAsync();
 
-        Task SendAsync(Action actionToTime, string statName, double sampleRate=1);
+        Task SendAsync(Func<Task> actionToTime, string statName, double sampleRate=1);
+#endif
     }
 }

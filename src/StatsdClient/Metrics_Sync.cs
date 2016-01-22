@@ -87,5 +87,34 @@ namespace StatsdClient
         {
             _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate);
         }
+
+        public static T Time<T>(Func<T> func, string statName)
+        {
+            using (StartTimer(statName))
+            {
+                return func();
+            }
+        }
+
+        private static string BuildNamespacedStatName(string statName)
+        {
+            if (string.IsNullOrEmpty(_prefix))
+            {
+                return statName;
+            }
+
+            return _prefix + "." + statName;
+        }
+
+        /// <summary>
+        /// Time a given piece of code (with a using block) and send the elapsed miliseconds
+        /// </summary>
+        /// <param name="name">Name of the metric.</param>
+        /// <returns>A disposable object that will record & send the metric.</returns>
+        /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
+        public static IDisposable StartTimer(string name, double sampleRate = 1)
+        {
+            return new MetricsTimer(name, sampleRate);
+        }
     }
 }

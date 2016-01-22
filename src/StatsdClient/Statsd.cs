@@ -60,6 +60,8 @@ namespace StatsdClient
         public Statsd(IStatsdUDP udp)
             : this(udp, "") { }
 
+#if !NET451
+
         public async Task SendAsync<TCommandType>(string name, long value) where TCommandType : IAllowsInteger
         {
             Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
@@ -109,6 +111,7 @@ namespace StatsdClient
             }
         }
 
+
         public async Task SendAsync()
         {
             try
@@ -122,14 +125,14 @@ namespace StatsdClient
             }
         }
 
-        public async Task SendAsync(Action actionToTime, string statName, double sampleRate=1)
+        public async Task SendAsync(Func<Task> actionToTime, string statName, double sampleRate=1)
         {
             var stopwatch = StopwatchFactory.Get();
 
             try
             {
                 stopwatch.Start();
-                actionToTime();
+                await actionToTime();
             }
             finally
             {
@@ -140,5 +143,6 @@ namespace StatsdClient
                 }
             }
         }
+#endif
     }
 }
