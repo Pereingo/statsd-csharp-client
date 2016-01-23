@@ -143,6 +143,25 @@ namespace StatsdClient
                 }
             }
         }
+
+        public async Task<T> SendAsync<T>(Func<Task<T>> actionToTime, string statName, double sampleRate = 1)
+        {
+            var stopwatch = StopwatchFactory.Get();
+
+            try
+            {
+                stopwatch.Start();
+                return await actionToTime();
+            }
+            finally
+            {
+                stopwatch.Stop();
+                if (RandomGenerator.ShouldSend(sampleRate))
+                {
+                    await SendAsync<Timing>(statName, (long)stopwatch.Elapsed.TotalMilliseconds);
+                }
+            }
+        }
 #endif
     }
 }

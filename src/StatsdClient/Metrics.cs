@@ -101,6 +101,17 @@ namespace StatsdClient
         }
 
         /// <summary>
+        /// Time a given piece of code (with a lambda) and send the elapsed miliseconds.
+        /// </summary>
+        /// <param name="action">The code to time.</param>
+        /// <param name="statName">Name of the metric.</param>
+        /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
+        public static async Task<T> TimeAsync<T>(Func<Task<T>> action, string statName, double sampleRate = 1)
+        {
+            return await _statsD.SendAsync(action, BuildNamespacedStatName(statName), sampleRate);
+        }
+
+        /// <summary>
         /// Store a unique occurence of an event between flushes.
         /// </summary>
         /// <param name="statName">Name of the metric.</param>

@@ -45,6 +45,11 @@ namespace StatsdClient
         {
             await actionToTime();
         }
+
+        public async Task<T> SendAsync<T>(Func<Task<T>> actionToTime, string statName, double sampleRate = 1)
+        {
+            return await actionToTime();
+        }
 #endif
 
         public void Send<TCommandType>(string name, long value) where TCommandType : IAllowsInteger

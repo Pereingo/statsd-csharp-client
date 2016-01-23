@@ -21,6 +21,8 @@ namespace StatsdClient
         Task SendAsync();
 
         Task SendAsync(Func<Task> actionToTime, string statName, double sampleRate=1);
+
+        Task<T> SendAsync<T>(Func<Task<T>> actionToTime, string statName, double sampleRate = 1);
 #endif
     }
 }
