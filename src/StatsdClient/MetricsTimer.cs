@@ -23,7 +23,7 @@ namespace StatsdClient
             {
                 _disposed = true;
                 _stopWatch.Stop();
-                Metrics.Timer(_name, _stopWatch.ElapsedMilliseconds(), _sampleRate);
+                Metrics.Timer(_name, (long) _stopWatch.Elapsed.TotalMilliseconds, _sampleRate);
             }
         }
     }

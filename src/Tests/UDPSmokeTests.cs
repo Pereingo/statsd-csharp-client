@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using StatsdClient;
 
@@ -18,7 +19,7 @@ namespace Tests
             try
             {
                 var client = new StatsdUDP(_serverName, _serverPort);
-                client.Send("socket2:1|c");
+                 client.Send("socket2:1|c");
             }
             catch(SocketException ex)
             {

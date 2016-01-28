@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
@@ -76,18 +77,18 @@ namespace Tests
             [Test]
             public void counter()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Counter("counter");
+                 Metrics.Counter("counter");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:1|c"));
             }
 
             [Test]
             public void counter_with_value()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Counter("counter", 10);
+                 Metrics.Counter("counter", 10);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:10|c"));
             }
 
@@ -95,9 +96,9 @@ namespace Tests
             public void counter_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Counter("counter");
+                 Metrics.Counter("counter");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.counter:1|c"));
             }
 
@@ -105,27 +106,27 @@ namespace Tests
             public void counter_with_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Counter("counter");
+                 Metrics.Counter("counter");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.counter:1|c"));
             }
 
             [Test]
             public void counter_with_value_and_sampleRate()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Counter("counter", 10, 0.9999);
+                 Metrics.Counter("counter", 10, 0.9999);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("counter:10|c|@0.9999"));
             }
 
             [Test]
             public void counter_with_no_config_setup_should_not_send_metric()
             {
-                Metrics.Configure(new MetricsConfig());
+                 Metrics.Configure(new MetricsConfig());
 
-                Metrics.Counter("counter");
+                 Metrics.Counter("counter");
                 Assert.That(LastPacketMessageReceived(), Is.Null);
             }
         }
@@ -135,9 +136,9 @@ namespace Tests
             [Test]
             public void timer()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Timer("timer", 6);
+                 Metrics.Timer("timer", 6);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("timer:6|ms"));
             }
 
@@ -145,9 +146,9 @@ namespace Tests
             public void timer_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Timer("timer", 6);
+                 Metrics.Timer("timer", 6);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:6|ms"));
             }
 
@@ -155,18 +156,18 @@ namespace Tests
             public void timer_with_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Timer("timer", 6);
+                 Metrics.Timer("timer", 6);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:6|ms"));
             }
 
             [Test]
             public void timer_with_no_config_setup_should_not_send_metric()
             {
-                Metrics.Configure(new MetricsConfig());
+                 Metrics.Configure(new MetricsConfig());
 
-                Metrics.Timer("timer", 6);
+                 Metrics.Timer("timer", 6);
                 Assert.That(LastPacketMessageReceived(), Is.Null);
             }
         }
@@ -176,7 +177,7 @@ namespace Tests
             [Test]
             public void disposable_timer()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
                 using (Metrics.StartTimer("time"))
                 {
@@ -192,9 +193,9 @@ namespace Tests
             [Test]
             public void time()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Time(() => Thread.Sleep(2), "time");
+                 Metrics.Time(() => Thread.Sleep(2), "time");
                 Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTimeRegEx));
             }
 
@@ -202,9 +203,9 @@ namespace Tests
             public void time_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Time(() => Thread.Sleep(2), "time");
+                 Metrics.Time(() => Thread.Sleep(2), "time");
                 Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
             }
 
@@ -212,19 +213,21 @@ namespace Tests
             public void time_with_prefix_having_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Time(() => Thread.Sleep(2), "time");
+                 Metrics.Time(() => Thread.Sleep(2), "time");
                 Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
             }
 
             [Test]
             public void time_with_no_config_setup_should_not_send_metric_but_still_run_action()
             {
-                Metrics.Configure(new MetricsConfig());
+                 Metrics.Configure(new MetricsConfig());
 
                 var someValue = 5;
-                Metrics.Time(() => { someValue = 10; }, "timer");
+                 Metrics.Time(() => { someValue = 10;
+                                                  return Task.FromResult(true);
+                }, "timer");
 
                 Assert.That(someValue, Is.EqualTo(10));
                 Assert.That(LastPacketMessageReceived(), Is.Null);
@@ -233,7 +236,7 @@ namespace Tests
             [Test]
             public void time_with_return_value()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
                 var returnValue = Metrics.Time(() =>
                 {
@@ -249,7 +252,7 @@ namespace Tests
             public void time_with_return_value_and_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
                 var returnValue = Metrics.Time(() =>
                 {
@@ -265,7 +268,7 @@ namespace Tests
             public void time_with_return_value_and_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
                 var returnValue = Metrics.Time(() =>
                 {
@@ -280,7 +283,7 @@ namespace Tests
             [Test]
             public void time_with_return_value_and_no_config_setup_should_not_send_metric_but_still_return_value()
             {
-                Metrics.Configure(new MetricsConfig());
+                 Metrics.Configure(new MetricsConfig());
 
                 var returnValue = Metrics.Time(() => 5, "time");
 
@@ -297,9 +300,9 @@ namespace Tests
             [TestCase(0d, "gauge:+0|g")]
             public void GaugeDelta_EmitsCorrect_Format(double gaugeDeltaValue, string expectedPacketMessageFormat)
             {
-              Metrics.Configure(_defaultMetricsConfig);
+               Metrics.Configure(_defaultMetricsConfig);
 
-              Metrics.GaugeDelta("gauge", gaugeDeltaValue);
+               Metrics.GaugeDelta("gauge", gaugeDeltaValue);
               Assert.That(LastPacketMessageReceived(), Is.EqualTo(expectedPacketMessageFormat));
             }
         }
@@ -309,10 +312,10 @@ namespace Tests
             [Test]
             public void obsolete_gauge_with_double_value()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
                 const double value = 12345678901234567890;
-                Metrics.Gauge("gauge", value);
+                 Metrics.Gauge("gauge", value);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:12345678901234600000.000000000000000|g"));
             }
         }
@@ -322,20 +325,20 @@ namespace Tests
             [Test]
             public void absolute_gauge_with_double_value()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
                 const double value = 12345678901234567890;
-                Metrics.GaugeAbsoluteValue("gauge", value);
+                 Metrics.GaugeAbsoluteValue("gauge", value);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:12345678901234600000.000000000000000|g"));
             }
 
             [Test]
             public void absolute_gauge_with_double_value_with_floating_point()
             {
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
                 const double value = 1.234567890123456;
-                Metrics.GaugeAbsoluteValue("gauge", value);
+                 Metrics.GaugeAbsoluteValue("gauge", value);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:1.234567890123460|g"));
             }
 
@@ -343,9 +346,9 @@ namespace Tests
             public void absolute_gauge_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.GaugeAbsoluteValue("gauge", 3);
+                 Metrics.GaugeAbsoluteValue("gauge", 3);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.gauge:3.000000000000000|g"));
             }
 
@@ -353,18 +356,18 @@ namespace Tests
             public void absolute_gauge_with_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.GaugeAbsoluteValue("gauge", 3);
+                 Metrics.GaugeAbsoluteValue("gauge", 3);
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.gauge:3.000000000000000|g"));
             }
 
             [Test]
             public void gauge_with_no_config_setup_should_not_send_metric()
             {
-                Metrics.Configure(new MetricsConfig());
+                 Metrics.Configure(new MetricsConfig());
 
-                Metrics.GaugeAbsoluteValue("gauge", 3);
+                 Metrics.GaugeAbsoluteValue("gauge", 3);
                 Assert.That(LastPacketMessageReceived(), Is.Null);
             }
         }
@@ -384,9 +387,9 @@ namespace Tests
             public void set_with_prefix()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Set("timer", "value");
+                 Metrics.Set("timer", "value");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:value|s"));
             }
 
@@ -394,18 +397,18 @@ namespace Tests
             public void set_with_prefix_having_a_trailing_dot()
             {
                 _defaultMetricsConfig.Prefix = "test_prefix.";
-                Metrics.Configure(_defaultMetricsConfig);
+                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Set("timer", "value");
+                 Metrics.Set("timer", "value");
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("test_prefix.timer:value|s"));
             }
 
             [Test]
             public void set_with_no_config_setup_should_not_send_metric()
             {
-                Metrics.Configure(new MetricsConfig());
+                 Metrics.Configure(new MetricsConfig());
 
-                Metrics.Set("timer", "value");
+                 Metrics.Set("timer", "value");
                 Assert.That(LastPacketMessageReceived(), Is.Null);
             }
         }

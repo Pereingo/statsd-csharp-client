@@ -1,27 +1,28 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace StatsdClient
 {
-    public interface IStatsd
+    public partial interface IStatsd
     {
-        List<string> Commands { get; }
-        
-        void Send<TCommandType>(string name, int value) where TCommandType : IAllowsInteger;
-        void Add<TCommandType>(string name, int value) where TCommandType : IAllowsInteger;
+#if !NET451
 
-        void Send<TCommandType>(string name, double value) where TCommandType : IAllowsDouble;
-        void Add<TCommandType>(string name, double value) where TCommandType : IAllowsDouble;
-        void Send<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta;
+        Task SendAsync<TCommandType>(string name, long value) where TCommandType : IAllowsInteger;
 
-        void Send<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate;
-        void Add<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate;
+        Task SendAsync<TCommandType>(string name, double value) where TCommandType : IAllowsDouble;
 
-        void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString;
+        Task SendAsync<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta;
 
-        void Send();
+        Task SendAsync<TCommandType>(string name, long value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate;
 
-        void Add(Action actionToTime, string statName, double sampleRate=1);
-        void Send(Action actionToTime, string statName, double sampleRate=1);
+        Task SendAsync<TCommandType>(string name, string value) where TCommandType : IAllowsString;
+
+        Task SendAsync();
+
+        Task SendAsync(Func<Task> actionToTime, string statName, double sampleRate=1);
+
+        Task<T> SendAsync<T>(Func<Task<T>> actionToTime, string statName, double sampleRate = 1);
+#endif
     }
 }

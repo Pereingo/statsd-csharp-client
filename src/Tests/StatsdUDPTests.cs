@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
@@ -80,7 +81,7 @@ namespace Tests
         {
             // (Sanity test)
             listenThread.Start();
-            udp.Send("test-metric");
+             udp.Send("test-metric");
             AssertWasReceived("test-metric");
         }
 
@@ -89,7 +90,7 @@ namespace Tests
         {
             var msg = new String('f', MetricsConfig.DefaultStatsdMaxUDPPacketSize);
             listenThread.Start();
-            udp.Send(msg);
+             udp.Send(msg);
             // As long as we're at or below the limit, the packet should still be sent 
             AssertWasReceived(msg);
         }
@@ -101,7 +102,7 @@ namespace Tests
             var msg = new String('f', 65508);
             listenThread.Start();
             statsd.Add<Statsd.Counting>(msg, 1);
-            statsd.Send();
+             statsd.Send();
             // It shouldn't be split or sent, and no exceptions should be raised.
             AssertWasReceived(null);
         }
@@ -113,7 +114,7 @@ namespace Tests
             listenThread.Start(3); // Listen for 3 messages
             statsd.Add<Statsd.Counting>(msg, 1);
             statsd.Add<Statsd.Timing>(msg, 2);
-            statsd.Send();
+             statsd.Send();
             // These two metrics should be split as their combined lengths exceed the maximum packet size
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);
             AssertWasReceived(String.Format("{0}:2|ms", msg), 1);
@@ -129,7 +130,7 @@ namespace Tests
             statsd.Add<Statsd.Counting>("counter", 1);
             statsd.Add<Statsd.Counting>(msg, 2);
             statsd.Add<Statsd.Counting>(msg, 3);
-            statsd.Send();
+             statsd.Send();
             // Make sure that a split packet can contain mulitple metrics
             AssertWasReceived(String.Format("counter:1|c\n{0}:2|c", msg), 0);
             AssertWasReceived(String.Format("{0}:3|c", msg), 1);
@@ -146,7 +147,7 @@ namespace Tests
             listenThread.Start(2);
             statsd.Add<Statsd.Counting>(msg, 1);
             statsd.Add<Statsd.Timing>(msg, 2);
-            statsd.Send();
+             statsd.Send();
             // Since our packet size limit is now 10, this (short) message should still be split
             AssertWasReceived(String.Format("{0}:1|c", msg), 0);
             AssertWasReceived(String.Format("{0}:2|ms", msg), 1);

@@ -7,3 +7,5 @@ _ReSharper*
 test-results/
 .DS_Store
 packages
+/.vs/config/applicationhost.config
+*project.lock.json
