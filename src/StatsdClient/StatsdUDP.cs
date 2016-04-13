@@ -6,17 +6,17 @@ using System.Text;
 
 namespace StatsdClient
 {
-    public interface IStatsdUDP
+    public interface IStatsdClient
     {
         void Send(string command);
     }
 
-    public class StatsdUDP : IDisposable, IStatsdUDP
+    public class StatsDClient : IDisposable, IStatsdClient
     {
         public IPEndPoint IPEndpoint { get; private set; }
 
         private readonly int _maxUdpPacketSizeBytes;
-        private readonly Socket _udpSocket;
+        private readonly Socket _clientSocket;
         private readonly string _name;
         private readonly int _port;
 
@@ -26,13 +26,17 @@ namespace StatsdClient
         /// <param name="name">Hostname or IP (v4) address of the statsd server.</param>
         /// <param name="port">Port of the statsd server. Default is 8125.</param>
         /// <param name="maxUdpPacketSizeBytes">Max packet size, in bytes. This is useful to tweak if your MTU size is different than normal. Set to 0 for no limit. Default is MetricsConfig.DefaultStatsdMaxUDPPacketSize.</param>
-        public StatsdUDP(string name, int port = 8125, int maxUdpPacketSizeBytes = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
+        /// <param name="useTcpProtocol">Sets the protocol type on Socket.</param>
+        public StatsDClient(string name, int port = 8125, int maxUdpPacketSizeBytes = MetricsConfig.DefaultStatsdMaxUDPPacketSize, bool useTcpProtocol = false)
         {
             _name = name;
             _port = port;
             _maxUdpPacketSizeBytes = maxUdpPacketSizeBytes;
 
-            _udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            if (useTcpProtocol)
+            {   _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Tcp);    }
+            else
+            {   _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);    }
 
             var ipAddress = GetIpv4Address(name);
             IPEndpoint = new IPEndPoint(ipAddress, _port);
@@ -100,7 +104,7 @@ namespace StatsdClient
                     // be sent without issue.
                 }
             }
-            _udpSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
+            _clientSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
         }
 
         //reference : https://lostechies.com/chrispatterson/2012/11/29/idisposable-done-right/
@@ -110,7 +114,7 @@ namespace StatsdClient
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        ~StatsdUDP() 
+        ~StatsDClient() 
         {
             // Finalizer calls Dispose(false)
             Dispose(false);
@@ -122,11 +126,11 @@ namespace StatsdClient
 
             if (disposing)
             {
-                if (_udpSocket != null)
+                if (_clientSocket != null)
                 {
                     try
                     {
-                        _udpSocket.Close();
+                        _clientSocket.Close();
                     }
                     catch (Exception)
                     {

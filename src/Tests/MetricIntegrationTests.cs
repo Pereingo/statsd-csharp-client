@@ -64,7 +64,7 @@ namespace Tests
             [Test]
             public void udp_listener_works()
             {
-                var client = new StatsdUDP(_localhostAddress, _randomUnusedLocalPort);
+                var client = new StatsDClient(_localhostAddress, _randomUnusedLocalPort);
                 client.Send("iamnotinsane!");
 
                 Assert.That(LastPacketMessageReceived(), Is.EqualTo("iamnotinsane!"));
