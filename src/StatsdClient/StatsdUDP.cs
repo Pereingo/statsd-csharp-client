@@ -34,7 +34,7 @@ namespace StatsdClient
             _maxUdpPacketSizeBytes = maxUdpPacketSizeBytes;
 
             if (useTcpProtocol)
-            {   _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Tcp);    }
+            {   _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);    }
             else
             {   _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);    }
 
