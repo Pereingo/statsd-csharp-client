@@ -1,4 +1,4 @@
-## 1.2.32
+## 1.1.30
 - Fix the `Stopwatch` class to make it more consisten with .NET's and fix an overflow bug (thanks @[knocte]!)
 - Fix bug in how IPv4 addresses are resolved 
 
