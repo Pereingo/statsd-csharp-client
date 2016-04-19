@@ -17,7 +17,7 @@ namespace Tests
         {
             try
             {
-                var client = new StatsDClient(_serverName, _serverPort);
+                var client = new StatsdUDPClient(_serverName, _serverPort);
                 client.Send("socket2:1|c");
             }
             catch(SocketException ex)

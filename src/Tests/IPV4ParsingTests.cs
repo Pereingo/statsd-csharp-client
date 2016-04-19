@@ -11,14 +11,14 @@ namespace Tests
         [Test]
         public void ipv4_parsing_works_with_hostname()
         {
-            var statsdUdp = new StatsDClient("localhost", RandomUnusedLocalPort);
+            var statsdUdp = new StatsdUDPClient("localhost", RandomUnusedLocalPort);
             Assert.That(statsdUdp.IPEndpoint.Address.ToString(),Is.StringContaining("127.0.0.1"));
         }
 
         [Test]
         public void ipv4_parsing_works_with_ip()
         {
-            var statsdUdp = new StatsDClient("127.0.0.1", RandomUnusedLocalPort);
+            var statsdUdp = new StatsdUDPClient("127.0.0.1", RandomUnusedLocalPort);
             Assert.That(statsdUdp.IPEndpoint.Address.ToString(), Is.StringContaining("127.0.0.1"));
         }
     }

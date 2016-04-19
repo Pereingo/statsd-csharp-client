@@ -17,7 +17,7 @@ namespace Tests
         private Thread listenThread;
         private const int serverPort = 23483;
         private const string serverName = "127.0.0.1";
-        private StatsDClient udp;
+        private StatsdUDPClient udp;
         private Statsd statsd;
         private List<string> lastPulledMessages;
 
@@ -27,7 +27,7 @@ namespace Tests
             udpListener = new UdpListener(serverName, serverPort);
             var metricsConfig = new MetricsConfig { StatsdServerName = serverName };
             StatsdClient.Metrics.Configure(metricsConfig);
-            udp = new StatsDClient(serverName, serverPort);
+            udp = new StatsdUDPClient(serverName, serverPort);
             statsd = new Statsd(udp);
         }
 
@@ -140,7 +140,7 @@ namespace Tests
         public void set_max_udp_packet_size()
         {
             // Make sure that we can set the max UDP packet size
-            udp = new StatsDClient(serverName, serverPort, 10);
+            udp = new StatsdUDPClient(serverName, serverPort, 10);
             statsd = new Statsd(udp);
             var msg = new String('f', 5);
             listenThread.Start(2);

@@ -17,7 +17,7 @@ namespace Tests
         {
             try
             {
-                var client = new StatsDClient(_serverName, _serverPort, 512, true);
+                var client = new StatsdTCPClient(_serverName, _serverPort);
                 client.Send("smoketest value=1i");
             }
             catch(SocketException ex)

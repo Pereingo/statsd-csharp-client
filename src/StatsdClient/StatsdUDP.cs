@@ -6,12 +6,12 @@ using System.Text;
 
 namespace StatsdClient
 {
-    public interface IStatsdClient
+    public interface IStatsdClient : IDisposable
     {
         void Send(string command);
     }
 
-    public class StatsDClient : IDisposable, IStatsdClient
+    public class StatsdUDPClient : IStatsdClient
     {
         public IPEndPoint IPEndpoint { get; private set; }
 
@@ -27,16 +27,13 @@ namespace StatsdClient
         /// <param name="port">Port of the statsd server. Default is 8125.</param>
         /// <param name="maxUdpPacketSizeBytes">Max packet size, in bytes. This is useful to tweak if your MTU size is different than normal. Set to 0 for no limit. Default is MetricsConfig.DefaultStatsdMaxUDPPacketSize.</param>
         /// <param name="useTcpProtocol">Sets the protocol type on Socket.</param>
-        public StatsDClient(string name, int port = 8125, int maxUdpPacketSizeBytes = MetricsConfig.DefaultStatsdMaxUDPPacketSize, bool useTcpProtocol = false)
+        public StatsdUDPClient(string name, int port = 8125, int maxUdpPacketSizeBytes = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
         {
             _name = name;
             _port = port;
             _maxUdpPacketSizeBytes = maxUdpPacketSizeBytes;
 
-            if (useTcpProtocol)
-            {   _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);    }
-            else
-            {   _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);    }
+            _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
             var ipAddress = GetIpv4Address(name);
             IPEndpoint = new IPEndPoint(ipAddress, _port);
@@ -104,6 +101,7 @@ namespace StatsdClient
                     // be sent without issue.
                 }
             }
+
             _clientSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
         }
 
@@ -114,7 +112,7 @@ namespace StatsdClient
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        ~StatsDClient() 
+        ~StatsdUDPClient() 
         {
             // Finalizer calls Dispose(false)
             Dispose(false);
