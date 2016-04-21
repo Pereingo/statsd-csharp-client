@@ -36,7 +36,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdressResolution.cs" />
     <Compile Include="IStatsd.cs" />
+    <Compile Include="IStatsdClient.cs" />
     <Compile Include="Metrics.cs" />
     <Compile Include="MetricsConfig.cs" />
     <Compile Include="MetricsTimer.cs" />

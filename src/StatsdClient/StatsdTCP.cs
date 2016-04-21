@@ -7,44 +7,15 @@ using System.Text;
 
 namespace StatsdClient
 {
-    public class StatsdTCPClient : IDisposable, IStatsdClient
+    public class StatsdTCPClient : Address, IStatsdClient
     {
         public IPEndPoint IPEndpoint { get; private set; }
-
         private readonly Socket _clientSocket;
-        private readonly string _name;
-        private readonly int _port;
 
         public StatsdTCPClient(string name, int port = 8125)
         {
-            _name = name;
-            _port = port;
-
             _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            var ipAddress = GetIpv4Address(name);
-            IPEndpoint = new IPEndPoint(ipAddress, _port);
-        }
-
-        private IPAddress GetIpv4Address(string name)
-        {
-            IPAddress ipAddress;
-            var isValidIpAddress = IPAddress.TryParse(name, out ipAddress);
-
-            if (!isValidIpAddress)
-            {
-                ipAddress = GetIpFromHostname();
-            }
-
-            return ipAddress;
-        }
-
-        private IPAddress GetIpFromHostname()
-        {
-            var addressList = Dns.GetHostEntry(_name).AddressList;
-            var ipv4Addresses = addressList.Where(x => x.AddressFamily != AddressFamily.InterNetworkV6);
-
-            return ipv4Addresses.First();
+            IPEndpoint = new IPEndPoint(GetIpv4Address(name), port);
         }
 
         public void Send(string command)
@@ -54,9 +25,16 @@ namespace StatsdClient
 
         private void Send(byte[] encodedCommand)
         {
-            _clientSocket.Connect(IPEndpoint.Address, _port);
-            _clientSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
-            _clientSocket.Disconnect(false);
+            try
+            {
+                _clientSocket.Connect(IPEndpoint);
+                _clientSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
+                _clientSocket.Disconnect(false);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Do Async, and then log it and reconnect if it fails.
+            }
         }
 
         #region IDisposable Support
