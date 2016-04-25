@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -14,8 +15,15 @@ namespace StatsdClient
 
         public StatsdTCPClient(string name, int port = 8125)
         {
-            _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndpoint = new IPEndPoint(GetIpv4Address(name), port);
+            try
+            {
+                _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                IPEndpoint = new IPEndPoint(GetIpv4Address(name), port);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError(ex.Message);
+            }
         }
 
         public void Send(string command)
@@ -29,11 +37,16 @@ namespace StatsdClient
             {
                 _clientSocket.Connect(IPEndpoint);
                 _clientSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
-                _clientSocket.Disconnect(false);
+                _clientSocket.Shutdown(SocketShutdown.Both);
+                _clientSocket.Close();
             }
             catch (Exception ex)
             {
-                // TODO: Do Async, and then log it and reconnect if it fails.
+                Trace.TraceError(ex.Message);
+            }
+            finally
+            {
+                _clientSocket.Disconnect(false);
             }
         }
 
