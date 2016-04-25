@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -20,7 +19,7 @@ namespace StatsdClient
             }
             catch (Exception ex)
             {
-                Trace.TraceError(ex.Message);
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -35,16 +34,15 @@ namespace StatsdClient
             {
                 _clientSocket.Connect(IPEndpoint);
                 _clientSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
-                _clientSocket.Shutdown(SocketShutdown.Both);
-                _clientSocket.Close();
             }
             catch (Exception ex)
             {
-                Trace.TraceError(ex.Message);
+                Console.WriteLine(ex.Message);
             }
             finally
             {
-                _clientSocket.Disconnect(false);
+                _clientSocket.Shutdown(SocketShutdown.Both);
+                _clientSocket.Close();
             }
         }
 
