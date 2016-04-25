@@ -22,7 +22,7 @@ namespace StatsdClient
             return ipAddress;
         }
 
-        public IPAddress GetIpFromHostname(string name)
+        private IPAddress GetIpFromHostname(string name)
         {
             var addressList = Dns.GetHostEntry(name).AddressList;
             var ipv4Addresses = addressList.Where(x => x.AddressFamily != AddressFamily.InterNetworkV6);
