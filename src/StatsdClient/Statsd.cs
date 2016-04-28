@@ -17,7 +17,7 @@ namespace StatsdClient
         private readonly object _commandCollectionLock = new object();
 
         private IStopWatchFactory StopwatchFactory { get; set; }
-        private IStatsdUDP Udp { get; set; }
+        private IStatsdClient StatsdClient { get; set; }
         private IRandomGenerator RandomGenerator { get; set; }
 
         private readonly string _prefix;
@@ -41,23 +41,23 @@ namespace StatsdClient
                                                                            {typeof (Set), "s"}
                                                                        };
 
-        public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory, string prefix)
+        public Statsd(IStatsdClient statsdClient, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory, string prefix)
         {
             Commands = new List<string>();
             StopwatchFactory = stopwatchFactory;
-            Udp = udp;
+            StatsdClient = statsdClient;
             RandomGenerator = randomGenerator;
             _prefix = prefix;
         }
 
-        public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory)
-            : this(udp, randomGenerator, stopwatchFactory, string.Empty) { }
+        public Statsd(IStatsdClient statsdClient, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory)
+            : this(statsdClient, randomGenerator, stopwatchFactory, string.Empty) { }
 
-        public Statsd(IStatsdUDP udp, string prefix)
-            : this(udp, new RandomGenerator(), new StopWatchFactory(), prefix) { }
+        public Statsd(IStatsdClient statsdClient, string prefix)
+            : this(statsdClient, new RandomGenerator(), new StopWatchFactory(), prefix) { }
 
-        public Statsd(IStatsdUDP udp)
-            : this(udp, "") { }
+        public Statsd(IStatsdClient statsdClient)
+            : this(statsdClient, "") { }
 
 
         public void Send<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
@@ -138,7 +138,7 @@ namespace StatsdClient
         {
             try
             {
-                Udp.Send(string.Join("\n", Commands.ToArray()));
+                StatsdClient.Send(string.Join("\n", Commands.ToArray()));
                 Commands = new List<string>();
             }
             catch(Exception e)

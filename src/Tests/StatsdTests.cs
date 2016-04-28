@@ -9,14 +9,14 @@ namespace Tests
     [TestFixture]
     public class StatsdTests
     {
-        private IStatsdUDP _udp;
+        private IStatsdClient _udp;
         private IRandomGenerator _randomGenerator;
         private IStopWatchFactory _stopwatch;
 
         [SetUp]
         public void Setup()
         {
-            _udp = MockRepository.GenerateMock<IStatsdUDP>();
+            _udp = MockRepository.GenerateMock<IStatsdClient>();
             _randomGenerator = MockRepository.GenerateMock<IRandomGenerator>();
             _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(true);
             _stopwatch = MockRepository.GenerateMock<IStopWatchFactory>();

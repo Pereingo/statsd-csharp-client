@@ -54,6 +54,7 @@
     <Compile Include="MetricsTests.cs" />
     <Compile Include="NamingIntegrationTests.cs" />
     <Compile Include="RandomGeneratorUnitTests.cs" />
+    <Compile Include="TCPSmokeTests.cs" />
     <Compile Include="UDPSmokeTests.cs" />
     <Compile Include="StatsdTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,13 +70,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Configuration\StatsdClient.Configuration.csproj">
-      <Project>{11FB3391-9FA5-433B-A0C4-352BD770378F}</Project>
+      <Project>{11fb3391-9fa5-433b-a0c4-352bd770378f}</Project>
       <Name>StatsdClient.Configuration</Name>
     </ProjectReference>
     <ProjectReference Include="..\StatsdClient\StatsdClient.csproj">
-      <Project>{77B1707A-9123-4CD9-9A18-A8D7F4794D71}</Project>
+      <Project>{77b1707a-9123-4cd9-9a18-a8d7f4794d71}</Project>
       <Name>StatsdClient</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

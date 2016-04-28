@@ -5,7 +5,7 @@ namespace StatsdClient
     public static class Metrics
     {
         private static IStatsd _statsD = new NullStatsd();
-        private static StatsdUDP _statsdUdp;
+        private static IStatsdClient _statsdClient;
         private static string _prefix;
 
         /// <summary>
@@ -26,17 +26,24 @@ namespace StatsdClient
 
         private static void CreateStatsD(MetricsConfig config)
         {
-            if (_statsdUdp != null)
+            if (_statsdClient != null)
             {
-                _statsdUdp.Dispose();
+                _statsdClient.Dispose();
             }
 
-            _statsdUdp = null;
+            _statsdClient = null;
 
             if (!string.IsNullOrEmpty(config.StatsdServerName))
             {
-                _statsdUdp = new StatsdUDP(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize);
-                _statsD = new Statsd(_statsdUdp);
+                if (config.UseTcpProtocol)
+                {
+                    _statsdClient = new StatsdTCPClient(config.StatsdServerName, config.StatsdServerPort);
+                }
+                else
+                {
+                    _statsdClient = new StatsdUDPClient(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize);
+                }
+                _statsD = new Statsd(_statsdClient);
             }
         }
 
