@@ -2,7 +2,7 @@ Statsd Client
 =============
 
 [![Build status](https://ci.appveyor.com/api/projects/status/fklgn25u3k66qu3v?svg=true)](https://ci.appveyor.com/project/DarrellMozingo/statsd-csharp-client)
-[![NuGet Version](http://img.shields.io/nuget/v/StatsdClient.svg?style=flat)](https://www.nuget.org/packages/StatsdClient/) [![NuGet Downloads](http://img.shields.io/nuget/dt/StatsdClient.svg?style=flat)](https://www.nuget.org/packages/StatsdClient/)
+[![NuGet Version](http://img.shields.io/nuget/v/StatsdClient.svg?style=flat)](https://www.nuget.org/packages/StatsdClient/)
 
 A C# client to interface with Etsy's excellent [statsd](https://github.com/etsy/statsd) server.
 
@@ -11,6 +11,14 @@ Install the client via NuGet with the [StatsdClient package](http://nuget.org/pa
 ##Usage
 
 At app startup, configure the `Metrics` class (other options are documented on `MetricsConfig`):
+
+### Advices
+
+* It's advisable to use UDP over TCP socket protocol (default is UDP).
+  If you need TCP protocol maybe it's better to split that responsibility out to another app.
+  (ie. have a statsd relay running on each server that you'd send UDP stats to, and it would then relay them in TCP)
+
+### Examples
 
 ``` C#
 Metrics.Configure(new MetricsConfig
