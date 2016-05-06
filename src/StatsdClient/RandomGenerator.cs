@@ -4,10 +4,10 @@ namespace StatsdClient
 {
     public class RandomGenerator : IRandomGenerator
     {
-        readonly Random _random;
+        readonly ThreadSafeRandom _random;
         public RandomGenerator()
         {
-            _random = new Random();
+            _random = new ThreadSafeRandom();
         }
 
         public bool ShouldSend(double sampleRate)

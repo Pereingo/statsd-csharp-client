@@ -51,6 +51,7 @@
     <Compile Include="StatsdUDP.cs" />
     <Compile Include="Stopwatch.cs" />
     <Compile Include="StopWatchFactory.cs" />
+    <Compile Include="ThreadSafeRandom.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Configuration\StatsdClient.Configuration.csproj">
