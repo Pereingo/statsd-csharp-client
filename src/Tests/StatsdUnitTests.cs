@@ -947,6 +947,48 @@ namespace Tests
         }
 
         [Test]
+        public void send_service_check_with_message_that_is_too_long()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 13;
+            var builder = BuildLongString(length);
+            var message = builder;
+
+            var exception = Assert.Throws<Exception>(() => s.Send("name", 0, serviceCheckMessage: message + "x"));
+            Assert.That(exception.Message, Contains.Substring("payload is too big"));
+        }
+
+        [Test]
+        public void send_service_check_with_message_that_is_too_long_truncate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 13;
+            var builder = BuildLongString(length);
+            var message = builder;
+
+            s.Send("name", 0, serviceCheckMessage: message + "x", truncateIfTooLong: true);
+
+
+            var expected = "_sc|name|0|m:" + message;
+            udp.AssertWasCalled(x => x.Send(expected));
+        }
+
+        [Test]
+        public void send_service_check_with_name_that_is_too_long_truncate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 6;
+            var builder = BuildLongString(length);
+            var name = builder;
+
+            var exception = Assert.Throws<ArgumentException>(() => s.Send(name + "x", 0, truncateIfTooLong: true));
+            Assert.That(exception.Message, Contains.Substring("payload is too big"));
+        }
+
+        [Test]
         public void add_service_check()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -1034,6 +1076,32 @@ namespace Tests
 
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|d:1|h:hostname|#tag1:value1,tag2,tag3:value3|m:message"));
+        }
+
+        [Test]
+        public void add_service_check_with_message_that_is_too_long()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 13;
+            var builder = BuildLongString(length);
+            var message = builder;
+
+            var exception = Assert.Throws<Exception>(() => s.Add("name", 0, serviceCheckMessage: message + "x"));
+            Assert.That(exception.Message, Contains.Substring("payload is too big"));
+        }
+
+        [Test]
+        public void add_service_check_with_name_that_is_too_long()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 6;
+            var builder = BuildLongString(length);
+            var name = builder;
+
+            var exception = Assert.Throws<Exception>(() => s.Add(name + "x", 0));
+            Assert.That(exception.Message, Contains.Substring("payload is too big"));
         }
     }
 }

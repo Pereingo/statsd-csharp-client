@@ -155,6 +155,10 @@ namespace StatsdClient
                         throw new Exception(string.Format("ServiceCheck {0} payload is too big (more than 8kB)", name));
 
                     var overage = result.Length - MaxSize;
+
+                    if (processedMessage == null || overage > processedMessage.Length)
+                        throw new ArgumentException(string.Format("ServiceCheck name is too long to truncate, payload is too big (more than 8Kb) for {0}", name), "name");
+
                     var truncMessage = TruncateOverage(processedMessage, overage);
                     return GetCommand(name, status, timestamp, hostname, tags, truncMessage, true);
                 }
