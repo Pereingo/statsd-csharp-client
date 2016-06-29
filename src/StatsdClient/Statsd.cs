@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -50,7 +51,22 @@ namespace StatsdClient
             }
         }
 
-        public class Event : ICommandType
+        public abstract class Command : ICommandType
+        {
+            protected static string EscapeContent(string content)
+            {
+                return content
+                    .Replace("\r", "")
+                    .Replace("\n", "\\n");
+            }
+
+            protected static string TruncateOverage(string str, int overage)
+            {
+                return str.Substring(0, str.Length - overage);
+            }
+        }
+
+        public class Event : Command
         {
             private const int MaxSize = 8 * 1024;
 
@@ -103,19 +119,69 @@ namespace StatsdClient
                 }
                 return result;
             }
+        }
 
-            private static string EscapeContent(string content)
+        public class ServiceCheck : Command
+        {
+            private const int MaxSize = 8 * 1024;
+
+            public static string GetCommand(string name, int status, int? timestamp, string hostname, string[] tags, string serviceCheckMessage, bool truncateIfTooLong = false)
             {
-                return content
-                    .Replace("\r", "")
-                    .Replace("\n", "\\n");
+                string processedName = EscapeName(name);
+                string processedMessage = EscapeMessage(serviceCheckMessage);
+
+                string result = string.Format(CultureInfo.InvariantCulture, "_sc|{0}|{1}", processedName, status);
+               
+                if (timestamp != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|d:{0}", timestamp);
+                }
+                if (hostname != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|h:{0}", hostname);
+                }
+                if (tags != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|#{0}", string.Join(",", tags));
+                }
+                // Note: this must always be appended to the result last.
+                if (processedMessage != null)
+                {
+                    result += string.Format(CultureInfo.InvariantCulture, "|m:{0}", processedMessage);
+                }
+
+                if (result.Length > MaxSize)
+                {
+                    if (!truncateIfTooLong)
+                        throw new Exception(string.Format("ServiceCheck {0} payload is too big (more than 8kB)", name));
+
+                    var overage = result.Length - MaxSize;
+                    var truncMessage = TruncateOverage(processedMessage, overage);
+                    return GetCommand(name, status, timestamp, hostname, tags, truncMessage, true);
+                }
+
+                return result;
             }
 
-            private static string TruncateOverage(string str, int overage)
+            // Service check name string, shouldn’t contain any |
+            private static string EscapeName(string name)
             {
-                return str.Substring(0, str.Length - overage);
+                name = EscapeContent(name);
+
+                if (name.Contains("|"))
+                    throw new ArgumentException("Name must not contain any | (pipe) characters", "name");
+
+                return name;
+            }
+
+            private static string EscapeMessage(string message)
+            {
+                if (!string.IsNullOrEmpty(message))
+                    return EscapeContent(message).Replace("m:", "m\\:");
+                return message;
             }
         }
+
 
         public class Counting : Metric { }
         public class Timing : Metric { }
@@ -151,10 +217,28 @@ namespace StatsdClient
         {
             _commands.Add(Event.GetCommand(title, text, alertType, aggregationKey, sourceType, dateHappened, priority, hostname, tags));
         }
+
         public void Send(string title, string text, string alertType = null, string aggregationKey = null, string sourceType = null, int? dateHappened = null, string priority = null, string hostname = null, string[] tags = null, bool truncateIfTooLong = false)
         {
             Send(Event.GetCommand(title, text, alertType, aggregationKey, sourceType, dateHappened, priority, hostname, tags, truncateIfTooLong));
         }
+
+        /// <summary>
+        /// Add a Service check
+        /// </summary>
+        public void Add(string name, int status, int? timestamp = null, string hostname = null, string[] tags = null, string serviceCheckMessage = null)
+        {
+            _commands.Add(ServiceCheck.GetCommand(name, status, timestamp, hostname, tags, serviceCheckMessage));
+        }
+
+        /// <summary>
+        /// Send a service check
+        /// </summary>
+        public void Send(string name, int status, int? timestamp = null, string hostname = null, string[] tags = null, string serviceCheckMessage = null, bool truncateIfTooLong = false)
+        {
+            Send(ServiceCheck.GetCommand(name, status, timestamp, hostname, tags, serviceCheckMessage, truncateIfTooLong));
+        }
+
         public void Send<TCommandType, T>(string name, T value, double sampleRate = 1.0, string[] tags = null) where TCommandType : Metric
         {
             if (RandomGenerator.ShouldSend(sampleRate))
@@ -162,7 +246,6 @@ namespace StatsdClient
                 Send(Metric.GetCommand<TCommandType, T>(_prefix, name, value, sampleRate, tags));
             }
         }
-
 
         public void Send(string command)
         {

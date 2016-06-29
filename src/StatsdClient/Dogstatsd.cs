@@ -2,6 +2,14 @@
 
 namespace StatsdClient
 {
+    public enum Status
+    {
+        OK = 0,
+        WARNING = 1,
+        CRITICAL = 2,
+        UNKNOWN = 3
+    }
+
     public static class DogStatsd
     {
         private static Statsd _statsD;
@@ -124,6 +132,16 @@ namespace StatsdClient
             {
                 return func();
             }
+        }
+
+        public static void ServiceCheck(string name, Status status, int? timestamp = null, string hostname = null, string[] tags = null, string message = null)
+        {
+            if (_statsD == null)
+            {
+                return;
+            }
+
+            _statsD.Send(name, (int)status, timestamp, hostname, tags, message);
         }
 
         private static string BuildNamespacedStatName(string statName)
