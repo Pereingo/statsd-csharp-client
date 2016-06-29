@@ -188,7 +188,6 @@ namespace StatsdClient
         public class Meter : Metric { }
         public class Set : Metric { }
 
-
         public Statsd(IStatsdUDP udp, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory, string prefix)
         {
             StopwatchFactory = stopwatchFactory;
