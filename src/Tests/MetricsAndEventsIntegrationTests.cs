@@ -591,6 +591,20 @@ namespace Tests
             DogStatsd.Event("Title", "♬ †øU †øU ¥ºu T0µ ♪", aggregationKey: "key", tags: new[] { "t1", "t2:v2" });
             AssertWasReceived("_e{5,19}:Title|♬ †øU †øU ¥ºu T0µ ♪|k:key|#t1,t2:v2");
         }
+
+        [Test]
+        public void service_check_timestamp_hostname()
+        {
+            DogStatsd.ServiceCheck("na\r\nme", Status.OK, timestamp: 1375296969, hostname: "hostname");
+            AssertWasReceived("_sc|na\\nme|0|d:1375296969|h:hostname");
+        }
+
+        [Test]
+        public void service_check_tags_message()
+        {
+            DogStatsd.ServiceCheck("na\r\nme", Status.CRITICAL, tags: new[] { "t1", "t2:v2" }, message: "m:mess\r\nage");
+            AssertWasReceived("_sc|na\\nme|2|#t1,t2:v2|m:m\\:mess\\nage");
+        }
     }
 }
 

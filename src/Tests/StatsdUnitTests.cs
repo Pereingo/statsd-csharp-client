@@ -870,5 +870,170 @@ namespace Tests
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("set:string|s|@0.5|#tag1:true,tag2"));
         }
+
+        // =-=-=-=- ServiceCheck -=-=-=-=
+        [Test]
+        public void send_service_check()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0);
+            udp.AssertWasCalled(x => x.Send("_sc|name|0"));
+        }
+
+        [Test]
+        public void send_service_check_with_timestamp()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, timestamp: 1);
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|d:1"));
+        }
+
+        [Test]
+        public void send_service_check_with_hostname()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, hostname: "hostname");
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|h:hostname"));
+        }
+
+        [Test]
+        public void send_service_check_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, tags: new [] { "tag1:value1", "tag2", "tag3:value3" });
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|#tag1:value1,tag2,tag3:value3"));
+        }
+
+        [Test]
+        public void send_service_check_with_message()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, serviceCheckMessage: "message");
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|m:message"));
+        }
+
+        [Test]
+        public void send_service_check_with_pipe_in_name()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            Assert.Throws<ArgumentException>(() => s.Send("name|", 0));
+        }
+
+        [Test]
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        public void send_service_check_with_new_line_in_name(string newline)
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name" + newline, 0);
+            udp.AssertWasCalled(x => x.Send("_sc|name\\n|0"));
+        }
+
+        [Test]
+        public void send_service_check_with_suffix_in_message()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, serviceCheckMessage: "m:message");
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|m:m\\:message"));
+        }
+
+        [Test]
+        public void send_service_check_with_all_optional()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, 1, "hostname", new[] { "tag1:value1", "tag2", "tag3:value3" }, "message");
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|d:1|h:hostname|#tag1:value1,tag2,tag3:value3|m:message"));
+        }
+
+        [Test]
+        public void add_service_check()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0"));
+        }
+
+        [Test]
+        public void add_service_check_with_timestamp()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, timestamp: 1);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|d:1"));
+        }
+
+        [Test]
+        public void add_service_check_with_hostname()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, hostname: "hostname");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|h:hostname"));
+        }
+
+        [Test]
+        public void add_service_check_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, tags: new[] { "tag1:value1", "tag2", "tag3:value3" });
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|#tag1:value1,tag2,tag3:value3"));
+        }
+
+        [Test]
+        public void add_service_check_with_message()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, serviceCheckMessage: "message");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|m:message"));
+        }
+
+        [Test]
+        public void add_service_check_with_pipe_in_name()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            Assert.Throws<ArgumentException>(() => s.Add("name|", 0));
+        }
+
+        [Test]
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        public void add_service_check_with_new_line_in_name(string newline)
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name" + newline, 0);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name\\n|0"));
+        }
+
+        [Test]
+        public void add_service_check_with_suffix_in_message()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, serviceCheckMessage: "m:message");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|m:m\\:message"));
+        }
+
+        [Test]
+        public void add_service_check_with_all_optional()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, 1, "hostname", new[] { "tag1:value1", "tag2", "tag3:value3" }, "message");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|d:1|h:hostname|#tag1:value1,tag2,tag3:value3|m:message"));
+        }
     }
 }
