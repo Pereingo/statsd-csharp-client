@@ -181,7 +181,6 @@ namespace StatsdClient
             }
         }
 
-
         public class Counting : Metric { }
         public class Timing : Metric { }
         public class Gauge : Metric { }
