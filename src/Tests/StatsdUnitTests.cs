@@ -24,7 +24,7 @@ namespace Tests
         }
 
 
-		// =-=-=-=- COUNTER -=-=-=-=
+        // =-=-=-=- COUNTER -=-=-=-=
 
         [Test]
         public void send_increase_counter_by_x()
@@ -50,7 +50,7 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("counter:5|c|#tag1:true,tag2"));
         }
 
-		[Test]
+        [Test]
         public void send_increase_counter_by_x_and_sample_rate()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -66,14 +66,14 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1|#tag1:true,tag2"));
         }
 
-		[Test]
-		public void send_increase_counter_counting_exception_fails_silently()
-		{
-			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-			udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
-			s.Send<Statsd.Counting,int>("counter", 5);
-			Assert.Pass();
-		}
+        [Test]
+        public void send_increase_counter_counting_exception_fails_silently()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+            s.Send<Statsd.Counting,int>("counter", 5);
+            Assert.Pass();
+        }
 
         [Test]
         public void add_increase_counter_by_x()
@@ -116,7 +116,7 @@ namespace Tests
         }
 
 
-		// =-=-=-=- TIMER -=-=-=-=
+        // =-=-=-=- TIMER -=-=-=-=
 
         [Test]
         public void send_timer()
@@ -158,28 +158,28 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("timer:5|ms|@0.5|#tag1:true,tag2"));
         }
 
-		[Test]
-		public void send_timer_exception_fails_silently()
-		{
-			udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
-			Statsd s = new Statsd(udp);
-			s.Send<Statsd.Timing,int>("timer", 5);
-			Assert.Pass();
-		}
+        [Test]
+        public void send_timer_exception_fails_silently()
+        {
+            udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+            Statsd s = new Statsd(udp);
+            s.Send<Statsd.Timing,int>("timer", 5);
+            Assert.Pass();
+        }
 
-		[Test]
-		public void send_timer_with_lambda()
-		{
-			const string statName = "name";
-			IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+        [Test]
+        public void send_timer_with_lambda()
+        {
+            const string statName = "name";
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-			s.Send(() => testMethod(), statName);
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send(() => testMethod(), statName);
 
-			udp.AssertWasCalled(x => x.Send("name:500|ms"));       
-		}
+            udp.AssertWasCalled(x => x.Send("name:500|ms"));       
+        }
 
         [Test]
         public void send_timer_with_lambda_and_tags()
@@ -223,35 +223,35 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("name:500|ms|@1.1|#tag1:true,tag2"));
         }
 
-		[Test]
-		public void send_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
-		{
-			const string statName = "name";
-			var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+        [Test]
+        public void send_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
+        {
+            const string statName = "name";
+            var stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			var s = new Statsd(udp, _randomGenerator, _stopwatch);
-			Assert.Throws<InvalidOperationException>(() => s.Send(() => { throw new InvalidOperationException(); }, statName));
+            var s = new Statsd(udp, _randomGenerator, _stopwatch);
+            Assert.Throws<InvalidOperationException>(() => s.Send(() => { throw new InvalidOperationException(); }, statName));
 
-			udp.AssertWasCalled(x => x.Send("name:500|ms"));
-		}
+            udp.AssertWasCalled(x => x.Send("name:500|ms"));
+        }
 
-		[Test]
-		public void send_timer_with_lambda_set_return_value_with()
-		{
-			const string statName = "name";
-			IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+        [Test]
+        public void send_timer_with_lambda_set_return_value_with()
+        {
+            const string statName = "name";
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-			int returnValue = 0;
-			s.Send(() => returnValue = testMethod(), statName);
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            int returnValue = 0;
+            s.Send(() => returnValue = testMethod(), statName);
 
-			udp.AssertWasCalled(x => x.Send("name:500|ms"));
-			Assert.That(returnValue,Is.EqualTo(5));
-		}
+            udp.AssertWasCalled(x => x.Send("name:500|ms"));
+            Assert.That(returnValue,Is.EqualTo(5));
+        }
 
         [Test]
         public void add_timer_with_lamba()
@@ -318,8 +318,8 @@ namespace Tests
             Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
         }
 
-		// =-=-=-=- GAUGE -=-=-=-=
-		
+        // =-=-=-=- GAUGE -=-=-=-=
+        
         [Test]
         public void send_gauge()
         {
@@ -438,8 +438,8 @@ namespace Tests
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g|@0.5|#tag1:true,tag2"));
         }
-		
-		// =-=-=-=- COMBINATION -=-=-=-=
+        
+        // =-=-=-=- COMBINATION -=-=-=-=
 
         [Test]
         public void add_one_counter_and_one_gauge_shows_in_commands()
