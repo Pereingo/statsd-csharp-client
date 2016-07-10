@@ -10,7 +10,7 @@ using Tests.Helpers;
 namespace Tests
 {
     [TestFixture]
-    public class MetricsAndCommandsIntegrationTests
+    public class MetricsAndEventsIntegrationTests
     {
         private UdpListener udpListener;
         private Thread listenThread;
