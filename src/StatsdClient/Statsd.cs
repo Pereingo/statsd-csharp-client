@@ -50,22 +50,7 @@ namespace StatsdClient
             }
         }
 
-        public abstract class Command : ICommandType
-        {
-            protected static string EscapeContent(string content)
-            {
-                return content
-                    .Replace("\r", "")
-                    .Replace("\n", "\\n");
-            }
-
-            protected static string TruncateOverage(string str, int overage)
-            {
-                return str.Substring(0, str.Length - overage);
-            }
-        }
-
-        public class Event : Command
+        public class Event : ICommandType
         {
             private const int MaxSize = 8 * 1024;
 
@@ -120,7 +105,7 @@ namespace StatsdClient
             }
         }
 
-        public class ServiceCheck : Command
+        public class ServiceCheck : ICommandType
         {
             private const int MaxSize = 8 * 1024;
 
@@ -183,6 +168,18 @@ namespace StatsdClient
                     return EscapeContent(message).Replace("m:", "m\\:");
                 return message;
             }
+        }
+
+        private static string EscapeContent(string content)
+        {
+            return content
+                .Replace("\r", "")
+                .Replace("\n", "\\n");
+        }
+
+        private static string TruncateOverage(string str, int overage)
+        {
+            return str.Substring(0, str.Length - overage);
         }
 
         public class Counting : Metric { }
