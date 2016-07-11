@@ -24,7 +24,7 @@ namespace Tests
         }
 
 
-		// =-=-=-=- COUNTER -=-=-=-=
+        // =-=-=-=- COUNTER -=-=-=-=
 
         [Test]
         public void send_increase_counter_by_x()
@@ -50,7 +50,7 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("counter:5|c|#tag1:true,tag2"));
         }
 
-		[Test]
+        [Test]
         public void send_increase_counter_by_x_and_sample_rate()
         {
             Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
@@ -66,14 +66,14 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("counter:5|c|@0.1|#tag1:true,tag2"));
         }
 
-		[Test]
-		public void send_increase_counter_counting_exception_fails_silently()
-		{
-			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-			udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
-			s.Send<Statsd.Counting,int>("counter", 5);
-			Assert.Pass();
-		}
+        [Test]
+        public void send_increase_counter_counting_exception_fails_silently()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+            s.Send<Statsd.Counting,int>("counter", 5);
+            Assert.Pass();
+        }
 
         [Test]
         public void add_increase_counter_by_x()
@@ -116,7 +116,7 @@ namespace Tests
         }
 
 
-		// =-=-=-=- TIMER -=-=-=-=
+        // =-=-=-=- TIMER -=-=-=-=
 
         [Test]
         public void send_timer()
@@ -158,28 +158,28 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("timer:5|ms|@0.5|#tag1:true,tag2"));
         }
 
-		[Test]
-		public void send_timer_exception_fails_silently()
-		{
-			udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
-			Statsd s = new Statsd(udp);
-			s.Send<Statsd.Timing,int>("timer", 5);
-			Assert.Pass();
-		}
+        [Test]
+        public void send_timer_exception_fails_silently()
+        {
+            udp.Stub(x => x.Send(Arg<string>.Is.Anything)).Throw(new Exception());
+            Statsd s = new Statsd(udp);
+            s.Send<Statsd.Timing,int>("timer", 5);
+            Assert.Pass();
+        }
 
-		[Test]
-		public void send_timer_with_lambda()
-		{
-			const string statName = "name";
-			IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+        [Test]
+        public void send_timer_with_lambda()
+        {
+            const string statName = "name";
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-			s.Send(() => testMethod(), statName);
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send(() => testMethod(), statName);
 
-			udp.AssertWasCalled(x => x.Send("name:500|ms"));       
-		}
+            udp.AssertWasCalled(x => x.Send("name:500|ms"));       
+        }
 
         [Test]
         public void send_timer_with_lambda_and_tags()
@@ -223,35 +223,35 @@ namespace Tests
             udp.AssertWasCalled(x => x.Send("name:500|ms|@1.1|#tag1:true,tag2"));
         }
 
-		[Test]
-		public void send_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
-		{
-			const string statName = "name";
-			var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+        [Test]
+        public void send_timer_with_lamba_still_records_on_error_and_still_bubbles_up_exception()
+        {
+            const string statName = "name";
+            var stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			var s = new Statsd(udp, _randomGenerator, _stopwatch);
-			Assert.Throws<InvalidOperationException>(() => s.Send(() => { throw new InvalidOperationException(); }, statName));
+            var s = new Statsd(udp, _randomGenerator, _stopwatch);
+            Assert.Throws<InvalidOperationException>(() => s.Send(() => { throw new InvalidOperationException(); }, statName));
 
-			udp.AssertWasCalled(x => x.Send("name:500|ms"));
-		}
+            udp.AssertWasCalled(x => x.Send("name:500|ms"));
+        }
 
-		[Test]
-		public void send_timer_with_lambda_set_return_value_with()
-		{
-			const string statName = "name";
-			IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
-			stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
-			_stopwatch.Stub(x => x.Get()).Return(stopwatch);
+        [Test]
+        public void send_timer_with_lambda_set_return_value_with()
+        {
+            const string statName = "name";
+            IStopwatch stopwatch = MockRepository.GenerateMock<IStopwatch>();
+            stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+            _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
-			Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
-			int returnValue = 0;
-			s.Send(() => returnValue = testMethod(), statName);
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            int returnValue = 0;
+            s.Send(() => returnValue = testMethod(), statName);
 
-			udp.AssertWasCalled(x => x.Send("name:500|ms"));
-			Assert.That(returnValue,Is.EqualTo(5));
-		}
+            udp.AssertWasCalled(x => x.Send("name:500|ms"));
+            Assert.That(returnValue,Is.EqualTo(5));
+        }
 
         [Test]
         public void add_timer_with_lamba()
@@ -318,8 +318,8 @@ namespace Tests
             Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
         }
 
-		// =-=-=-=- GAUGE -=-=-=-=
-		
+        // =-=-=-=- GAUGE -=-=-=-=
+        
         [Test]
         public void send_gauge()
         {
@@ -438,8 +438,8 @@ namespace Tests
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("gauge:5|g|@0.5|#tag1:true,tag2"));
         }
-		
-		// =-=-=-=- COMBINATION -=-=-=-=
+        
+        // =-=-=-=- COMBINATION -=-=-=-=
 
         [Test]
         public void add_one_counter_and_one_gauge_shows_in_commands()
@@ -869,6 +869,239 @@ namespace Tests
 
             Assert.That(s.Commands.Count, Is.EqualTo(1));
             Assert.That(s.Commands[0], Is.EqualTo("set:string|s|@0.5|#tag1:true,tag2"));
+        }
+
+        // =-=-=-=- ServiceCheck -=-=-=-=
+        [Test]
+        public void send_service_check()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0);
+            udp.AssertWasCalled(x => x.Send("_sc|name|0"));
+        }
+
+        [Test]
+        public void send_service_check_with_timestamp()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, timestamp: 1);
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|d:1"));
+        }
+
+        [Test]
+        public void send_service_check_with_hostname()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, hostname: "hostname");
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|h:hostname"));
+        }
+
+        [Test]
+        public void send_service_check_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, tags: new [] { "tag1:value1", "tag2", "tag3:value3" });
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|#tag1:value1,tag2,tag3:value3"));
+        }
+
+        [Test]
+        public void send_service_check_with_message()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, serviceCheckMessage: "message");
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|m:message"));
+        }
+
+        [Test]
+        public void send_service_check_with_pipe_in_name()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            Assert.Throws<ArgumentException>(() => s.Send("name|", 0));
+        }
+
+        [Test]
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        public void send_service_check_with_new_line_in_name(string newline)
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name" + newline, 0);
+            udp.AssertWasCalled(x => x.Send("_sc|name\\n|0"));
+        }
+
+        [Test]
+        public void send_service_check_with_suffix_in_message()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, serviceCheckMessage: "m:message");
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|m:m\\:message"));
+        }
+
+        [Test]
+        public void send_service_check_with_all_optional()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Send("name", 0, 1, "hostname", new[] { "tag1:value1", "tag2", "tag3:value3" }, "message");
+            udp.AssertWasCalled(x => x.Send("_sc|name|0|d:1|h:hostname|#tag1:value1,tag2,tag3:value3|m:message"));
+        }
+
+        [Test]
+        public void send_service_check_with_message_that_is_too_long()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 13;
+            var builder = BuildLongString(length);
+            var message = builder;
+
+            var exception = Assert.Throws<Exception>(() => s.Send("name", 0, serviceCheckMessage: message + "x"));
+            Assert.That(exception.Message, Contains.Substring("payload is too big"));
+        }
+
+        [Test]
+        public void send_service_check_with_message_that_is_too_long_truncate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 13;
+            var builder = BuildLongString(length);
+            var message = builder;
+
+            s.Send("name", 0, serviceCheckMessage: message + "x", truncateIfTooLong: true);
+
+
+            var expected = "_sc|name|0|m:" + message;
+            udp.AssertWasCalled(x => x.Send(expected));
+        }
+
+        [Test]
+        public void send_service_check_with_name_that_is_too_long_truncate()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 6;
+            var builder = BuildLongString(length);
+            var name = builder;
+
+            var exception = Assert.Throws<ArgumentException>(() => s.Send(name + "x", 0, truncateIfTooLong: true));
+            Assert.That(exception.Message, Contains.Substring("payload is too big"));
+        }
+
+        [Test]
+        public void add_service_check()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0"));
+        }
+
+        [Test]
+        public void add_service_check_with_timestamp()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, timestamp: 1);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|d:1"));
+        }
+
+        [Test]
+        public void add_service_check_with_hostname()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, hostname: "hostname");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|h:hostname"));
+        }
+
+        [Test]
+        public void add_service_check_with_tags()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, tags: new[] { "tag1:value1", "tag2", "tag3:value3" });
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|#tag1:value1,tag2,tag3:value3"));
+        }
+
+        [Test]
+        public void add_service_check_with_message()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, serviceCheckMessage: "message");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|m:message"));
+        }
+
+        [Test]
+        public void add_service_check_with_pipe_in_name()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            Assert.Throws<ArgumentException>(() => s.Add("name|", 0));
+        }
+
+        [Test]
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        public void add_service_check_with_new_line_in_name(string newline)
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name" + newline, 0);
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name\\n|0"));
+        }
+
+        [Test]
+        public void add_service_check_with_suffix_in_message()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, serviceCheckMessage: "m:message");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|m:m\\:message"));
+        }
+
+        [Test]
+        public void add_service_check_with_all_optional()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+            s.Add("name", 0, 1, "hostname", new[] { "tag1:value1", "tag2", "tag3:value3" }, "message");
+
+            Assert.That(s.Commands.Count, Is.EqualTo(1));
+            Assert.That(s.Commands[0], Is.EqualTo("_sc|name|0|d:1|h:hostname|#tag1:value1,tag2,tag3:value3|m:message"));
+        }
+
+        [Test]
+        public void add_service_check_with_message_that_is_too_long()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 13;
+            var builder = BuildLongString(length);
+            var message = builder;
+
+            var exception = Assert.Throws<Exception>(() => s.Add("name", 0, serviceCheckMessage: message + "x"));
+            Assert.That(exception.Message, Contains.Substring("payload is too big"));
+        }
+
+        [Test]
+        public void add_service_check_with_name_that_is_too_long()
+        {
+            Statsd s = new Statsd(udp, _randomGenerator, _stopwatch);
+
+            var length = 8 * 1024 - 6;
+            var builder = BuildLongString(length);
+            var name = builder;
+
+            var exception = Assert.Throws<Exception>(() => s.Add(name + "x", 0));
+            Assert.That(exception.Message, Contains.Substring("payload is too big"));
         }
     }
 }
