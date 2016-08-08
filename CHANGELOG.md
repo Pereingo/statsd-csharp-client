@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+# 2.2.0 / Unreleased
+* [BUGFIX] Fix `Random` generator thread safety. See [#26][] (Thanks [@windsnow98][])
+* [FEATURE] Service check support. See [#29][] (Thanks [@nathanrobb][])
+
 #  2.1.1 / 12-04-2015
 * [BUGFIX] Optional automatic truncation of events that exceed the message length limit. See [#22][] (Thanks [@daniel-chambers][])
 
@@ -32,7 +36,11 @@ CHANGELOG
 [#15]: https://github.com/DataDog/dogstatsd-csharp-client/issues/15
 [#18]: https://github.com/DataDog/dogstatsd-csharp-client/issues/18
 [#22]: https://github.com/DataDog/dogstatsd-csharp-client/issues/22
+[#26]: https://github.com/DataDog/dogstatsd-csharp-client/issues/26
+[#29]: https://github.com/DataDog/dogstatsd-csharp-client/issues/29
 [@anthonychu]: https://github.com/anthonychu
 [@daniel-chambers]: https://github.com/daniel-chambers
 [@michaellockwood]: https://github.com/michaellockwood
+[@nathanrobb]: https://github.com/nathanrobb
+[@windsnow98]: https://github.com/windsnow98
 [@yori-s]: https://github.com/yori-s
