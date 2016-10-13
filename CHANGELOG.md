@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+
+# 2.3.0 / Unreleased
+* [BUGFIX] Remove the `TRACE` directive from release builds. See #33, #34 (Thanks @albertofem)
+
 # 2.2.0 / 08-08-2016
 * [BUGFIX] Fix `Random` generator thread safety. See [#26][] (Thanks [@windsnow98][])
 * [FEATURE] Service check support. See [#29][] (Thanks [@nathanrobb][])

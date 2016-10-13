@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DogStatsD-CSharp-Client</id>
-    <version>2.2.0</version>
+    <version>2.3.0</version>
     <authors>Datadog</authors>
     <owners>Datadog</owners>
     <licenseUrl>https://github.com/DataDog/dogstatsd-csharp-client/blob/master/MIT-LICENCE.md</licenseUrl>
@@ -10,7 +10,7 @@
     <iconUrl>https://si0.twimg.com/profile_images/1380708189/dd_logo2_icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A DogStatsD client for C#. DogStatsD is an extension of the StatsD metric server for use with Datadog. For more information visit http://datadoghq.com.</description>
-    <copyright>Copyright 2013</copyright>
+    <copyright>Copyright 2016</copyright>
     <tags>statsd dogstatsd datadog</tags>
   </metadata>
 </package>
