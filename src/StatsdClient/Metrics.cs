@@ -84,13 +84,9 @@ namespace StatsdClient
             return _prefix + "." + statName;
         }
 
-	   /// <summary>
-	   /// Returns the configured prefix 
-	   /// </summary>
-	   /// <returns></returns>
-	   public static string GetPrefix()
+	   public static bool IsConfigured()
 	   {
-		   return _prefix;
+		   return _statsD != null && !(_statsD is NullStatsd);
 	   }
     }
 }
