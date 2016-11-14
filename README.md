@@ -1,105 +1,59 @@
-C# Statsd Client
-================
+Statsd Client
+=============
 
-Installation
-------------
+[![Build status](https://ci.appveyor.com/api/projects/status/fklgn25u3k66qu3v?svg=true)](https://ci.appveyor.com/project/DarrellMozingo/statsd-csharp-client)
+[![NuGet Version](http://img.shields.io/nuget/v/StatsdClient.svg?style=flat)](https://www.nuget.org/packages/StatsdClient/)
 
-You can [get the "StatsdClient" package on nuget](http://nuget.org/packages/StatsdClient).
-Or you can get the source from here on Github and build it.
+A C# client to interface with Etsy's excellent [statsd](https://github.com/etsy/statsd) server.
 
-Usage
-------
+Install the client via NuGet with the [StatsdClient package](http://nuget.org/packages/StatsdClient).
 
-Via the static Metrics class:
------------------------------
+##Usage
 
-At start of your app, configure the `Metrics` class like this:
+At app startup, configure the `Metrics` class (other options are documented on `MetricsConfig`):
+
+### Advices
+
+* It's advisable to use UDP over TCP socket protocol (default is UDP).
+  If you need TCP protocol maybe it's better to split that responsibility out to another app.
+  (ie. have a statsd relay running on each server that you'd send UDP stats to, and it would then relay them in TCP)
+
+### Examples
 
 ``` C#
-var metricsConfig = new MetricsConfig
+Metrics.Configure(new MetricsConfig
 {
-  StatsdServerName = "host.name",
-  Prefix = "myApp"
-};
-
-StatsdClient.Metrics.Configure(metricsConfig);
+  StatsdServerName = "hostname",
+  Prefix = "myApp.prod"
+});
 ```
 
-Where "host.name" is the name of the statsd server and "myApp" is an optional prefix that is prepended on all stats. How you set it up is up to you, but we read the server name and other settings from web.config and and generate a prefix out of the environment (e.g. "Local", "Uat" or "Live"), plus the app name and machine name, separated with dots.
-
-Use it like this afterwards:
+Then start measuring all the things!
 
 ``` C#
 Metrics.Counter("stat-name");
-Metrics.Timer("stat-name", (int)stopwatch.ElapsedMilliseconds);
-Metrics.Gauge("gauge-name", gaugeValue);
+Metrics.Time(() => myMethod(), "stat-name");
+Metrics.GaugeAbsoluteValue("gauge-name", 35);
+Metrics.GaugeDelta("gauge-name", -5);
+Metrics.Set("something-special", "3");
 ```
 
- And timing around blocks of code:
+You can also time with the disposable overload:
 
 ``` C#
 using (Metrics.StartTimer("stat-name"))
 {
-  DoMagic();
+  // Lots of code here
 }
 ```
 
-And timing an action
-
-``` C#
-Metrics.Time(() => DoMagic(), "stat-name");
-```
-
-or replace a method that returns a value
-
-``` C#
-var result = GetResult();
-```
-
-with a timed `Func<T>` that returns the same value
+Including functions that return a value:
 
 ``` C#
 var result = Metrics.Time(() => GetResult(), "stat-name");
 ```
 
-Via the Statsd class:
----------------------
-
-``` C#
-// NB: StatsdUDP is IDisposable and if not disposed, will leak resources
-StatsdUDP udp = new StatsdUDP(HOSTNAME, PORT);
-using (udp)
-{
-  Statsd s = new Statsd(udp);
-
-  //All the standard Statsd message types:
-  s.Send<Statsd.Counting>("stat-name", 1); //counter had one hit
-  s.Send<Statsd.Timing>("stat-name", 5); //timer had one hit of 5ms
-  s.Send<Statsd.Gauge>("stat-name", 5); //gauge had one hit of value 5
-  
-  //All types have sample rate, which will be included in the message for Statsd's own stats crunching:
-  s.Send<Statsd.Counting>("stat-name", 1, 1/10); //counter had one hit, this will be sent 10% of times it is called
-
-  //You can add combinations of messages which will be sent in one go:
-  s.Add<Statsd.Counting>("stat-name", 1);
-  s.Add<Statsd.Timer>("stat-name", 5, 1/10);
-  s.Send(); //message will contain counter and will contain timer 10% of the time
-  
-  //All previous commands will be flushed after any Send
-  //Any Adds will be ignored if using a Send directly
-  
-  //Optional naming conventions:
-  // environment named 'env'
-  // application named 'app'
-  // hostname named 'host'
-
-  string name = Naming.withEnvironmentApplicationAndHostname("stat"); //== "env.app.stat.host"
-  string anotherName  = Naming.withEnvironmentAndApplication("stat"); //== "env.app.stat"
-
-  //You can also use Actions to easily time responses:
-
-  s.Send(() => DoMagic(), "stat-name", 1/10); //log the response time for DoMagic call as a timer
-  s.Send(() => DoMagic(), "stat-name"); //same with no sample rate
-  s.Add(() => DoMagic(), "stat-name"); //you can just add it too
-}
-```
+##Development
+* Please have a chat about any big features before submitting PR's
+* NuGet is packaged as an artefact on AppVeyor above. Grab that `*.nupkg` and upload it to NuGet.org
+* Change major/minor versions in `appveyor.yml`

@@ -2,6 +2,11 @@ using System;
 
 namespace StatsdClient
 {
+    public interface IRandomGenerator
+    {
+        bool ShouldSend(double sampleRate);
+    }
+
     public class RandomGenerator : IRandomGenerator
     {
         [ThreadStatic]

@@ -7,9 +7,9 @@ namespace StatsdClient
         private readonly string _name;
         private readonly Stopwatch _stopWatch;
         private bool _disposed;
-        private readonly double _sampleRate = 1;
+        private readonly double _sampleRate;
 
-        public MetricsTimer(string name, double sampleRate=1)
+        public MetricsTimer(string name, double sampleRate)
         {
             _name = name;
             _sampleRate = sampleRate;

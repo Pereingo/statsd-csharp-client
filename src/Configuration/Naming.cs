@@ -1,7 +1,9 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 
 namespace StatsdClient.Configuration
 {
+    [Obsolete("Due to be removed in future versions. Set 'MetricsConfig.Prefix' when calling 'Metrics.Configure()' instead, then use the various 'Metrics' class methods as normal.")]
     public static class Naming
     {
         public static string CurrentEnvironment
