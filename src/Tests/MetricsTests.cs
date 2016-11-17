@@ -24,23 +24,21 @@ namespace Tests
 		[Test]
 		public void throws_when_configured_with_a_null_configuration()
 		{
-			Assert.Throws<ArgumentNullException>(() => Metrics.Configure(null));
+			Assert.That(() => Metrics.Configure(null), Throws.Exception.TypeOf<ArgumentNullException>());
 		}
 
 		[Test]
 		public void IsConfigured_returns_false_when_configuration_is_null()
 		{
-			Assert.IsFalse(Metrics.IsConfigured());
+			Assert.That(Metrics.IsConfigured(), Is.False);
 		}
 
 		[Test]
 		public void IsConfigured_returns_true_when_configuration_is_not_null()
 		{
-			//Configure metrics
-			Metrics.Configure(new MetricsConfig());
+			Metrics.Configure(new MetricsConfig {StatsdServerName = "localhost"});
 
-			//Validate
-			Assert.IsFalse(Metrics.IsConfigured());
+			Assert.That(Metrics.IsConfigured(), Is.True);
 		}
 	}
 }
