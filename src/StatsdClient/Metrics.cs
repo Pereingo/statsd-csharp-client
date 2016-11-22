@@ -150,5 +150,10 @@ namespace StatsdClient
 
             return _prefix + "." + statName;
         }
+
+	   public static bool IsConfigured()
+	   {
+		   return _statsD != null && !(_statsD is NullStatsd);
+	   }
     }
 }
