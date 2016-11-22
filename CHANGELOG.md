@@ -1,3 +1,6 @@
+## 1.4.51
+- Add a `Metrics.IsConfigured()` method which returns whether the Metrics class has been initialised yet (thanks @[dkhanaferov](https://github.com/dkhanaferov)!)
+
 ## 1.3.44
 - Add support for [TCP](https://github.com/etsy/statsd/blob/master/docs/server.md) sending via the `MetricsConfig.UseTcpProtocol` property (thanks @[pekiZG](https://github.com/pekiZG)!)
 
