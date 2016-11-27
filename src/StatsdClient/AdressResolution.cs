@@ -24,7 +24,12 @@ namespace StatsdClient
 
         private IPAddress GetIpFromHostname(string name)
         {
+#if NETFULL
+            //todo: make async
             var addressList = Dns.GetHostEntry(name).AddressList;
+#else
+            var addressList = Dns.GetHostEntryAsync(name).GetAwaiter().GetResult().AddressList;
+#endif
             var ipv4Addresses = addressList.Where(x => x.AddressFamily != AddressFamily.InterNetworkV6);
 
             return ipv4Addresses.First();

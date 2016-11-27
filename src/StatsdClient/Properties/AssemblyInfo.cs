@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -20,11 +21,3 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("ecebfa48-5557-4fe6-84a6-c0b1e3ece14c")]
-
-// Set in appveyor.yml (combo of that & the current build number on there).
-[assembly: AssemblyVersion("0.0.0")]
-
-// Used to get $version$ for nuget (otherwise you end up with 4 parts to the version): http://stackoverflow.com/questions/28194498/nuget-pack-does-not-honor-number-of-digits-on-assembly-version
-[assembly: AssemblyInformationalVersionAttribute("0.0.0")]
-
-[assembly: AssemblyFileVersion("1.0.0")]

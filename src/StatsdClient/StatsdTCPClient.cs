@@ -42,9 +42,13 @@ namespace StatsdClient
             finally
             {
                 _clientSocket.Shutdown(SocketShutdown.Both);
+#if NETFULL
                 _clientSocket.Close();
-            }
-        }
+#else
+                _clientSocket.Dispose();
+#endif
+			}
+		}
 
         #region IDisposable Support
 
@@ -60,8 +64,12 @@ namespace StatsdClient
                     {
                         try
                         {
-                            _clientSocket.Close();
-                        }
+#if NETFULL
+							_clientSocket.Close();
+#else
+							_clientSocket.Dispose();
+#endif
+						}
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
@@ -82,6 +90,6 @@ namespace StatsdClient
             GC.SuppressFinalize(this);
         }
 
-        #endregion
+#endregion
     }
 }
