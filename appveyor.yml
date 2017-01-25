@@ -11,7 +11,7 @@ build_script:
 - ps: dotnet build -c Release .\src\Tests
 after_test:
 - ps: powershell -File .\update-projectjson.ps1
-- ps: dotnet pack -c Release .\src\StatsdClient
+- ps: dotnet pack -c Release .\src\StatsdClient --output .
 artifacts:
 - path: StatsdClient.*.nupkg
   name: NuGet Package
