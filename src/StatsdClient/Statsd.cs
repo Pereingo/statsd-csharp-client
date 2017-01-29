@@ -95,7 +95,11 @@ namespace StatsdClient
 
         public void Send<TCommandType>(string name, string value) where TCommandType : IAllowsString
         {
+#if NETFULL
             Commands = new List<string> { GetCommand(name, value.ToString(CultureInfo.InvariantCulture), _commandToUnit[typeof(TCommandType)], 1) };
+#else
+            Commands = new List<string> { GetCommand(name, value.ToString(), _commandToUnit[typeof(TCommandType)], 1) };
+#endif
             Send();
         }
 

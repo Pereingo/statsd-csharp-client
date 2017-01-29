@@ -10,7 +10,7 @@ namespace Tests
     public class UDPSmokeTests
     {
         private static readonly int _serverPort = Convert.ToInt32(ConfigurationManager.AppSettings["StatsdServerPort"]);
-        private static readonly string _serverName = ConfigurationManager.AppSettings["StatsdServerName"];
+        private static readonly string _serverName = "127.0.0.1";
 
         [Test]
         public void Sends_a_counter()

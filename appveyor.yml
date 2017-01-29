@@ -1,19 +1,17 @@
 version: 1.4.{build}
 configuration: Release
-assembly_info:
-  patch: true
-  file: '**\AssemblyInfo.*'
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}'
 nuget:
   project_feed: true
 before_build:
-  - appveyor DownloadFile https://raw.githubusercontent.com/appveyor/ci/master/scripts/nuget-restore.cmd
-  - nuget-restore
-build:
-  publish_nuget: true
-  verbosity: minimal
+- ps: invoke-webrequest https://go.microsoft.com/fwlink/?LinkID=827524 -OutFile core.exe
+- ps: .\core.exe /install /quiet /norestart
+build_script:
+- ps: dotnet restore
+- ps: dotnet build -c Release .\src\StatsdClient
+- ps: dotnet build -c Release .\src\Tests
+after_test:
+- ps: powershell -File .\update-projectjson.ps1
+- ps: dotnet pack -c Release .\src\StatsdClient --output .
 artifacts:
 - path: StatsdClient.*.nupkg
   name: NuGet Package

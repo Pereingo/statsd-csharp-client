@@ -96,7 +96,11 @@ namespace StatsdClient
                 {
                     try
                     {
+#if NETFULL
                         _clientSocket.Close();
+#else
+                        _clientSocket.Dispose();
+#endif
                     }
                     catch (Exception)
                     {
