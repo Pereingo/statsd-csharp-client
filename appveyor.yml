@@ -14,6 +14,3 @@ after_test:
 - ps: dotnet pack -c Release .\src\StatsdClient --output .
 artifacts:
 - path: StatsdClient.*.nupkg
-  name: NuGet Package
-cache:
-- packages -> **\packages.config
