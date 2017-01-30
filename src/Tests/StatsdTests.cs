@@ -83,7 +83,7 @@ namespace Tests
                 const string statName = "name";
 
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-                stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+                stopwatch.Stub(x => x.Elapsed).Return(TimeSpan.FromMilliseconds(500));
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
@@ -99,7 +99,7 @@ namespace Tests
                 const string statName = "name";
 
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-                stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+                stopwatch.Stub(x => x.Elapsed).Return(TimeSpan.FromMilliseconds(500));
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
                 _randomGenerator = MockRepository.GenerateMock<IRandomGenerator>();
                 _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(true);
@@ -117,7 +117,7 @@ namespace Tests
                 const string statName = "name";
 
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-                stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+                stopwatch.Stub(x => x.Elapsed).Return(TimeSpan.FromMilliseconds(500));
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
                 _randomGenerator = MockRepository.GenerateMock<IRandomGenerator>();
                 _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(false);
@@ -134,7 +134,7 @@ namespace Tests
                 const string statName = "name";
 
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-                stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+                stopwatch.Stub(x => x.Elapsed).Return(TimeSpan.FromMilliseconds(500));
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
@@ -150,7 +150,7 @@ namespace Tests
             {
                 const string statName = "name";
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-                stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+                stopwatch.Stub(x => x.Elapsed).Return(TimeSpan.FromMilliseconds(500));
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
@@ -164,7 +164,7 @@ namespace Tests
             {
                 const string statName = "name";
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-                stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+                stopwatch.Stub(x => x.Elapsed).Return(TimeSpan.FromMilliseconds(500));
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
                 _randomGenerator = MockRepository.GenerateMock<IRandomGenerator>();
                 _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(true);
@@ -181,7 +181,7 @@ namespace Tests
             {
                 const string statName = "name";
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-                stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+                stopwatch.Stub(x => x.Elapsed).Return(TimeSpan.FromMilliseconds(500));
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
                 _randomGenerator = MockRepository.GenerateMock<IRandomGenerator>();
                 _randomGenerator.Stub(x => x.ShouldSend(Arg<double>.Is.Anything)).Return(false);
@@ -197,7 +197,7 @@ namespace Tests
             {
                 const string statName = "name";
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-                stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+                stopwatch.Stub(x => x.Elapsed).Return(TimeSpan.FromMilliseconds(500));
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
@@ -211,7 +211,7 @@ namespace Tests
             {
                 const string statName = "name";
                 var stopwatch = MockRepository.GenerateMock<IStopwatch>();
-                stopwatch.Stub(x => x.ElapsedMilliseconds()).Return(500);
+                stopwatch.Stub(x => x.Elapsed).Return(TimeSpan.FromMilliseconds(500));
                 _stopwatch.Stub(x => x.Get()).Return(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);

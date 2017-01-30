@@ -2,7 +2,6 @@
 using System.Configuration;
 using System.Net.Sockets;
 using NUnit.Framework;
-using StatsdClient;
 
 namespace Tests
 {
