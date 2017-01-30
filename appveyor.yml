@@ -1,7 +1,5 @@
 version: 1.4.{build}
 configuration: Release
-nuget:
-  project_feed: true
 before_build:
 - ps: invoke-webrequest https://go.microsoft.com/fwlink/?LinkID=827524 -OutFile core.exe
 - ps: .\core.exe /install /quiet /norestart
@@ -9,6 +7,8 @@ build_script:
 - ps: dotnet restore
 - ps: dotnet build -c Release .\src\StatsdClient
 - ps: dotnet build -c Release .\src\Tests
+test_script:
+- dotnet test .\src\Tests
 after_test:
 - ps: powershell -File .\update-projectjson.ps1
 - ps: dotnet pack -c Release .\src\StatsdClient --output .
