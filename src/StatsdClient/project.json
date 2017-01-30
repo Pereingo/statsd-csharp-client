@@ -12,10 +12,11 @@
     "repository": {
       "type:": "git",
       "url": "https://github.com/Pereingo/statsd-csharp-client"
-    },
-    "buildOptions": {
-      "warningsAsErrors": true
     }
+  },
+
+  "buildOptions": {
+    "warningsAsErrors": true
   },
 
   "dependencies": {
