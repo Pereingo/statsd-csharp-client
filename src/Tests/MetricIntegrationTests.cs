@@ -16,15 +16,15 @@ namespace Tests
         private MetricsConfig _defaultMetricsConfig;
 
         const string _expectedTestPrefixRegex = @"test_prefix\.";
-        const string _expectedTimeRegEx = @"time:.\\|ms";
+        const string _expectedTimeRegEx = @"time:\d|ms";
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUpUdpListener()
         {
             _udpListener = new UdpListener(_localhostAddress, _randomUnusedLocalPort);
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TearDownUdpListener() 
         {
             _udpListener.Dispose();
@@ -183,7 +183,7 @@ namespace Tests
                     Thread.Sleep(2);
                 }
 
-                Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTimeRegEx));
+                Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTimeRegEx));
             }
         }
 
@@ -195,7 +195,7 @@ namespace Tests
                 Metrics.Configure(_defaultMetricsConfig);
 
                 Metrics.Time(() => Thread.Sleep(2), "time");
-                Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTimeRegEx));
+                Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTimeRegEx));
             }
 
             [Test]
@@ -205,7 +205,7 @@ namespace Tests
                 Metrics.Configure(_defaultMetricsConfig);
 
                 Metrics.Time(() => Thread.Sleep(2), "time");
-                Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
+                Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTestPrefixRegex + _expectedTimeRegEx));
             }
 
             [Test]
@@ -215,7 +215,7 @@ namespace Tests
                 Metrics.Configure(_defaultMetricsConfig);
 
                 Metrics.Time(() => Thread.Sleep(2), "time");
-                Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
+                Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTestPrefixRegex + _expectedTimeRegEx));
             }
 
             [Test]
@@ -241,7 +241,7 @@ namespace Tests
                     return 5;
                 }, "time");
 
-                Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTimeRegEx));
+                Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTimeRegEx));
                 Assert.That(returnValue, Is.EqualTo(5));
             }
 
@@ -257,7 +257,7 @@ namespace Tests
                     return 5;
                 }, "time");
 
-                Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
+                Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTestPrefixRegex + _expectedTimeRegEx));
                 Assert.That(returnValue, Is.EqualTo(5));
             }
 
@@ -273,7 +273,7 @@ namespace Tests
                     return 5;
                 }, "time");
 
-                Assert.That(LastPacketMessageReceived(), Is.StringMatching(_expectedTestPrefixRegex + _expectedTimeRegEx));
+                Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTestPrefixRegex + _expectedTimeRegEx));
                 Assert.That(returnValue, Is.EqualTo(5));
             }
 

@@ -1,6 +1,10 @@
 ﻿{
   "version": "1.0.0-*",
-  "testRunner":  "nunit",
+  "testRunner": "nunit",
+
+  "buildOptions": {
+    "warningsAsErrors": true
+  },
 
   "dependencies": {
     "Nunit": "3.5.0",

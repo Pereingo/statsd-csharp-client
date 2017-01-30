@@ -1,56 +1,43 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Net;
 using System.Net.Sockets;
 using NUnit.Framework;
+using StatsdClient;
 
 namespace Tests
 {
     [TestFixture]
     public class TCPSmokeTests
     {
-		/*
-		* Smoke test should hit the real thing.
-		* For the purpose of passing the appveyor build
-		* we are only checking if the client connects.
-		*/
+        // Smoke test should hit the real thing, but for the purpose of passing the appveyor build we are only checking if the client connects.
+        // If you want to test against an actual system, change the host/port.
 
-		private TcpListener tcpListener;
-        private static readonly int _serverPort = Convert.ToInt32(ConfigurationManager.AppSettings["StatsdServerPort"]);
-        private static readonly string _serverName = "127.0.0.1";
+        private TcpListener _tcpListener;
+        private static readonly IPAddress ServerHostname = IPAddress.Loopback;
+        private int _serverPort;
 
-		[TestFixtureSetUp]
-		public void UdpListenerThread()
-		{
-			Int32 port = _serverPort;
-			System.Net.IPAddress localAddr = System.Net.IPAddress.Parse(_serverName);
+        [OneTimeSetUp]
+        public void UdpListenerThread()
+        {
+            const int nextAvailablePort = 0;
+            _tcpListener = new TcpListener(ServerHostname, nextAvailablePort);
+            _tcpListener.Start();
 
-			// Set the TcpListener
-			tcpListener = new TcpListener(localAddr, port);
+            _serverPort = ((IPEndPoint) _tcpListener.LocalEndpoint).Port;
+        }
 
-			// Start listening for client requests.
-			tcpListener.Start();
-		}
+        [OneTimeTearDown]
+        public void TearDownUdpListener()
+        {
+            _tcpListener.Stop();
+        }
 
-		[TestFixtureTearDown]
-		public void TearDownUdpListener()
-		{
-			// Stop listening for client requests.
-			tcpListener.Stop();
-		}
-        //this test requires a listener for a tcp socket...is it really a unit test?
-
-   //     [Test]
-   //     public void Sends_a_counter()
-   //     {
-			//try
-			//{
-			//	var client = new StatsdTCPClient(_serverName, _serverPort);
-			//	client.Send("smoketest value=1i"); // InfluxDB format
-			//}
-			//catch(SocketException ex)
-			//{
-			//	Assert.Fail("Socket Exception, have you setup your Statsd name and port? It's currently '{0}:{1}'. Error: {2}", _serverName, _serverPort, ex.Message);
-			//}
-   //     }
+        [Test]
+        public void Sends_counter_text()
+        {
+            using (var client = new StatsdTCPClient(ServerHostname.ToString(), _serverPort))
+            {
+                client.Send("statsd-client.tcp-smoke-test:6|c");
+            }
+        }
     }
 }

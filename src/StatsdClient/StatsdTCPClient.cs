@@ -7,7 +7,7 @@ namespace StatsdClient
 {
     public class StatsdTCPClient : Address, IStatsdClient
     {
-        public IPEndPoint IPEndpoint { get; private set; }
+        private IPEndPoint IpEndpoint { get; }
         private readonly Socket _clientSocket;
 
         public StatsdTCPClient(string name, int port = 8125)
@@ -15,7 +15,7 @@ namespace StatsdClient
             try
             {
                 _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IPEndpoint = new IPEndPoint(GetIpv4Address(name), port);
+                IpEndpoint = new IPEndPoint(GetIpv4Address(name), port);
             }
             catch (Exception ex)
             {
@@ -32,8 +32,8 @@ namespace StatsdClient
         {
             try
             {
-                _clientSocket.Connect(IPEndpoint);
-                _clientSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IPEndpoint);
+                _clientSocket.Connect(IpEndpoint);
+                _clientSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IpEndpoint);
             }
             catch (Exception ex)
             {
