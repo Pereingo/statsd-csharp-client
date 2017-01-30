@@ -21,7 +21,7 @@ namespace Tests
         private Statsd statsd;
         private List<string> lastPulledMessages;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUpUdpListenerAndStatsd() 
         {
             udpListener = new UdpListener(serverName, serverPort);
@@ -31,7 +31,7 @@ namespace Tests
             statsd = new Statsd(udp);
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TearDownUdpListener() 
         {
             udpListener.Dispose();
