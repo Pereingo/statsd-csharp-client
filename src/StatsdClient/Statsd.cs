@@ -171,7 +171,7 @@ namespace StatsdClient
                 stopwatch.Stop();
                 if (RandomGenerator.ShouldSend(sampleRate))
                 {
-                    Add<Timing>(statName, stopwatch.ElapsedMilliseconds());
+                    Add<Timing>(statName, stopwatch.Elapsed.Milliseconds);
                 }
             }
         }
@@ -190,7 +190,7 @@ namespace StatsdClient
                 stopwatch.Stop();
                 if (RandomGenerator.ShouldSend(sampleRate))
                 {
-                    Send<Timing>(statName, stopwatch.ElapsedMilliseconds());
+                    Send<Timing>(statName, stopwatch.Elapsed.Milliseconds);
                 }
             }
         }

@@ -304,19 +304,6 @@ namespace Tests
             }
         }
 
-        public class GaugeObsolete : MetricIntegrationTests
-        {
-            [Test]
-            public void obsolete_gauge_with_double_value()
-            {
-                Metrics.Configure(_defaultMetricsConfig);
-
-                const double value = 12345678901234567890;
-                Metrics.Gauge("gauge", value);
-                Assert.That(LastPacketMessageReceived(), Is.EqualTo("gauge:12345678901234600000.000000000000000|g"));
-            }
-        }
-
         public class GaugeAbsolute : MetricIntegrationTests
         {
             [Test]

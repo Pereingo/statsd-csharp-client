@@ -78,12 +78,6 @@ namespace StatsdClient
             _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), absoluteValue, false);
         }
 
-        [Obsolete("Will be removed in future version. Use explicit GaugeDelta or GaugeAbsoluteValue instead.")]
-        public static void Gauge(string statName, double value)
-        {
-            GaugeAbsoluteValue(statName, value);
-        }
-
         /// <summary>
         /// Send a manually timed value.
         /// </summary>

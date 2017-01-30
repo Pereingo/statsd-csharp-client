@@ -5,7 +5,7 @@ namespace StatsdClient
     public class MetricsTimer : IDisposable
     {
         private readonly string _name;
-        private readonly Stopwatch _stopWatch;
+        private readonly IStopwatch _stopWatch;
         private bool _disposed;
         private readonly double _sampleRate;
 
@@ -23,7 +23,7 @@ namespace StatsdClient
             {
                 _disposed = true;
                 _stopWatch.Stop();
-                Metrics.Timer(_name, _stopWatch.ElapsedMilliseconds(), _sampleRate);
+                Metrics.Timer(_name, _stopWatch.Elapsed.Milliseconds, _sampleRate);
             }
         }
     }
