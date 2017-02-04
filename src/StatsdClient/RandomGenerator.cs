@@ -16,8 +16,7 @@ namespace StatsdClient
         {
             get
             {
-                var random = _random;
-                if (random != null) return random;
+                if (_random != null) return _random;
                 return _random = new Random(Guid.NewGuid().GetHashCode());
             }
         }

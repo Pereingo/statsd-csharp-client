@@ -5,11 +5,9 @@ using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
 
-
 namespace Tests
 {
-    // Most of StatsUDP is tested in StatsdUnitTests. This is mainly to test the splitting of oversized
-    // UDP packets
+    // Most of StatsUDP is tested in StatsdUnitTests. This is mainly to test the splitting of oversized UDP packets
     [TestFixture]
     public class StatsUDPTests
     {

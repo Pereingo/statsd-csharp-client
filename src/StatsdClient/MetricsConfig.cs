@@ -17,19 +17,10 @@
         /// </summary>
         public int StatsdMaxUDPPacketSize { get; set; }
 
-		private bool _useTcpProtocol = false;
-
-		/// <summary>
+        /// <summary>
         /// Allows you to use TCP client
         /// </summary>
-        public bool UseTcpProtocol
-		{ 
-			get
-			{	return _useTcpProtocol;	}
-			
-			set
-			{	_useTcpProtocol = value;	} 
-		}
+        public bool UseTcpProtocol { get; set; }
 
         /// <summary>
         /// Allows you to optionally specify a stat name prefix for all your stats.
