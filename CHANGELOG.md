@@ -1,3 +1,8 @@
+## 2.0.67
+- **BREAKING:** Drops support for < .NET 4.5
+- Adds .NET Core support (thanks @[TerribleDev](https://github.com/TerribleDev)!)
+- Fix async support (previously would only measure async creation time)
+
 ## 1.4.51
 - Add a `Metrics.IsConfigured()` method which returns whether the Metrics class has been initialised yet (thanks @[dkhanaferov](https://github.com/dkhanaferov)!)
 
