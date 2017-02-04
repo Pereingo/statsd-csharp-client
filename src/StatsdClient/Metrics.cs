@@ -127,14 +127,15 @@ namespace StatsdClient
         }
 
         /// <summary>
-        /// Time a given piece of code (with a lambda) and send the elapsed miliseconds.
+        /// Time a given piece of code and send the elapsed miliseconds.
         /// </summary>
         /// <param name="func">The code to time.</param>
         /// <param name="statName">Name of the metric.</param>
+        /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
         /// <returns>Return value of the function.</returns>
-        public static T Time<T>(Func<T> func, string statName)
+        public static T Time<T>(Func<T> func, string statName, double sampleRate = 1)
         {
-            using (StartTimer(statName))
+            using (StartTimer(statName, sampleRate))
             {
                 return func();
             }
