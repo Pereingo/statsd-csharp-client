@@ -19,9 +19,6 @@
     "warningsAsErrors": true
   },
 
-  "dependencies": {
-  },
-
   "frameworks": {
     "net45": {
       "buildOptions": {
