@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -19,7 +20,7 @@ namespace StatsdClient
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -37,47 +38,46 @@ namespace StatsdClient
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
             }
             finally
             {
                 _clientSocket.Shutdown(SocketShutdown.Both);
+                CloseSocket(_clientSocket);
+            }
+        }
+
+        private static void CloseSocket(Socket socket)
+        {
 #if NETFULL
-                _clientSocket.Close();
+            socket.Close();
 #else
-                _clientSocket.Dispose();
+            socket.Dispose();
 #endif
-			}
-		}
+        }
 
         #region IDisposable Support
-
-        private bool disposedValue = false; // To detect redundant calls
+        private bool _disposed;
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (_disposed) return;
+
+            if (disposing)
             {
-                if (disposing)
+                if (_clientSocket != null)
                 {
-                    if (_clientSocket != null)
+                    try
                     {
-                        try
-                        {
-#if NETFULL
-							_clientSocket.Close();
-#else
-							_clientSocket.Dispose();
-#endif
-						}
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                        }
+                        CloseSocket(_clientSocket);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
                     }
                 }
-                disposedValue = true;
             }
+            _disposed = true;
         }
 
         ~StatsdTCPClient() {
@@ -89,7 +89,6 @@ namespace StatsdClient
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
-#endregion
+        #endregion
     }
 }
