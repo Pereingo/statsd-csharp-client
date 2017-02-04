@@ -176,9 +176,12 @@ namespace StatsdClient
             return _prefix + "." + statName;
         }
 
-	   public static bool IsConfigured()
-	   {
-		   return _statsD != null && !(_statsD is NullStatsd);
-	   }
+        /// <summary>
+        /// Determine if the Metrics instance has been configured previously.
+        /// </summary>
+        public static bool IsConfigured()
+        {
+            return _statsD != null && !(_statsD is NullStatsd);
+        }
     }
 }
