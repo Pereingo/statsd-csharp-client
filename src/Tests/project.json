@@ -9,8 +9,8 @@
   "dependencies": {
     "Nunit": "3.5.0",
     "dotnet-test-nunit": "3.4.0-beta-3",
-    "RhinoMocks": "3.6.1",
     "StatsdClient": "1.0.*"
+    "NSubstitute": "1.10.0"
   },
 
   "frameworks": {
