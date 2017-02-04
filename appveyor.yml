@@ -1,4 +1,4 @@
-version: 1.4.{build}
+version: 2.0.{build}
 configuration: Release
 before_build:
 - ps: invoke-webrequest https://go.microsoft.com/fwlink/?LinkID=827524 -OutFile core.exe
