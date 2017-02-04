@@ -4,9 +4,9 @@ using System.Net.Sockets;
 
 namespace StatsdClient
 {
-    public class Address
+    public class AddressResolution
     {
-        public IPAddress GetIpv4Address(string name)
+        public static IPAddress GetIpv4Address(string name)
         {
             IPAddress ipAddress;
             var isValidIpAddress = IPAddress.TryParse(name, out ipAddress);
@@ -19,10 +19,9 @@ namespace StatsdClient
             return ipAddress;
         }
 
-        private IPAddress GetIpFromHostname(string name)
+        private static IPAddress GetIpFromHostname(string name)
         {
 #if NETFULL
-            //todo: make async
             var addressList = Dns.GetHostEntry(name).AddressList;
 #else
             var addressList = Dns.GetHostEntryAsync(name).GetAwaiter().GetResult().AddressList;

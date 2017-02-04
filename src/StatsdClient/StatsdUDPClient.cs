@@ -5,7 +5,7 @@ using System.Text;
 
 namespace StatsdClient
 {
-    public class StatsdUDPClient : Address, IStatsdClient
+    public class StatsdUDPClient : IStatsdClient
     {
         public IPEndPoint IPEndpoint { get; private set; }
 
@@ -24,7 +24,7 @@ namespace StatsdClient
 
             _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-            IPEndpoint = new IPEndPoint(GetIpv4Address(name), port);
+            IPEndpoint = new IPEndPoint(AddressResolution.GetIpv4Address(name), port);
         }
 
         public void Send(string command)

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace StatsdClient
 {
-    public class StatsdTCPClient : Address, IStatsdClient
+    public class StatsdTCPClient : IStatsdClient
     {
         private IPEndPoint IpEndpoint { get; }
         private readonly Socket _clientSocket;
@@ -15,7 +15,7 @@ namespace StatsdClient
             try
             {
                 _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IpEndpoint = new IPEndPoint(GetIpv4Address(name), port);
+                IpEndpoint = new IPEndPoint(AddressResolution.GetIpv4Address(name), port);
             }
             catch (Exception ex)
             {
