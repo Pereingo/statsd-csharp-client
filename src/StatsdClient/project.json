@@ -19,21 +19,8 @@
     "warningsAsErrors": true
   },
 
-  "dependencies": {
-  },
-
   "frameworks": {
-    "net35": {
-      "buildOptions": {
-        "define": [ "NETFULL", "NET35" ]
-      }
-    },
     "net45": {
-      "buildOptions": {
-        "define": [ "NETFULL" ]
-      }
-    },
-    "net40": {
       "buildOptions": {
         "define": [ "NETFULL" ]
       }
