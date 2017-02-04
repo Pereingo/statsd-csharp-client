@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace StatsdClient
 {
@@ -112,6 +113,20 @@ namespace StatsdClient
         }
 
         /// <summary>
+        /// Time a given piece of async code and send the elapsed miliseconds.
+        /// </summary>
+        /// <param name="func">The code to time.</param>
+        /// <param name="statName">Name of the metric.</param>
+        /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
+        public static async Task Time(Func<Task> func, string statName, double sampleRate = 1)
+        {
+            using (StartTimer(statName, sampleRate))
+            {
+                await func();
+            }
+        }
+
+        /// <summary>
         /// Time a given piece of code (with a lambda) and send the elapsed miliseconds.
         /// </summary>
         /// <param name="func">The code to time.</param>
@@ -122,6 +137,21 @@ namespace StatsdClient
             using (StartTimer(statName))
             {
                 return func();
+            }
+        }
+
+        /// <summary>
+        /// Time a given piece of async code and send the elapsed miliseconds.
+        /// </summary>
+        /// <param name="func">The code to time.</param>
+        /// <param name="statName">Name of the metric.</param>
+        /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
+        /// <returns>Return value of the function.</returns>
+        public static async Task<T> Time<T>(Func<Task<T>> func, string statName, double sampleRate = 1)
+        {
+            using (StartTimer(statName, sampleRate))
+            {
+                return await func();
             }
         }
 

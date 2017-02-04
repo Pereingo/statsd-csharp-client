@@ -1,5 +1,7 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using StatsdClient;
 using Tests.Helpers;
@@ -16,7 +18,8 @@ namespace Tests
         private MetricsConfig _defaultMetricsConfig;
 
         const string _expectedTestPrefixRegex = @"test_prefix\.";
-        const string _expectedTimeRegEx = @"time:\d|ms";
+        const string _expectedTimeRegEx = @"time:(\d+)|ms";
+        private const int SleepDelay = 200;
 
         [OneTimeSetUp]
         public void SetUpUdpListener()
@@ -180,7 +183,7 @@ namespace Tests
 
                 using (Metrics.StartTimer("time"))
                 {
-                    Thread.Sleep(2);
+                    Thread.Sleep(SleepDelay);
                 }
 
                 Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTimeRegEx));
@@ -194,8 +197,18 @@ namespace Tests
             {
                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Time(() => Thread.Sleep(2), "time");
+                Metrics.Time(() => Thread.Sleep(SleepDelay), "time");
                 Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTimeRegEx));
+            }
+
+            [Test]
+            public async Task time_async()
+            {
+                Metrics.Configure(_defaultMetricsConfig);
+
+                await Metrics.Time(async () => await Task.Delay(SleepDelay), "time");
+
+                AssertTimerLength();
             }
 
             [Test]
@@ -204,7 +217,7 @@ namespace Tests
                 _defaultMetricsConfig.Prefix = "test_prefix";
                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Time(() => Thread.Sleep(2), "time");
+                Metrics.Time(() => Thread.Sleep(SleepDelay), "time");
                 Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTestPrefixRegex + _expectedTimeRegEx));
             }
 
@@ -214,7 +227,7 @@ namespace Tests
                 _defaultMetricsConfig.Prefix = "test_prefix.";
                 Metrics.Configure(_defaultMetricsConfig);
 
-                Metrics.Time(() => Thread.Sleep(2), "time");
+                Metrics.Time(() => Thread.Sleep(SleepDelay), "time");
                 Assert.That(LastPacketMessageReceived(), Does.Match(_expectedTestPrefixRegex + _expectedTimeRegEx));
             }
 
@@ -231,13 +244,28 @@ namespace Tests
             }
 
             [Test]
+            public async Task time_with_async_return_value()
+            {
+                Metrics.Configure(_defaultMetricsConfig);
+
+                var returnValue = await Metrics.Time(async () =>
+                {
+                    await Task.Delay(SleepDelay);
+                    return 20;
+                }, "time");
+
+                AssertTimerLength();
+                Assert.That(returnValue, Is.EqualTo(20));
+            }
+
+            [Test]
             public void time_with_return_value()
             {
                 Metrics.Configure(_defaultMetricsConfig);
 
                 var returnValue = Metrics.Time(() =>
                 {
-                    Thread.Sleep(2);
+                    Thread.Sleep(SleepDelay);
                     return 5;
                 }, "time");
 
@@ -253,7 +281,7 @@ namespace Tests
 
                 var returnValue = Metrics.Time(() =>
                 {
-                    Thread.Sleep(2);
+                    Thread.Sleep(SleepDelay);
                     return 5;
                 }, "time");
 
@@ -269,7 +297,7 @@ namespace Tests
 
                 var returnValue = Metrics.Time(() =>
                 {
-                    Thread.Sleep(2);
+                    Thread.Sleep(SleepDelay);
                     return 5;
                 }, "time");
 
@@ -286,6 +314,16 @@ namespace Tests
 
                 Assert.That(LastPacketMessageReceived(), Is.Null);
                 Assert.That(returnValue, Is.EqualTo(5));
+            }
+
+            private void AssertTimerLength()
+            {
+                var lastPacketMessageReceived = LastPacketMessageReceived();
+                Assert.That(lastPacketMessageReceived, Does.Match(_expectedTimeRegEx));
+
+                var match = Regex.Match(lastPacketMessageReceived, _expectedTimeRegEx);
+                var timerValue = Convert.ToInt32(match.Groups[1].Value);
+                Assert.That(timerValue, Is.EqualTo(SleepDelay).Within(100));
             }
         }
 
