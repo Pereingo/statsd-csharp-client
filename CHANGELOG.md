@@ -1,6 +1,6 @@
 ## 2.0.68
 - **BREAKING:** Drops support for < .NET 4.5
-- Adds .NET Core (Standard 1.3) support (thanks @[TerribleDev](https://github.com/TerribleDev)!)
+- Adds .NET Standard 1.3 support (thanks @[TerribleDev](https://github.com/TerribleDev)!)
 - Fix async support (previously would only measure async creation time)
 
 ## 1.4.51
@@ -10,7 +10,7 @@
 - Add support for [TCP](https://github.com/etsy/statsd/blob/master/docs/server.md) sending via the `MetricsConfig.UseTcpProtocol` property (thanks @[pekiZG](https://github.com/pekiZG)!)
 
 ## 1.2.32
-- Fix the `Stopwatch` class to make it more consisten with .NET's and fix an overflow bug (thanks @[knocte]!)
+- Fix the `Stopwatch` class to make it more consisten with .NET's and fix an overflow bug (thanks @[knocte](https://github.com/knocte)!)
 - Fix bug in how IPv4 addresses are resolved 
 
 ## 1.1.0
