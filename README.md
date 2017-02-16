@@ -10,7 +10,7 @@ Install the client via NuGet with the [StatsdClient package](http://nuget.org/pa
 
 ##Usage
 
-At app startup, configure the `Metrics` class (other options are documented on `MetricsConfig`):
+At app startup, configure the `Metrics` class (options are available & documented on `MetricsConfig`):
 
 ``` C#
 Metrics.Configure(new MetricsConfig
@@ -39,10 +39,8 @@ using (Metrics.StartTimer("stat-name"))
 
 ##Advice
 
-* While TCP is supported, UDP is recommended in most cases. If you need TCP reliability, a relay running locally on the server that you'd send UDP to, and it would relay via TCP, is advised.
+* While TCP is supported, UDP is recommended in most cases. If you need TCP reliability, a relay running locally on the server that you'd send UDP to, and it would relay via TCP, is advised. To enable see the `MetricsConfig` class. 
 
-##Development
+##Contributing
 
-* Please have a chat about any big features before submitting PR's
-* NuGet is packaged as an artefact on AppVeyor above. Grab that `*.nupkg` and upload it to NuGet.org
-* Change major/minor versions in `appveyor.yml`
+See the [Contributing](CONTRIBUTING.md) guidelines.
