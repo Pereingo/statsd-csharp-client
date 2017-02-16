@@ -10,7 +10,7 @@ Install the client via NuGet with the [StatsdClient package](http://nuget.org/pa
 
 ##Usage
 
-At app startup, configure the `Metrics` class (options are available & documented on `MetricsConfig`):
+At app startup, configure the `Metrics` class:
 
 ``` C#
 Metrics.Configure(new MetricsConfig
@@ -20,7 +20,7 @@ Metrics.Configure(new MetricsConfig
 });
 ```
 
-Then start measuring all the things!
+Start measuring all the things!
 
 ``` C#
 Metrics.Counter("stat-name");
@@ -37,9 +37,11 @@ using (Metrics.StartTimer("stat-name"))
 }
 ```
 
-##Advice
+##Advanced Features
 
-* While TCP is supported, UDP is recommended in most cases. If you need TCP reliability, a relay running locally on the server that you'd send UDP to, and it would relay via TCP, is advised. To enable see the `MetricsConfig` class. 
+To enable these see the `MetricsConfig` class used above.
+
+* `UseTcpProtocol`: sends metrics to statsd via TCP. While supported, UDP is recommended in most cases. If you need TCP reliability, a relay service running locally on the server which you'd send UDP to, and it would relay via TCP, is advised.
 
 ##Contributing
 
