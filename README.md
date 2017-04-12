@@ -8,7 +8,7 @@ A .NET Standard compatible C# client to interface with Etsy's excellent [statsd]
 
 Install the client via NuGet with the [StatsdClient package](http://nuget.org/packages/StatsdClient).
 
-##Usage
+## Usage
 
 At app startup, configure the `Metrics` class:
 
@@ -37,12 +37,12 @@ using (Metrics.StartTimer("stat-name"))
 }
 ```
 
-##Advanced Features
+## Advanced Features
 
-To enable these see the `MetricsConfig` class used above.
+To enable these, see the `MetricsConfig` class discussed above.
 
 * `UseTcpProtocol`: sends metrics to statsd via TCP. While supported, UDP is recommended in most cases. If you need TCP reliability, a relay service running locally on the server which you'd send UDP to, and it would relay via TCP, is advised.
 
-##Contributing
+## Contributing
 
 See the [Contributing](CONTRIBUTING.md) guidelines.
