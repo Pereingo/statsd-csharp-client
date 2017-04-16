@@ -1,8 +1,8 @@
 version: 2.0.{build}
 configuration: Release
 before_build:
-# .net core 1.0.4 with SDK 1.0.1
-- ps: invoke-webrequest https://go.microsoft.com/fwlink/?LinkID=843448 -OutFile core.exe
+# matches pinned version in global.json
+- ps: invoke-webrequest https://go.microsoft.com/fwlink/?LinkID=830694 -OutFile core.exe
 - ps: .\core.exe /install /quiet /norestart
 build_script:
 - ps: dotnet restore
