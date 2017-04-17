@@ -167,24 +167,15 @@ namespace StatsdClient
 
         public void Add(Action actionToTime, string statName, double sampleRate=1)
         {
-            var stopwatch = StopwatchFactory.Get();
-
-            try
-            {
-                stopwatch.Start();
-                actionToTime();
-            }
-            finally
-            {
-                stopwatch.Stop();
-                if (RandomGenerator.ShouldSend(sampleRate))
-                {
-                    Add<Timing>(statName, stopwatch.ElapsedMilliseconds);
-                }
-            }
+            HandleTiming(actionToTime, statName, sampleRate, Add<Timing>);
         }
 
         public void Send(Action actionToTime, string statName, double sampleRate=1)
+        {
+            HandleTiming(actionToTime, statName, sampleRate, Send<Timing>);
+        }
+
+        private void HandleTiming(Action actionToTime, string statName, double sampleRate, Action<string, int> actionToStore)
         {
             var stopwatch = StopwatchFactory.Get();
 
@@ -198,7 +189,7 @@ namespace StatsdClient
                 stopwatch.Stop();
                 if (RandomGenerator.ShouldSend(sampleRate))
                 {
-                    Send<Timing>(statName, stopwatch.ElapsedMilliseconds);
+                    actionToStore(statName, stopwatch.ElapsedMilliseconds);
                 }
             }
         }
