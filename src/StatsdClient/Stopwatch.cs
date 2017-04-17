@@ -1,12 +1,10 @@
-using System;
-
 namespace StatsdClient
 {
     public interface IStopwatch
     {
         void Start();
         void Stop();
-        TimeSpan Elapsed { get; }
+        int ElapsedMilliseconds { get; }
     }
 
     public class Stopwatch : IStopwatch
@@ -23,14 +21,9 @@ namespace StatsdClient
             _stopwatch.Stop();
         }
 
-        public TimeSpan Elapsed
-        {
-            get { return _stopwatch.Elapsed; }
-        }
-
         public int ElapsedMilliseconds
         {
-            get { return _stopwatch.ElapsedMilliseconds; }
+            get { return (int)_stopwatch.ElapsedMilliseconds; }
         }
     }
 }
