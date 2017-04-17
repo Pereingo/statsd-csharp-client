@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
 
 namespace StatsdClient
 {
     public interface IStatsd
     {
-        List<string> Commands { get; }
-        
         void Send<TCommandType>(string name, int value) where TCommandType : IAllowsInteger;
         void Add<TCommandType>(string name, int value) where TCommandType : IAllowsInteger;
 

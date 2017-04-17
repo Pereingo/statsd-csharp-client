@@ -139,7 +139,7 @@ namespace Tests
                 Assert.Throws<InvalidOperationException>(() => s.Add(() => { throw new InvalidOperationException(); }, statName));
 
                 Assert.That(s.Commands.Count, Is.EqualTo(1));
-                Assert.That(s.Commands[0], Is.EqualTo("name:500|ms"));
+                Assert.That(s.Commands.ToArray()[0], Is.EqualTo("name:500|ms"));
             }
 
             [Test]
@@ -318,8 +318,8 @@ namespace Tests
                 s.Add<Statsd.Timing>("timer", 1);
 
                 Assert.That(s.Commands.Count, Is.EqualTo(2));
-                Assert.That(s.Commands[0], Is.EqualTo("counter:1|c|@0.1"));
-                Assert.That(s.Commands[1], Is.EqualTo("timer:1|ms"));
+                Assert.That(s.Commands.ToArray()[0], Is.EqualTo("counter:1|c|@0.1"));
+                Assert.That(s.Commands.ToArray()[1], Is.EqualTo("timer:1|ms"));
             }
 
             [Test]
@@ -330,8 +330,8 @@ namespace Tests
                 s.Add<Statsd.Timing>("timer", 1);
 
                 Assert.That(s.Commands.Count, Is.EqualTo(2));
-                Assert.That(s.Commands[0], Is.EqualTo("counter:1|c"));
-                Assert.That(s.Commands[1], Is.EqualTo("timer:1|ms"));
+                Assert.That(s.Commands.ToArray()[0], Is.EqualTo("counter:1|c"));
+                Assert.That(s.Commands.ToArray()[1], Is.EqualTo("timer:1|ms"));
             }
 
             [Test]
@@ -392,22 +392,67 @@ namespace Tests
             }
         }
 
-        public class Concurrency : StatsdTests
+        public class ThreadSafety : StatsdTests
         {
-            [Test]
-            public void can_concurrently_add_integer_metrics()
-            {
-                var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+            private const int ThreadCount = 10000;
+            private Statsd _stats;
 
-                Parallel.For(0, 1000000, x => Assert.DoesNotThrow(() => s.Add<Statsd.Counting>("name", 5)));
+            [SetUp]
+            public void Before_each()
+            {
+                _stats = new Statsd(_udp, _randomGenerator, _stopwatch);
             }
 
             [Test]
-            public void can_concurrently_add_double_metrics()
+            public void add_counters()
             {
-                var s = new Statsd(_udp, _randomGenerator, _stopwatch);
+                Parallel.For(0, ThreadCount, x => Assert.DoesNotThrow(() => _stats.Add<Statsd.Counting>("random-name", 5)));
+            }
 
-                Parallel.For(0, 1000000, x => Assert.DoesNotThrow(() => s.Add<Statsd.Gauge>("name", 5d)));
+            [Test]
+            public void add_gauges()
+            {
+                Parallel.For(0, ThreadCount, x => Assert.DoesNotThrow(() => _stats.Add<Statsd.Gauge>("random-name", 5d)));
+            }
+
+            [Test]
+            public void send_counters()
+            {
+                Parallel.For(0, ThreadCount, x => _stats.Send<Statsd.Counting>(Guid.NewGuid().ToString(), 5));
+                Assert.That(DistinctMetricsSent(), Is.EqualTo(ThreadCount));
+            }
+
+            [Test]
+            public void send_absolute_gauge()
+            {
+                Parallel.For(0, ThreadCount, x => _stats.Send<Statsd.Gauge>(Guid.NewGuid().ToString(), 5d));
+                Assert.That(DistinctMetricsSent(), Is.EqualTo(ThreadCount));
+            }
+
+            [Test]
+            public void send_delta_gauge()
+            {
+                Parallel.For(0, ThreadCount, x => _stats.Send<Statsd.Gauge>(Guid.NewGuid().ToString(), 5d, true));
+                Assert.That(DistinctMetricsSent(), Is.EqualTo(ThreadCount));
+            }
+
+            [Test]
+            public void send_set()
+            {
+                Parallel.For(0, ThreadCount, x => _stats.Send<Statsd.Set>(Guid.NewGuid().ToString(), "foo"));
+                Assert.That(DistinctMetricsSent(), Is.EqualTo(ThreadCount));
+            }
+
+            [Test]
+            public void send_sampled_timer()
+            {
+                Parallel.For(0, ThreadCount, x => _stats.Send<Statsd.Timing>(Guid.NewGuid().ToString(), 5, 1d));
+                Assert.That(DistinctMetricsSent(), Is.EqualTo(ThreadCount));
+            }
+
+            private int DistinctMetricsSent()
+            {
+                return _udp.ReceivedCalls().Select(x => x.GetArguments()[0]).Distinct().Count();
             }
         }
 
