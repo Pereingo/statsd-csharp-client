@@ -1,6 +1,12 @@
+## 3.0.86
+- **BREAKING:** Changes to lower level interfaces unlikely to affect most users, including `IStatsd` and `IStopwatch`
+- Fix threading bug when calling `Metrics.Send()` from multiple threads (thanks for helping track down @[bronumski](https://github.com/bronumski)!)
+- Fix timing reporting bug that significantly under reported multiple-millisecond timings (thanks @[arexsutton](https://github.com/arexsutton)!)
+- Fix casing for .NET Core dependency (thanks for pointing out @[mikemitchellrightside](https://github.com/mikemitchellrightside)!)
+
 ## 2.0.68
 - **BREAKING:** Drops support for < .NET 4.5
-- Adds .NET Standard 1.3 support (thanks @[TerribleDev](https://github.com/TerribleDev)!)
+- Add .NET Standard 1.3 support (thanks @[TerribleDev](https://github.com/TerribleDev)!)
 - Fix async support (previously would only measure async creation time)
 
 ## 1.4.51
