@@ -27,5 +27,10 @@ namespace StatsdClient
         {
             get { return _stopwatch.Elapsed; }
         }
+
+        public int ElapsedMilliseconds
+        {
+            get { return _stopwatch.ElapsedMilliseconds; }
+        }
     }
 }

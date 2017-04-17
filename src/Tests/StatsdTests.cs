@@ -83,6 +83,7 @@ namespace Tests
 
                 var stopwatch = Substitute.For<IStopwatch>();
                 stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
+                stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
 
                 var statsd = new Statsd(_udp, _randomGenerator, _stopwatch);
@@ -98,6 +99,7 @@ namespace Tests
 
                 var stopwatch = Substitute.For<IStopwatch>();
                 stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
+                stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
                 _randomGenerator = Substitute.For<IRandomGenerator>();
                 _randomGenerator.ShouldSend(0).ReturnsForAnyArgs(true);
@@ -115,6 +117,7 @@ namespace Tests
 
                 var stopwatch = Substitute.For<IStopwatch>();
                 stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
+                stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
                 _randomGenerator = Substitute.For<IRandomGenerator>();
                 _randomGenerator.ShouldSend(0).ReturnsForAnyArgs(false);
@@ -132,6 +135,7 @@ namespace Tests
 
                 var stopwatch = Substitute.For<IStopwatch>();
                 stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
+                stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
@@ -148,6 +152,7 @@ namespace Tests
                 const string statName = "name";
                 var stopwatch = Substitute.For<IStopwatch>();
                 stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
+                stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
@@ -162,6 +167,7 @@ namespace Tests
                 const string statName = "name";
                 var stopwatch = Substitute.For<IStopwatch>();
                 stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
+                stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
                 _randomGenerator = Substitute.For<IRandomGenerator>();
                 _randomGenerator.ShouldSend(0).ReturnsForAnyArgs(true);
@@ -179,6 +185,7 @@ namespace Tests
                 const string statName = "name";
                 var stopwatch = Substitute.For<IStopwatch>();
                 stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
+                stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
                 _randomGenerator = Substitute.For<IRandomGenerator>();
                 _randomGenerator.ShouldSend(0).ReturnsForAnyArgs(false);
@@ -195,6 +202,7 @@ namespace Tests
                 const string statName = "name";
                 var stopwatch = Substitute.For<IStopwatch>();
                 stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
+                stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
@@ -209,6 +217,7 @@ namespace Tests
                 const string statName = "name";
                 var stopwatch = Substitute.For<IStopwatch>();
                 stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
+                stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
 
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
