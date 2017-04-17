@@ -82,7 +82,6 @@ namespace Tests
                 const string statName = "name";
 
                 var stopwatch = Substitute.For<IStopwatch>();
-                stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
                 stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
 
@@ -98,7 +97,6 @@ namespace Tests
                 const string statName = "name";
 
                 var stopwatch = Substitute.For<IStopwatch>();
-                stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
                 stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
                 _randomGenerator = Substitute.For<IRandomGenerator>();
@@ -116,7 +114,6 @@ namespace Tests
                 const string statName = "name";
 
                 var stopwatch = Substitute.For<IStopwatch>();
-                stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
                 stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
                 _randomGenerator = Substitute.For<IRandomGenerator>();
@@ -134,7 +131,6 @@ namespace Tests
                 const string statName = "name";
 
                 var stopwatch = Substitute.For<IStopwatch>();
-                stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
                 stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
 
@@ -151,7 +147,6 @@ namespace Tests
             {
                 const string statName = "name";
                 var stopwatch = Substitute.For<IStopwatch>();
-                stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
                 stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
 
@@ -166,7 +161,6 @@ namespace Tests
             {
                 const string statName = "name";
                 var stopwatch = Substitute.For<IStopwatch>();
-                stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
                 stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
                 _randomGenerator = Substitute.For<IRandomGenerator>();
@@ -184,7 +178,6 @@ namespace Tests
             {
                 const string statName = "name";
                 var stopwatch = Substitute.For<IStopwatch>();
-                stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
                 stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
                 _randomGenerator = Substitute.For<IRandomGenerator>();
@@ -201,7 +194,6 @@ namespace Tests
             {
                 const string statName = "name";
                 var stopwatch = Substitute.For<IStopwatch>();
-                stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
                 stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
 
@@ -216,7 +208,6 @@ namespace Tests
             {
                 const string statName = "name";
                 var stopwatch = Substitute.For<IStopwatch>();
-                stopwatch.Elapsed.Returns(TimeSpan.FromMilliseconds(500));
                 stopwatch.ElapsedMilliseconds.Returns(500);
                 _stopwatch.Get().Returns(stopwatch);
 

@@ -179,7 +179,7 @@ namespace StatsdClient
                 stopwatch.Stop();
                 if (RandomGenerator.ShouldSend(sampleRate))
                 {
-                    Add<Timing>(statName, stopwatch.Elapsed.Milliseconds);
+                    Add<Timing>(statName, stopwatch.ElapsedMilliseconds);
                 }
             }
         }
