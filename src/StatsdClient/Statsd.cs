@@ -54,11 +54,8 @@ namespace StatsdClient
         public Statsd(IStatsdClient statsdClient, IRandomGenerator randomGenerator, IStopWatchFactory stopwatchFactory)
             : this(statsdClient, randomGenerator, stopwatchFactory, string.Empty) { }
 
-        public Statsd(IStatsdClient statsdClient, string prefix)
-            : this(statsdClient, new RandomGenerator(), new StopWatchFactory(), prefix) { }
-
         public Statsd(IStatsdClient statsdClient)
-            : this(statsdClient, string.Empty) { }
+            : this(statsdClient, new RandomGenerator(), new StopWatchFactory(), string.Empty) { }
 
         public void Send<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
         {
