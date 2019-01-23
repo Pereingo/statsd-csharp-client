@@ -4,7 +4,7 @@
     <Description>Statsd client for C#, providing a full set of counter/timer/gauge/set functionality in an easy to use static. Helpers are provided for easily timing chunks of code too.</Description>
     <AssemblyDescription>Statsd Client</AssemblyDescription>
     <AssemblyTitle>Statsd C# Client</AssemblyTitle>
-    <Authors>Goncalo Pereira;Darrell Mozingo</Authors>
+    <Authors>Goncalo Pereira;Darrell Mozingo;Wei Peng</Authors>
     <Copyright>Copyright © 2019</Copyright>
     <DebugSymbols>true</DebugSymbols>
     <DebugType Condition="'$(TargetFramework)' != 'netstandard2.0'">full</DebugType>
