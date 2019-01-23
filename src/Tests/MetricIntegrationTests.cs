@@ -30,7 +30,7 @@ namespace Tests
         }
 
         [OneTimeTearDown]
-        public void TearDownUdpListener() 
+        public void TearDownUdpListener()
         {
             _udpListener.Dispose();
         }

@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace StatsdClient
 {
     public class NullStatsd : IStatsd
     {
-        public NullStatsd()
-        {
-            Commands = new List<string>();
-        }
+#if NET45
+        private static readonly Task CompletedTask = Task.FromResult<object>(null);
+#else
+        private static readonly Task CompletedTask = Task.CompletedTask;
+#endif
+        public NullStatsd() => Commands = new List<string>();
 
-        public List<string> Commands { get; private set; }
+        public List<string> Commands { get; }
 
         public void Send<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
         {
@@ -56,8 +59,48 @@ namespace StatsdClient
             actionToTime();
         }
 
+        public Task SendAsync<TCommandType>(string name, int value) where TCommandType : IAllowsInteger
+        {
+            return CompletedTask;
+        }
+
+        public Task SendAsync<TCommandType>(string name, double value) where TCommandType : IAllowsDouble
+        {
+            return CompletedTask;
+        }
+
+        public Task SendAsync<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
+        {
+            return CompletedTask;
+        }
+
+        public Task SendAsync<TCommandType>(string name, int value, double sampleRate) where TCommandType : IAllowsInteger, IAllowsSampleRate
+        {
+            return CompletedTask;
+        }
+
+        public Task SendAsync<TCommandType>(string name, string value) where TCommandType : IAllowsString
+        {
+            return CompletedTask;
+        }
+
+        public Task SendAsync()
+        {
+            return CompletedTask;
+        }
+
+        public Task AddAsync(Func<Task> actionToTime, string statName, double sampleRate = 1)
+        {
+            return actionToTime();
+        }
+
+        public Task SendAsync(Func<Task> actionToTime, string statName, double sampleRate = 1)
+        {
+            return actionToTime();
+        }
+
         public void Send<TCommandType>(string name, double value, bool isDeltaValue) where TCommandType : IAllowsDouble, IAllowsDelta
         {
         }
-  }
+    }
 }

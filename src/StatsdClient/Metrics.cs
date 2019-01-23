@@ -27,10 +27,7 @@ namespace StatsdClient
 
         private static void CreateStatsD(MetricsConfig config)
         {
-            if (_statsdClient != null)
-            {
-                _statsdClient.Dispose();
-            }
+            _statsdClient?.Dispose();
 
             _statsdClient = null;
 
@@ -60,6 +57,17 @@ namespace StatsdClient
         }
 
         /// <summary>
+        /// Send a counter value.
+        /// </summary>
+        /// <param name="statName">Name of the metric.</param>
+        /// <param name="value">Value of the counter. Defaults to 1.</param>
+        /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
+        public static Task CounterAsync(string statName, int value = 1, double sampleRate = 1)
+        {
+            return _statsD.SendAsync<Statsd.Counting>(BuildNamespacedStatName(statName), value, sampleRate);
+        }
+
+        /// <summary>
         /// Modify the current value of the gauge with the given value.
         /// </summary>
         /// <param name="statName">Name of the metric.</param>
@@ -67,6 +75,16 @@ namespace StatsdClient
         public static void GaugeDelta(string statName, double deltaValue)
         {
             _statsD.Send<Statsd.Gauge>(BuildNamespacedStatName(statName), deltaValue, true);
+        }
+
+        /// <summary>
+        /// Modify the current value of the gauge with the given value.
+        /// </summary>
+        /// <param name="statName">Name of the metric.</param>
+        /// <param name="deltaValue"></param>
+        public static Task GaugeDeltaAsync(string statName, double deltaValue)
+        {
+            return _statsD.SendAsync<Statsd.Gauge>(BuildNamespacedStatName(statName), deltaValue, true);
         }
 
         /// <summary>
@@ -80,6 +98,16 @@ namespace StatsdClient
         }
 
         /// <summary>
+        /// Set the gauge to the given absolute value.
+        /// </summary>
+        /// <param name="statName">Name of the metric.</param>
+        /// <param name="absoluteValue">Absolute value of the gauge to set.</param>
+        public static Task GaugeAbsoluteValueAsync(string statName, double absoluteValue)
+        {
+            return _statsD.SendAsync<Statsd.Gauge>(BuildNamespacedStatName(statName), absoluteValue, false);
+        }
+
+        /// <summary>
         /// Send a manually timed value.
         /// </summary>
         /// <param name="statName">Name of the metric.</param>
@@ -88,6 +116,17 @@ namespace StatsdClient
         public static void Timer(string statName, int value, double sampleRate = 1)
         {
             _statsD.Send<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate);
+        }
+
+        /// <summary>
+        /// Send a manually timed value.
+        /// </summary>
+        /// <param name="statName">Name of the metric.</param>
+        /// <param name="value">Elapsed miliseconds of the event.</param>
+        /// <param name="sampleRate">Sample rate to reduce the load on your metric server. Defaults to 1 (100%).</param>
+        public static Task TimerAsync(string statName, int value, double sampleRate = 1)
+        {
+            return _statsD.SendAsync<Statsd.Timing>(BuildNamespacedStatName(statName), value, sampleRate);
         }
 
         /// <summary>
@@ -122,7 +161,7 @@ namespace StatsdClient
         {
             using (StartTimer(statName, sampleRate))
             {
-                await func();
+                await func().ConfigureAwait(false);
             }
         }
 
@@ -152,7 +191,7 @@ namespace StatsdClient
         {
             using (StartTimer(statName, sampleRate))
             {
-                return await func();
+                return await func().ConfigureAwait(false);
             }
         }
 
@@ -164,6 +203,16 @@ namespace StatsdClient
         public static void Set(string statName, string value)
         {
             _statsD.Send<Statsd.Set>(BuildNamespacedStatName(statName), value);
+        }
+
+        /// <summary>
+        /// Store a unique occurence of an event between flushes.
+        /// </summary>
+        /// <param name="statName">Name of the metric.</param>
+        /// <param name="value">Value to set.</param>
+        public static Task SetAsync(string statName, string value)
+        {
+            return _statsD.SendAsync<Statsd.Set>(BuildNamespacedStatName(statName), value);
         }
 
         private static string BuildNamespacedStatName(string statName)

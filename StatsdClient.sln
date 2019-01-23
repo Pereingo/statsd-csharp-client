@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28407.52
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "StatsdClient", "src\StatsdClient\StatsdClient.xproj", "{0000B49C-9D92-4C54-B902-7067E13A09BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatsdClient", "src\StatsdClient\StatsdClient.csproj", "{0000B49C-9D92-4C54-B902-7067E13A09BD}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Tests", "src\Tests\Tests.xproj", "{35C84FBC-41B2-4F48-9F24-6B98AA94001B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "src\Tests\Tests.csproj", "{35C84FBC-41B2-4F48-9F24-6B98AA94001B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +24,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A23D4496-BE1C-4C8A-AB84-16982B5D5AC8}
 	EndGlobalSection
 EndGlobal

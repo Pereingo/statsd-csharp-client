@@ -1,32 +1,24 @@
 ﻿using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace StatsdClient
 {
     public class AddressResolution
     {
-        public static IPAddress GetIpv4Address(string name)
+        public static async Task<IPEndPoint> GetIpv4EndPoint(string name, int port)
         {
-            IPAddress ipAddress;
-            var isValidIpAddress = IPAddress.TryParse(name, out ipAddress);
+            if (!IPAddress.TryParse(name, out var ipAddress))
+                ipAddress = await GetIpFromHostname(name).ConfigureAwait(false);
 
-            if (!isValidIpAddress)
-            {
-                ipAddress = GetIpFromHostname(name);
-            }
-
-            return ipAddress;
+            return new IPEndPoint(ipAddress, port);
         }
 
-        private static IPAddress GetIpFromHostname(string name)
+        private static async Task<IPAddress> GetIpFromHostname(string name)
         {
-#if NETFULL
-            var addressList = Dns.GetHostEntry(name).AddressList;
-#else
-            var addressList = Dns.GetHostEntryAsync(name).GetAwaiter().GetResult().AddressList;
-#endif
-            var ipv4Addresses = addressList.Where(x => x.AddressFamily != AddressFamily.InterNetworkV6);
+            var hostEntry = await Dns.GetHostEntryAsync(name).ConfigureAwait(false);
+            var ipv4Addresses = hostEntry.AddressList.Where(x => x.AddressFamily != AddressFamily.InterNetworkV6);
 
             return ipv4Addresses.First();
         }

@@ -3,12 +3,13 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace StatsdClient
 {
     public class StatsdTCPClient : IStatsdClient
     {
-        private IPEndPoint IpEndpoint { get; }
+        private readonly Task<IPEndPoint> _ipEndpoint;
         private readonly Socket _clientSocket;
 
         public StatsdTCPClient(string name, int port = 8125)
@@ -16,7 +17,7 @@ namespace StatsdClient
             try
             {
                 _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IpEndpoint = new IPEndPoint(AddressResolution.GetIpv4Address(name), port);
+                _ipEndpoint = AddressResolution.GetIpv4EndPoint(name, port);
             }
             catch (Exception ex)
             {
@@ -24,17 +25,18 @@ namespace StatsdClient
             }
         }
 
-        public void Send(string command)
-        {
-            Send(Encoding.ASCII.GetBytes(command));
-        }
+        public void Send(string command) => SendAsync(Encoding.ASCII.GetBytes(command)).GetAwaiter().GetResult();
 
-        private void Send(byte[] encodedCommand)
+        public Task SendAsync(string command) => SendAsync(Encoding.ASCII.GetBytes(command));
+
+        private async Task SendAsync(byte[] encodedCommand)
         {
             try
             {
-                _clientSocket.Connect(IpEndpoint);
-                _clientSocket.SendTo(encodedCommand, encodedCommand.Length, SocketFlags.None, IpEndpoint);
+                var ipEndpoint = await _ipEndpoint.ConfigureAwait(false);
+
+                await _clientSocket.ConnectAsync(ipEndpoint).ConfigureAwait(false);
+                await _clientSocket.SendToAsync(new ArraySegment<byte>(encodedCommand), SocketFlags.None, ipEndpoint).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -49,7 +51,7 @@ namespace StatsdClient
 
         private static void CloseSocket(Socket socket)
         {
-#if NETFULL
+#if NETFRAMEWORK
             socket.Close();
 #else
             socket.Dispose();
@@ -80,8 +82,9 @@ namespace StatsdClient
             _disposed = true;
         }
 
-        ~StatsdTCPClient() {
-          Dispose(false);
+        ~StatsdTCPClient()
+        {
+            Dispose(false);
         }
 
         public void Dispose()
