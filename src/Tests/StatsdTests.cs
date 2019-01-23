@@ -30,7 +30,7 @@ namespace Tests
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send<Statsd.Counting>("counter", 5);
-                _udp.Received().Send("counter:5|c");
+                _udp.Received().SendAsync("counter:5|c");
             }
 
             [Test]
@@ -38,7 +38,7 @@ namespace Tests
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send<Statsd.Counting>("counter", 5, 0.1);
-                _udp.Received().Send("counter:5|c|@0.1");
+                _udp.Received().SendAsync("counter:5|c|@0.1");
             }
 
             [Test]
@@ -57,7 +57,7 @@ namespace Tests
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send<Statsd.Timing>("timer", 5);
-                _udp.Received().Send("timer:5|ms");
+                _udp.Received().SendAsync("timer:5|ms");
             }
 
             [Test]
@@ -65,7 +65,7 @@ namespace Tests
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send<Statsd.Timing>("timer", 5, 0.1);
-                _udp.Received().Send("timer:5|ms|@0.1");
+                _udp.Received().SendAsync("timer:5|ms|@0.1");
             }
 
             [Test]
@@ -153,7 +153,7 @@ namespace Tests
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send(() => TestMethod(), statName);
 
-                _udp.Received().Send("name:500|ms");
+                _udp.Received().SendAsync("name:500|ms");
             }
 
             [Test]
@@ -169,7 +169,7 @@ namespace Tests
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send(() => TestMethod(), statName);
 
-                _udp.Received().Send("name:500|ms");
+                _udp.Received().SendAsync("name:500|ms");
             }
 
 
@@ -186,7 +186,7 @@ namespace Tests
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send(() => TestMethod(), statName);
 
-                _udp.DidNotReceive().Send("name:500|ms");
+                _udp.DidNotReceive().SendAsync("name:500|ms");
             }
 
             [Test]
@@ -200,7 +200,7 @@ namespace Tests
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 Assert.Throws<InvalidOperationException>(() => s.Send(() => { throw new InvalidOperationException(); }, statName));
 
-                _udp.Received().Send("name:500|ms");
+                _udp.Received().SendAsync("name:500|ms");
             }
 
             [Test]
@@ -215,7 +215,7 @@ namespace Tests
                 var returnValue = 0;
                 s.Send(() => returnValue = TestMethod(), statName);
 
-                _udp.Received().Send("name:500|ms");
+                _udp.Received().SendAsync("name:500|ms");
                 Assert.That(returnValue, Is.EqualTo(5));
             }
         }
@@ -227,7 +227,7 @@ namespace Tests
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send<Statsd.Gauge>("gauge", 34563478564785);
-                _udp.Received().Send("gauge:34563478564785.000000000000000|g");
+                _udp.Received().SendAsync("gauge:34563478564785.000000000000000|g");
             }
 
             [Test]
@@ -247,7 +247,7 @@ namespace Tests
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send<Statsd.Gauge>("delta-gauge", value, isDeltaValue);
-                _udp.Received().Send(expectedFormattedStatsdMessage);
+                _udp.Received().SendAsync(expectedFormattedStatsdMessage);
             }
         }
 
@@ -258,7 +258,7 @@ namespace Tests
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send<Statsd.Meter>("meter", 5);
-                _udp.Received().Send("meter:5|m");
+                _udp.Received().SendAsync("meter:5|m");
             }
 
             [Test]
@@ -277,7 +277,7 @@ namespace Tests
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send<Statsd.Histogram>("histogram", 5);
-                _udp.Received().Send("histogram:5|h");
+                _udp.Received().SendAsync("histogram:5|h");
             }
 
             [Test]
@@ -296,7 +296,7 @@ namespace Tests
             {
                 var s = new Statsd(_udp, _randomGenerator, _stopwatch);
                 s.Send<Statsd.Set>("set", "34563478564785xyz");
-                _udp.Received().Send("set:34563478564785xyz|s");
+                _udp.Received().SendAsync("set:34563478564785xyz|s");
             }
 
             [Test]
@@ -342,7 +342,7 @@ namespace Tests
                 s.Add<Statsd.Timing>("timer", 1);
                 s.Send();
 
-                _udp.Received().Send("counter:1|c|@0.1\ntimer:1|ms");
+                _udp.Received().SendAsync("counter:1|c|@0.1\ntimer:1|ms");
             }
 
             [Test]
@@ -363,7 +363,7 @@ namespace Tests
                 s.Add<Statsd.Counting>("counter", 1);
                 s.Send<Statsd.Timing>("timer", 1);
 
-                _udp.Received().Send("timer:1|ms");
+                _udp.Received().SendAsync("timer:1|ms");
             }
         }
 
@@ -376,7 +376,7 @@ namespace Tests
                 s.Send<Statsd.Counting>("counter", 5);
                 s.Send<Statsd.Counting>("counter", 5);
 
-                _udp.Received(2).Send("a.prefix.counter:5|c");
+                _udp.Received(2).SendAsync("a.prefix.counter:5|c");
             }
 
             [Test]
@@ -388,7 +388,7 @@ namespace Tests
                 s.Add<Statsd.Timing>("timer", 1);
                 s.Send();
 
-                _udp.Received().Send("another.prefix.counter:1|c|@0.1\nanother.prefix.timer:1|ms");
+                _udp.Received().SendAsync("another.prefix.counter:1|c|@0.1\nanother.prefix.timer:1|ms");
             }
         }
 
@@ -463,7 +463,7 @@ namespace Tests
 
         private void GivenUdpSendFails()
         {
-            _udp.When(x => x.Send(Arg.Any<string>())).Do(x => { throw new Exception(); });
+            _udp.When(x => x.SendAsync(Arg.Any<string>())).Do(x => { throw new Exception(); });
         }
     }
 }
