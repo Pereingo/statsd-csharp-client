@@ -1,24 +1,3 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("StatsdClient")]
-[assembly: AssemblyDescription("Statsd Client")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("StatsdClient")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: InternalsVisibleTo("Tests")]
-
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ecebfa48-5557-4fe6-84a6-c0b1e3ece14c")]
+[assembly: InternalsVisibleTo("Tests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100cda5ba311d357fa99c332246479617ac5e8d79d6ac0d3131919f2399e134bef4345e72aacfe99fce788a25d92c9b6572f5fadd65a3b85695dbdce7234178fb7e1d89be25b46e0bae90cfd9eca2b3a6314f94ec83b378fd9b94ae48aa1ac34265de62e02336269e90a9778f8e2a46f472b625eea0f5a30cd0a619f2fda86022e5")]

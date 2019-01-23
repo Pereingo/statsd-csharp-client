@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -38,10 +38,9 @@ namespace StatsdClient
                 // If the command is too big to send, linear search backwards from the maximum
                 // packet size to see if we can find a newline delimiting two stats. If we can,
                 // split the message across the newline and try sending both componenets individually
-                var newline = Encoding.ASCII.GetBytes("\n")[0];
                 for (var i = _maxUdpPacketSizeBytes; i > 0; i--)
                 {
-                    if (encodedCommand.Array[encodedCommand.Offset + i] != newline)
+                    if (encodedCommand.Array[encodedCommand.Offset + i] != '\n')
                     {
                         continue;
                     }
@@ -108,3 +107,16 @@ namespace StatsdClient
         }
     }
 }
+#if NET45
+namespace System.Net.Sockets
+{
+    public static class SocketTaskExtensions
+    {
+        public static Task<Int32> SendToAsync(this Socket socket, ArraySegment<byte> buffer, SocketFlags socketFlags, EndPoint remoteEP)
+        {
+            return Task.Factory.FromAsync((arg1, arg2, arg3, callback, state) => socket.BeginSendTo(arg1.Array, arg1.Offset, arg1.Count, arg2, arg3, callback, state),
+                socket.EndSendTo, buffer, socketFlags, remoteEP, null);
+        }
+    }
+}
+#endif

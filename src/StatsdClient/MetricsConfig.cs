@@ -18,11 +18,6 @@
         public int StatsdMaxUDPPacketSize { get; set; }
 
         /// <summary>
-        /// Allows you to use TCP client
-        /// </summary>
-        public bool UseTcpProtocol { get; set; }
-
-        /// <summary>
         /// Allows you to optionally specify a stat name prefix for all your stats.
         /// Eg setting it to "Production.MyApp", then sending a counter with the name "Value" will result in a final stat name of "Production.MyApp.Value".
         /// </summary>
