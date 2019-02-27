@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -53,7 +53,7 @@ namespace Tests
                     for (int i = 0; i < (int)count; i++)
                     {
                         byte[] lastReceivedBytes = socket.Receive(ref senderIpEndPoint);
-                        lastReceivedMessages.Add(Encoding.ASCII.GetString(lastReceivedBytes, 0,
+                        lastReceivedMessages.Add(Encoding.UTF8.GetString(lastReceivedBytes, 0,
                                                                           lastReceivedBytes.Length));
                     }
                 }

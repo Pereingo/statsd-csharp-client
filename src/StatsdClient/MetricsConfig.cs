@@ -1,4 +1,6 @@
-﻿namespace StatsdClient
+﻿using System.Text;
+
+namespace StatsdClient
 {
     public class MetricsConfig
     {
@@ -22,6 +24,8 @@
         /// Eg setting it to "Production.MyApp", then sending a counter with the name "Value" will result in a final stat name of "Production.MyApp.Value".
         /// </summary>
         public string Prefix { get; set; }
+
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
 
         public const int DefaultStatsdServerPort = 8125;
         public const int DefaultStatsdMaxUDPPacketSize = 512;

@@ -11,6 +11,7 @@ namespace StatsdClient
         private readonly Task<IPEndPoint> _ipEndpoint;
         private readonly int _maxUdpPacketSizeBytes;
         private readonly Socket _clientSocket;
+        private readonly Encoding _encoding;
 
         /// <summary>
         /// Creates a new StatsdUDP class for lower level access to statsd.
@@ -19,7 +20,18 @@ namespace StatsdClient
         /// <param name="port">Port of the statsd server. Default is 8125.</param>
         /// <param name="maxUdpPacketSizeBytes">Max packet size, in bytes. This is useful to tweak if your MTU size is different than normal. Set to 0 for no limit. Default is MetricsConfig.DefaultStatsdMaxUDPPacketSize.</param>
         public StatsdUDPClient(string name, int port = 8125, int maxUdpPacketSizeBytes = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
+            : this(Encoding.UTF8, name, port, maxUdpPacketSizeBytes) { }
+
+        /// <summary>
+        /// Creates a new StatsdUDP class for lower level access to statsd.
+        /// </summary>
+        /// <param name="encoding">message encoding</param>
+        /// <param name="name">Hostname or IP (v4) address of the statsd server.</param>
+        /// <param name="port">Port of the statsd server. Default is 8125.</param>
+        /// <param name="maxUdpPacketSizeBytes">Max packet size, in bytes. This is useful to tweak if your MTU size is different than normal. Set to 0 for no limit. Default is MetricsConfig.DefaultStatsdMaxUDPPacketSize.</param>
+        public StatsdUDPClient(Encoding encoding, string name, int port = 8125, int maxUdpPacketSizeBytes = MetricsConfig.DefaultStatsdMaxUDPPacketSize)
         {
+            _encoding = encoding ?? Encoding.UTF8;
             _maxUdpPacketSizeBytes = maxUdpPacketSizeBytes;
 
             _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -27,9 +39,9 @@ namespace StatsdClient
             _ipEndpoint = AddressResolution.GetIpv4EndPoint(name, port);
         }
 
-        public void Send(string command) => SendAsync(new ArraySegment<byte>(Encoding.ASCII.GetBytes(command))).GetAwaiter().GetResult();
+        public void Send(string command) => SendAsync(new ArraySegment<byte>(_encoding.GetBytes(command))).GetAwaiter().GetResult();
 
-        public Task SendAsync(string command) => SendAsync(new ArraySegment<byte>(Encoding.ASCII.GetBytes(command)));
+        public Task SendAsync(string command) => SendAsync(new ArraySegment<byte>(_encoding.GetBytes(command)));
 
         private async Task SendAsync(ArraySegment<byte> encodedCommand)
         {

@@ -33,7 +33,7 @@ namespace StatsdClient
 
             if (!string.IsNullOrEmpty(config.StatsdServerName))
             {
-                _statsdClient = new StatsdUDPClient(config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize);
+                _statsdClient = new StatsdUDPClient(config.Encoding, config.StatsdServerName, config.StatsdServerPort, config.StatsdMaxUDPPacketSize);
                 _statsD = new Statsd(_statsdClient);
             }
         }
