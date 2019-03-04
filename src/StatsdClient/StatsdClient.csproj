@@ -7,8 +7,8 @@
     <Authors>Goncalo Pereira;Darrell Mozingo;Wei Peng</Authors>
     <Copyright>Copyright © 2019</Copyright>
     <DebugSymbols>true</DebugSymbols>
-    <DebugType Condition="'$(TargetFramework)' != 'netstandard2.0'">full</DebugType>
-    <DebugType Condition="'$(TargetFramework)' == 'netstandard2.0'">portable</DebugType>
+    <DebugType Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">full</DebugType>
+    <DebugType Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">portable</DebugType>
     <TargetFrameworks>net45;net471;netstandard1.3;netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -16,11 +16,9 @@
     <PackageId>StatsdClient.Async</PackageId>
     <PackageTags>stats;statsd;metrics</PackageTags>
     <PackageReleaseNotes>See CHANGELOG.md in the project's GitHub repository.</PackageReleaseNotes>
-    <PackageProjectUrl>https://github.com/pengweiqhca/statsd-csharp-client</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/pengweiqhca/statsd-csharp-client</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Pereingo/statsd-csharp-client</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Pereingo/statsd-csharp-client</RepositoryUrl>
     <IncludeSymbols>True</IncludeSymbols>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\key.snk</AssemblyOriginatorKeyFile>
     <Version>4.1.0.0</Version>
   </PropertyGroup>
 
