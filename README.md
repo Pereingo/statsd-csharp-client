@@ -1,5 +1,17 @@
-Statsd Client
-=============
+Statsd Client - DEPRECATED
+==========================
+
+This project is deprecated as of March 4, 2019. There's no official maintainer, and better alternatives exist. Security only related updates will be considered going forward. Currently active versions will remain on NuGet.
+
+We suggest migrating to [JustEat.StatsD](https://github.com/justeat/JustEat.StatsD), which has a very similar API to this project, plenty of additional features, and is actively maintained.
+
+Thanks to all the contributors and your many PRs and reported issues over the years, the numerous developers that have forked or been inspired by this client, and everyone that used it successfully in production!
+
+# THIS PROJECT IS DEPRECATED
+
+Original readme...
+
+---
 
 [![Build status](https://ci.appveyor.com/api/projects/status/fklgn25u3k66qu3v?svg=true)](https://ci.appveyor.com/project/DarrellMozingo/statsd-csharp-client)
 [![NuGet Version](http://img.shields.io/nuget/v/StatsdClient.svg?style=flat)](https://www.nuget.org/packages/StatsdClient/)
